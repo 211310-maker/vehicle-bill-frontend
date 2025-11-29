@@ -1,5 +1,5 @@
 {
-  "name": "react-admin-panel",
+  "name": "vehicle-bill-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -15,9 +15,13 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "local": "env-cmd -f .env.local react-scripts start",
     "build:local": "env-cmd -f .env.local react-scripts build && mv build ../public",
-    "build:prod": "env-cmd -f .env.production react-scripts build && mv build ../public"
+    "build:prod": "env-cmd -f .env.production react-scripts build && mv build ../public",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
