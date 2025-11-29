@@ -11432,5 +11432,5 @@ yargs@^13.3.0, yargs@^13.3.2:
     yargs-parser "^13.1.2"
 
 "react-cookie@file:vendor/react-cookie":
-  version "7.2.2"
+  version "4.1.1"
   resolved "file:vendor/react-cookie"
