@@ -1,35 +1,17 @@
 import config from "../config/env";
 import axios from "axios";
 import { LOCAL_STORAGE_KEY } from "../constants";
-let BASE_URL = config["API_BASE_URL"];
 
-if (
-  typeof window !== "undefined" &&
-  window.location?.protocol === "https:" &&
-  BASE_URL?.startsWith("http://")
-) {
-  const normalizedBaseUrl = `https://${BASE_URL.substring("http://".length)}`;
-  console.warn(
-    "Normalized API_BASE_URL to https to avoid mixed-content:",
-    normalizedBaseUrl
-  );
-  BASE_URL = normalizedBaseUrl;
+let BASE_URL = (config["API_BASE_URL"] || "").replace(/\/$/, "");
+
+// If the app is loaded via HTTPS and BASE_URL uses http://, normalize to https://
+if (typeof window !== "undefined" && window.location.protocol === "https:") {
+  if (BASE_URL.startsWith("http://")) {
+    BASE_URL = BASE_URL.replace(/^http:\/\//i, "https://");
+    console.warn("Normalized API_BASE_URL to https to avoid mixed-content:", BASE_URL);
+  }
 }
 
-const normalizeError = (error) => {
-  const fallbackMessage = error?.message || "Network error";
-  const responseData = error?.response?.data;
-
-  if (responseData && typeof responseData === "object") {
-    return responseData;
-  }
-
-  if (typeof responseData === "string") {
-    return { message: responseData };
-  }
-
-  return { message: fallbackMessage };
-};
 export const Urls = {
   login: BASE_URL + "/auth/login",
   getAcess: BASE_URL + "/auth/get-access",
@@ -50,11 +32,33 @@ export const getAcessApi = async (token) => {
     const { data } = await axios.get(`${Urls.getAcess}/${token}`);
     return { data, error: null };
   } catch (error) {
-    return {
-      data: null,
-      error: { message: error?.message || "Network error" },
-    };
+    let errData = { message: "Network error" };
+    try {
+      if (error && error.response && error.response.data) {
+        errData = error.response.data;
+      } else if (error && error.message) {
+        errData = { message: error.message };
+      }
+    } catch (e) {
+      errData = { message: "Network error" };
+    }
+    console.error("getAcessApi error:", errData, error);
+    return { data: null, error: errData };
   }
+};
+
+const normalizeError = (error) => {
+  let errData = { message: "Network error" };
+  try {
+    if (error && error.response && error.response.data) {
+      errData = error.response.data;
+    } else if (error && error.message) {
+      errData = { message: error.message };
+    }
+  } catch (e) {
+    errData = { message: "Network error" };
+  }
+  return errData;
 };
 
 export const getDetailsApi = async (payLoad) => {

@@ -15,38 +15,44 @@ const GetAccess = () => {
     setIsLoading(true);
     try {
       const resp = await getAcessApi(params.id);
-      const body = resp?.data;
-      if (body) {
+
+      if (!resp) {
+        console.error('getAcessApi returned undefined');
+        setIsInvalid(true);
+        setSuccess(false);
+        return;
+      }
+
+      const body = resp.data ? resp.data : resp;
+
+      if (!body) {
+        console.error('getAcessApi body is empty', resp);
+        setIsInvalid(true);
+        setSuccess(false);
+        return;
+      }
+
+      if (body.success) {
         if (body.pageAccessToken) {
           setCookie('pageAccessToken', body.pageAccessToken, { path: '/' });
         } else {
-          console.warn('Missing pageAccessToken in access response');
+          console.warn('pageAccessToken missing in response', body);
         }
-        if (body.otp) {
-          setOtp(body.otp);
-        } else {
-          console.warn('Missing otp in access response');
-        }
+        if (body.otp) setOtp(body.otp);
         setSuccess(true);
         setIsInvalid(false);
       } else {
-        console.warn('No data returned from getAcessApi');
+        console.warn('getAccess returned success=false', body);
         setIsInvalid(true);
         setSuccess(false);
       }
-      if (resp?.error) {
-        console.warn('Error returned from getAcessApi', resp.error);
-        setIsInvalid(true);
-        setSuccess(false);
-      }
-    } catch (error) {
-      const errorMessage =
-        (error && error.response && error.response.data) || error?.message || error;
-      console.warn('Error in onGetAccessHandler', errorMessage);
+    } catch (err) {
+      console.error('onGetAccessHandler unexpected error', err);
       setIsInvalid(true);
       setSuccess(false);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const onCopyHandler = (text) => {
