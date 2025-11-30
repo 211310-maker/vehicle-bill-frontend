@@ -4,6 +4,7 @@ import { createTempUserApi, provideAccessApi } from '../utils/api';
 import copy from 'copy-to-clipboard';
 import { fields } from '../constants';
 import Select from 'react-select';
+
 const Admin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [accessLink, setAccessLink] = useState();
@@ -16,6 +17,11 @@ const Admin = () => {
     username: '',
     password: '',
   });
+
+  // IMPORTANT: set this env var in frontend build config (Render dashboard)
+  // e.g. REACT_APP_API_BASE_URL=https://vehicle-bill-backend-1.onrender.com
+  const API_BASE = (process.env.REACT_APP_API_BASE_URL || '').replace(/\/$/, '') || window.location.origin;
+
   const createNewTempUserHandler = async () => {
     setIsLoading(true);
     const { data, error } = await createTempUserApi();
@@ -23,7 +29,14 @@ const Admin = () => {
     if (data) {
       if (data.success) {
         console.log(data);
-        setAccessLink(`${window.location.origin}${data.url}`);
+
+        // data.url is expected to be the backend endpoint path (e.g. /app/register/<token>/get-access)
+        // Build an absolute URL that points to the backend (NOT the frontend).
+        const abs = data.url.startsWith('http')
+          ? data.url
+          : `${API_BASE}${data.url}`;
+
+        setAccessLink(abs);
         setTempUserId(data.tempUser._id);
         setCreds({
           username: '',
@@ -41,6 +54,7 @@ const Admin = () => {
     setIsLoading(true);
     if (!otp || !password || !username) {
       alert('Please fill all fields');
+      setIsLoading(false);
       return;
     }
     const { data, error } = await provideAccessApi({
@@ -72,7 +86,14 @@ const Admin = () => {
   const onCopyHandler = (text) => {
     if (text) {
       copy(text);
+      alert('Copied to clipboard');
     }
+  };
+
+  const onOpenAccessLink = () => {
+    if (!accessLink) return;
+    // open in new tab so SPA routing doesn't intercept
+    window.open(accessLink, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -96,33 +117,31 @@ const Admin = () => {
         <br />
         {accessLink && (
           <div style={{ width: '80%', overflowWrap: 'break-word' }}>
-            {accessLink}
+            {/* Show as link that opens the backend route in a new tab */}
+            <a href={accessLink} target='_blank' rel='noopener noreferrer'>
+              {accessLink}
+            </a>
+
             <button
               onClick={() => onCopyHandler(accessLink)}
               data-toggle='tooltip'
               data-placement='top'
               title='Copy access link'
               className='btn btn-sm ml-3'
+              style={{ marginLeft: 8 }}
             >
-              <svg
-                width='24'
-                height='24'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  fill-rule='evenodd'
-                  clip-rule='evenodd'
-                  d='M2 9a7 7 0 0 1 7-7h8a1 1 0 1 1 0 2H9a5 5 0 0 0-5 5v8a1 1 0 1 1-2 0V9z'
-                  fill='#0C6090'
-                />
-                <path
-                  fill-rule='evenodd'
-                  clip-rule='evenodd'
-                  d='M6 11a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5h-6a5 5 0 0 1-5-5v-6zm5-3a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3h-6z'
-                  fill='#0C6090'
-                />
-              </svg>
+              Copy
+            </button>
+
+            <button
+              onClick={onOpenAccessLink}
+              data-toggle='tooltip'
+              data-placement='top'
+              title='Open access link'
+              className='btn btn-sm ml-1'
+              style={{ marginLeft: 8 }}
+            >
+              Open
             </button>
           </div>
         )}
@@ -132,6 +151,8 @@ const Admin = () => {
             <b>Give Access</b>
           </p>
         </div>
+
+        {/* ... rest stays unchanged ... */}
         <div className='form__control'>
           <label className='form__label d-block w-100 text-left' htmlFor='otp'>
             Enter Otp<sup>*</sup>
@@ -146,6 +167,7 @@ const Admin = () => {
             name='otp'
           />
         </div>
+
         <div className='form__control'>
           <label
             className='form__label d-block w-100 text-left'
@@ -163,6 +185,7 @@ const Admin = () => {
             name='username'
           />
         </div>
+
         <div className='form__control'>
           <label
             className='form__label d-block w-100 text-left'
@@ -212,37 +235,9 @@ const Admin = () => {
             title='Copy username and password'
           >
             Copy username & password{' '}
-            <svg
-              width='24'
-              height='24'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-            >
-              <path
-                fill-rule='evenodd'
-                clip-rule='evenodd'
-                d='M2 9a7 7 0 0 1 7-7h8a1 1 0 1 1 0 2H9a5 5 0 0 0-5 5v8a1 1 0 1 1-2 0V9z'
-                fill='#0C6090'
-              />
-              <path
-                fill-rule='evenodd'
-                clip-rule='evenodd'
-                d='M6 11a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5h-6a5 5 0 0 1-5-5v-6zm5-3a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3h-6z'
-                fill='#0C6090'
-              />
-            </svg>
           </button>
         )}
       </div>
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
     </>
   );
 };
