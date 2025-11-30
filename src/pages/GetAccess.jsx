@@ -13,12 +13,36 @@ const GetAccess = () => {
   const [success, setSuccess] = useState(false);
   const onGetAccessHandler = async () => {
     setIsLoading(true);
-    const { data, error } = await getAcessApi(params.id);
-    if (data) {
-      setCookie('pageAccessToken', data.pageAccessToken, { path: '/' });
-      setOtp(data.otp);
-      setSuccess(true);
-    } else {
+    try {
+      const resp = await getAcessApi(params.id);
+      const body = resp?.data;
+      if (body) {
+        if (body.pageAccessToken) {
+          setCookie('pageAccessToken', body.pageAccessToken, { path: '/' });
+        } else {
+          console.warn('Missing pageAccessToken in access response');
+        }
+        if (body.otp) {
+          setOtp(body.otp);
+        } else {
+          console.warn('Missing otp in access response');
+        }
+        setSuccess(true);
+        setIsInvalid(false);
+      } else {
+        console.warn('No data returned from getAcessApi');
+        setIsInvalid(true);
+        setSuccess(false);
+      }
+      if (resp?.error) {
+        console.warn('Error returned from getAcessApi', resp.error);
+        setIsInvalid(true);
+        setSuccess(false);
+      }
+    } catch (error) {
+      const errorMessage =
+        (error && error.response && error.response.data) || error?.message || error;
+      console.warn('Error in onGetAccessHandler', errorMessage);
       setIsInvalid(true);
       setSuccess(false);
     }

@@ -1,7 +1,35 @@
 import config from "../config/env";
 import axios from "axios";
 import { LOCAL_STORAGE_KEY } from "../constants";
-const BASE_URL = config["API_BASE_URL"];
+let BASE_URL = config["API_BASE_URL"];
+
+if (
+  typeof window !== "undefined" &&
+  window.location?.protocol === "https:" &&
+  BASE_URL?.startsWith("http://")
+) {
+  const normalizedBaseUrl = `https://${BASE_URL.substring("http://".length)}`;
+  console.warn(
+    "Normalized API_BASE_URL to https to avoid mixed-content:",
+    normalizedBaseUrl
+  );
+  BASE_URL = normalizedBaseUrl;
+}
+
+const normalizeError = (error) => {
+  const fallbackMessage = error?.message || "Network error";
+  const responseData = error?.response?.data;
+
+  if (responseData && typeof responseData === "object") {
+    return responseData;
+  }
+
+  if (typeof responseData === "string") {
+    return { message: responseData };
+  }
+
+  return { message: fallbackMessage };
+};
 export const Urls = {
   login: BASE_URL + "/auth/login",
   getAcess: BASE_URL + "/auth/get-access",
@@ -22,7 +50,10 @@ export const getAcessApi = async (token) => {
     const { data } = await axios.get(`${Urls.getAcess}/${token}`);
     return { data, error: null };
   } catch (error) {
-    return { data: null, error: error.response.data };
+    return {
+      data: null,
+      error: { message: error?.message || "Network error" },
+    };
   }
 };
 
@@ -45,7 +76,7 @@ export const getDetailsApi = async (payLoad) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -66,7 +97,7 @@ export const getAllBillsApi = async (filter) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -87,7 +118,7 @@ export const createTempUserApi = async () => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -107,7 +138,7 @@ export const createBillApi = async (payLoad) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -127,7 +158,7 @@ export const provideAccessApi = async (payLoad) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -148,7 +179,7 @@ export const getAllUsersApi = async () => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -173,7 +204,7 @@ export const changeStatusApi = async (id) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -191,7 +222,7 @@ export const loginApi = async (payLoad) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -212,7 +243,7 @@ export const deleteUserApi = async (id) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -233,7 +264,7 @@ export const addMoreAccessStateApi = async (payload) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
@@ -253,7 +284,7 @@ export const webIndexApi = async (payload) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data,
+      error: normalizeError(error),
     };
   }
 };
