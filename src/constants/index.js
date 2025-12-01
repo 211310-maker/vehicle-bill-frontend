@@ -17,6 +17,12 @@ export const fields = {
     tn: "TAMILNADU",
     up: "UTTAR PRADESH",
     uk: "UTTARAKHAND",
+    telangana: "TELANGANA",
+    assam: "ASSAM",
+    puducherry: "PUDUCHERRY",
+    damanDiu: "DAMAN & DIU",
+    sikkim: "SIKKIM",
+    tripura: "TRIPURA",
   },
 
   allState: [
@@ -61,6 +67,12 @@ export const fields = {
     { name: "TAMILNADU", code: "tn", value: "tamilnadu", label: "TAMILNADU" },
     { name: "UTTAR PRADESH", code: "up", value: "up", label: "UTTAR PRADESH" },
     { name: "UTTARAKHAND", code: "uk", value: "uk", label: "UTTARAKHAND" },
+    { name: "TELANGANA", code: "tg", value: "telangana", label: "TELANGANA" },
+    { name: "ASSAM", code: "as", value: "assam", label: "ASSAM" },
+    { name: "PUDUCHERRY", code: "py", value: "puducherry", label: "PUDUCHERRY" },
+    { name: "DAMAN & DIU", code: "dd", value: "damanDiu", label: "DAMAN & DIU" },
+    { name: "SIKKIM", code: "sk", value: "sikkim", label: "SIKKIM" },
+    { name: "TRIPURA", code: "tr", value: "tripura", label: "TRIPURA" },
   ],
   fromState: [
     {
@@ -243,6 +255,294 @@ export const fields = {
     ],
   },
   bihar: {
+    paymentMode: [{ name: "CASH" }, { name: "ONLINE" }],
+
+    permitType: [
+      {
+        name: "NOT APPLICABLE",
+      },
+      {
+        name: "TEMPORARY PERMIT",
+      },
+      {
+        name: "TOURIST PERMIT",
+      },
+    ],
+    borderBarrier: [
+      { name: "ARARIYA" },
+      { name: "ARAWAL" },
+      { name: "AURANGABAD" },
+      { name: "BANKA" },
+      { name: "BEGUSARAI" },
+      { name: "BETTIAH" },
+      { name: "BHABUA" },
+      { name: "BHAGALPUR" },
+      { name: "BHOJPUR" },
+      { name: "BUXUR" },
+      { name: "Chapara" },
+      { name: "GOPALGANJ" },
+      { name: "Patna" },
+      { name: "Rohtash" },
+      { name: "SAHARSHA" },
+      { name: "SAMSTIPUR" },
+      { name: "SHEIKHPURA" },
+      { name: "SHEOHAR" },
+      { name: "SITAMARIH" },
+      { name: "SIWAN" },
+      { name: "SUPAUL" },
+      { name: "VAISHALI" },
+    ],
+    checkPostName: [
+      {
+        name: "NOT APPLICABLE",
+      },
+    ],
+    vehiclePermitType: [
+      { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+      { name: "GOODS VEHICLE" },
+    ],
+  },
+  telangana: {
+    paymentMode: [{ name: "CASH" }, { name: "ONLINE" }],
+
+    permitType: [
+      {
+        name: "NOT APPLICABLE",
+      },
+      {
+        name: "TEMPORARY PERMIT",
+      },
+      {
+        name: "TOURIST PERMIT",
+      },
+    ],
+    borderBarrier: [
+      { name: "ARARIYA" },
+      { name: "ARAWAL" },
+      { name: "AURANGABAD" },
+      { name: "BANKA" },
+      { name: "BEGUSARAI" },
+      { name: "BETTIAH" },
+      { name: "BHABUA" },
+      { name: "BHAGALPUR" },
+      { name: "BHOJPUR" },
+      { name: "BUXUR" },
+      { name: "Chapara" },
+      { name: "GOPALGANJ" },
+      { name: "Patna" },
+      { name: "Rohtash" },
+      { name: "SAHARSHA" },
+      { name: "SAMSTIPUR" },
+      { name: "SHEIKHPURA" },
+      { name: "SHEOHAR" },
+      { name: "SITAMARIH" },
+      { name: "SIWAN" },
+      { name: "SUPAUL" },
+      { name: "VAISHALI" },
+    ],
+    checkPostName: [
+      {
+        name: "NOT APPLICABLE",
+      },
+    ],
+    vehiclePermitType: [
+      { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+      { name: "GOODS VEHICLE" },
+    ],
+  },
+  assam: {
+    paymentMode: [{ name: "CASH" }, { name: "ONLINE" }],
+
+    permitType: [
+      {
+        name: "NOT APPLICABLE",
+      },
+      {
+        name: "TEMPORARY PERMIT",
+      },
+      {
+        name: "TOURIST PERMIT",
+      },
+    ],
+    borderBarrier: [
+      { name: "ARARIYA" },
+      { name: "ARAWAL" },
+      { name: "AURANGABAD" },
+      { name: "BANKA" },
+      { name: "BEGUSARAI" },
+      { name: "BETTIAH" },
+      { name: "BHABUA" },
+      { name: "BHAGALPUR" },
+      { name: "BHOJPUR" },
+      { name: "BUXUR" },
+      { name: "Chapara" },
+      { name: "GOPALGANJ" },
+      { name: "Patna" },
+      { name: "Rohtash" },
+      { name: "SAHARSHA" },
+      { name: "SAMSTIPUR" },
+      { name: "SHEIKHPURA" },
+      { name: "SHEOHAR" },
+      { name: "SITAMARIH" },
+      { name: "SIWAN" },
+      { name: "SUPAUL" },
+      { name: "VAISHALI" },
+    ],
+    checkPostName: [
+      {
+        name: "NOT APPLICABLE",
+      },
+    ],
+    vehiclePermitType: [
+      { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+      { name: "GOODS VEHICLE" },
+    ],
+  },
+  puducherry: {
+    paymentMode: [{ name: "CASH" }, { name: "ONLINE" }],
+
+    permitType: [
+      {
+        name: "NOT APPLICABLE",
+      },
+      {
+        name: "TEMPORARY PERMIT",
+      },
+      {
+        name: "TOURIST PERMIT",
+      },
+    ],
+    borderBarrier: [
+      { name: "ARARIYA" },
+      { name: "ARAWAL" },
+      { name: "AURANGABAD" },
+      { name: "BANKA" },
+      { name: "BEGUSARAI" },
+      { name: "BETTIAH" },
+      { name: "BHABUA" },
+      { name: "BHAGALPUR" },
+      { name: "BHOJPUR" },
+      { name: "BUXUR" },
+      { name: "Chapara" },
+      { name: "GOPALGANJ" },
+      { name: "Patna" },
+      { name: "Rohtash" },
+      { name: "SAHARSHA" },
+      { name: "SAMSTIPUR" },
+      { name: "SHEIKHPURA" },
+      { name: "SHEOHAR" },
+      { name: "SITAMARIH" },
+      { name: "SIWAN" },
+      { name: "SUPAUL" },
+      { name: "VAISHALI" },
+    ],
+    checkPostName: [
+      {
+        name: "NOT APPLICABLE",
+      },
+    ],
+    vehiclePermitType: [
+      { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+      { name: "GOODS VEHICLE" },
+    ],
+  },
+  damanDiu: {
+    paymentMode: [{ name: "CASH" }, { name: "ONLINE" }],
+
+    permitType: [
+      {
+        name: "NOT APPLICABLE",
+      },
+      {
+        name: "TEMPORARY PERMIT",
+      },
+      {
+        name: "TOURIST PERMIT",
+      },
+    ],
+    borderBarrier: [
+      { name: "ARARIYA" },
+      { name: "ARAWAL" },
+      { name: "AURANGABAD" },
+      { name: "BANKA" },
+      { name: "BEGUSARAI" },
+      { name: "BETTIAH" },
+      { name: "BHABUA" },
+      { name: "BHAGALPUR" },
+      { name: "BHOJPUR" },
+      { name: "BUXUR" },
+      { name: "Chapara" },
+      { name: "GOPALGANJ" },
+      { name: "Patna" },
+      { name: "Rohtash" },
+      { name: "SAHARSHA" },
+      { name: "SAMSTIPUR" },
+      { name: "SHEIKHPURA" },
+      { name: "SHEOHAR" },
+      { name: "SITAMARIH" },
+      { name: "SIWAN" },
+      { name: "SUPAUL" },
+      { name: "VAISHALI" },
+    ],
+    checkPostName: [
+      {
+        name: "NOT APPLICABLE",
+      },
+    ],
+    vehiclePermitType: [
+      { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+      { name: "GOODS VEHICLE" },
+    ],
+  },
+  sikkim: {
+    paymentMode: [{ name: "CASH" }, { name: "ONLINE" }],
+
+    permitType: [
+      {
+        name: "NOT APPLICABLE",
+      },
+      {
+        name: "TEMPORARY PERMIT",
+      },
+      {
+        name: "TOURIST PERMIT",
+      },
+    ],
+    borderBarrier: [
+      { name: "ARARIYA" },
+      { name: "ARAWAL" },
+      { name: "AURANGABAD" },
+      { name: "BANKA" },
+      { name: "BEGUSARAI" },
+      { name: "BETTIAH" },
+      { name: "BHABUA" },
+      { name: "BHAGALPUR" },
+      { name: "BHOJPUR" },
+      { name: "BUXUR" },
+      { name: "Chapara" },
+      { name: "GOPALGANJ" },
+      { name: "Patna" },
+      { name: "Rohtash" },
+      { name: "SAHARSHA" },
+      { name: "SAMSTIPUR" },
+      { name: "SHEIKHPURA" },
+      { name: "SHEOHAR" },
+      { name: "SITAMARIH" },
+      { name: "SIWAN" },
+      { name: "SUPAUL" },
+      { name: "VAISHALI" },
+    ],
+    checkPostName: [
+      {
+        name: "NOT APPLICABLE",
+      },
+    ],
+    vehiclePermitType: [
+      { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+      { name: "GOODS VEHICLE" },
+    ],
+  },
+  tripura: {
     paymentMode: [{ name: "CASH" }, { name: "ONLINE" }],
 
     permitType: [
