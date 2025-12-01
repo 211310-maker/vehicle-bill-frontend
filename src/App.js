@@ -36,6 +36,12 @@ import Chhattisgarh from "./pages/Chhattisgarh";
 import Odisha from "./pages/Odisha";
 import Tamilnadu from "./pages/Tamilnadu";
 import Kerala from "./pages/Kerala";
+import Telangana from "./pages/Telangana";
+import Assam from "./pages/Assam";
+import Puducherry from "./pages/Puducherry";
+import DamanDiu from "./pages/DamanDiu";
+import Sikkim from "./pages/Sikkim";
+import Tripura from "./pages/Tripura";
 
 import { LOCAL_STORAGE_KEY } from "./constants";
 import { useState } from "react";
@@ -69,6 +75,12 @@ function App() {
           <ProtectedRoute exact path="/od" component={Odisha} />
           <ProtectedRoute exact path="/tn" component={Tamilnadu} />
           <ProtectedRoute exact path="/kl" component={Kerala} />
+          <ProtectedRoute exact path="/tg" component={Telangana} />
+          <ProtectedRoute exact path="/as" component={Assam} />
+          <ProtectedRoute exact path="/py" component={Puducherry} />
+          <ProtectedRoute exact path="/dd" component={DamanDiu} />
+          <ProtectedRoute exact path="/sk" component={Sikkim} />
+          <ProtectedRoute exact path="/tr" component={Tripura} />
 
           <ProtectedRoute
             exact
