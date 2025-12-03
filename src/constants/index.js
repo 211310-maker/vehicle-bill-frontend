@@ -1,5 +1,10 @@
 export const LOCAL_STORAGE_KEY = "user@bill";
 export const fields = {
+  stateFieldsKeyMapping: {
+    mp: "bihar",
+    tamilNadu: "taminadu",
+    uk: "uttrakhand",
+  },
   stateName: {
     andhraPradesh: "ANDHRA PRADESH",
     ap: "ANDHRA PRADESH",
