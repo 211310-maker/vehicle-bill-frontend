@@ -29,7 +29,7 @@ import Gujrat from "./pages/Gujrat";
 import Maharashtra from "./pages/Maharashtra";
 import Rajasthan from "./pages/Rajasthan";
 import MadhyaPardesh from "./pages/MadhyaPardesh";
-import karnataka from "./pages/Karnataka";
+import Karnataka from "./pages/Karnataka";
 import HimachalPradesh from "./pages/HimachalPradesh";
 import Jharkhand from "./pages/Jharkhand";
 import Chhattisgarh from "./pages/Chhattisgarh";
@@ -85,7 +85,7 @@ function App() {
             component={HimachalPradesh}
           />
           <ProtectedRoute exact path="/jharkhand" component={Jharkhand} />
-          <ProtectedRoute exact path="/karnataka" component={karnataka} />
+          <ProtectedRoute exact path="/karnataka" component={Karnataka} />
           <ProtectedRoute exact path="/kerala" component={Kerala} />
           <ProtectedRoute
             exact

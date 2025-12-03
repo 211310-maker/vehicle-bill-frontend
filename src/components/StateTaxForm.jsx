@@ -6,13 +6,15 @@ import ActionButtons from './ActionButtons';
 import Header from './Header';
 import Loader from './Loader';
 
-const StateTaxForm = ({ stateKey, displayName, stateFieldsKey }) => {
+const StateTaxForm = ({ stateKey }) => {
   const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
   const state = stateKey;
   const history = useHistory();
-  const stateFields = fields[stateFieldsKey || stateKey] || {};
-  const stateDisplayName = displayName || fields.stateName[stateKey] || stateKey;
+  const resolvedStateFieldKey =
+    (fields.stateFieldsKeyMapping || {})[stateKey] || stateKey;
+  const stateFields = fields[resolvedStateFieldKey] || {};
+  const stateDisplayName = fields.stateName[stateKey] || stateKey;
   const accessStateName = fields.stateName[stateKey] || stateDisplayName;
 
   const [payLoad, setPayLoad] = useState({
@@ -47,14 +49,23 @@ const StateTaxForm = ({ stateKey, displayName, stateFieldsKey }) => {
       return;
     }
     setIsLoading(true);
-    const { data } = await getDetailsApi({
+    const { data, error } = await getDetailsApi({
       vehicleNo: payLoad.vehicleNo,
     });
     setIsLoading(false);
+    if (error) {
+      alert(error.message || 'Failed to fetch vehicle details');
+      return;
+    }
     if (data && data.success) {
       const preLoadedData = {};
-      ['chassisNo', 'mobileNo', 'ownerName', 'borderBarrier'].forEach((key) => {
-        if (data.detail[key]) {
+      Object.keys(payLoad).forEach((key) => {
+        if (
+          data.detail &&
+          data.detail[key] !== undefined &&
+          data.detail[key] !== null &&
+          data.detail[key] !== ''
+        ) {
           preLoadedData[key] = data.detail[key];
         }
       });
@@ -62,17 +73,20 @@ const StateTaxForm = ({ stateKey, displayName, stateFieldsKey }) => {
         ...e,
         ...preLoadedData,
       }));
+    } else if (data && data.message) {
+      alert(data.message);
     }
   };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    if (!payLoad.unladenWeight) {
-      payLoad.unladenWeight = 0;
-    }
+    const payLoadWithDefaults = {
+      ...payLoad,
+      unladenWeight: payLoad.unladenWeight || 0,
+    };
     history.push('/select-payment', {
       formData: {
-        ...payLoad,
+        ...payLoadWithDefaults,
         state,
       },
     });
