@@ -1901,10 +1901,50 @@ export const fields = {
       { name: "YSR" },
     ],
     checkPostName: [
-      { name: "KODIKONDA", district: "ANANTAPUR" },
-      { name: "GARIKAPADU", district: "NTR" },
-      { name: "ICHHAPURAM", district: "SRIKAKULAM" },
-      { name: "PALAMANER", district: "CHITTOOR" },
+      { name: "NOT APPLICABLE", district: "ALLURI SITHARAMA RAJU" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "ANAKAPALLE" }, // PLACEHOLDER: no publicly documented district checkpost found
+      {
+        name: "KODIKONDA",
+        district: "ANANTAPUR",
+      }, // source: https://www.thehindu.com/news/national/andhra-pradesh/kodikonda-check-post-sees-heavy-traffic/article26687743.ece
+      { name: "NOT APPLICABLE", district: "ANNAMAYYA" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "BAPATLA" }, // PLACEHOLDER: no publicly documented district checkpost found
+      {
+        name: "PALAMANER",
+        district: "CHITTOOR",
+      }, // source: https://www.thehindu.com/news/national/andhra-pradesh/palamaner-check-post-buzzing-with-activity/article31242530.ece
+      { name: "NOT APPLICABLE", district: "EAST GODAVARI" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "ELURU" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "GUNTUR" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "KAKINADA" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "KONASEEMA" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "KRISHNA" }, // PLACEHOLDER: no publicly documented district checkpost found
+      {
+        name: "PANCHALINGALA",
+        district: "KURNOOL",
+      }, // source: https://www.thehindu.com/news/national/andhra-pradesh/panchalingala-check-post-sees-heavy-traffic/article31236886.ece
+      { name: "NOT APPLICABLE", district: "NANDYAL" }, // PLACEHOLDER: no publicly documented district checkpost found
+      {
+        name: "GARIKAPADU",
+        district: "NTR",
+      }, // source: https://www.thehindu.com/news/national/andhra-pradesh/strict-checking-at-garikapadu-checkpost/article34106339.ece
+      { name: "NOT APPLICABLE", district: "PALNADU" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "PARVATHIPURAM MANYAM" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "PRAKASAM" }, // PLACEHOLDER: no publicly documented district checkpost found
+      {
+        name: "TADA",
+        district: "SRI POTTI SRIRAMULU NELLORE",
+      }, // source: https://www.thehindu.com/news/national/andhra-pradesh/ap-and-tn-police-tighten-security-at-tada-check-post/article34774360.ece
+      { name: "NOT APPLICABLE", district: "SRI SATHYA SAI" }, // PLACEHOLDER: no publicly documented district checkpost found
+      {
+        name: "ICHHAPURAM",
+        district: "SRIKAKULAM",
+      }, // source: https://www.thehindu.com/news/national/andhra-pradesh/ichchapuram-check-post-buzzing-with-activity/article31243555.ece
+      { name: "NOT APPLICABLE", district: "TIRUPATI" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "VISAKHAPATNAM" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "VIZIANAGARAM" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "WEST GODAVARI" }, // PLACEHOLDER: no publicly documented district checkpost found
+      { name: "NOT APPLICABLE", district: "YSR" }, // PLACEHOLDER: no publicly documented district checkpost found
     ],
     vehiclePermitType: [{ name: "TRANSPORT" }, { name: "NON TRANSPORT" }],
     vehicleClass: [
