@@ -1,6 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { useHistory } from 'react-router';
-import { fields, LOCAL_STORAGE_KEY } from '../constants';
+import {
+  borderBarriers,
+  checkposts,
+  fields,
+  LOCAL_STORAGE_KEY,
+} from '../constants';
 import { getDetailsApi } from '../utils/api';
 import ActionButtons from './ActionButtons';
 import Header from './Header';
@@ -16,6 +21,18 @@ const StateTaxForm = ({ stateKey }) => {
   const stateFields = fields[resolvedStateFieldKey] || {};
   const stateDisplayName = fields.stateName[stateKey] || stateKey;
   const accessStateName = fields.stateName[stateKey] || stateDisplayName;
+
+  const borderOptions =
+    borderBarriers[stateKey] ||
+    borderBarriers[resolvedStateFieldKey] ||
+    stateFields.borderBarrier ||
+    [];
+  const checkpostOptions =
+    checkposts[stateKey] ||
+    checkposts[resolvedStateFieldKey] ||
+    stateFields.checkpostName ||
+    stateFields.checkPostName ||
+    [];
 
   const [payLoad, setPayLoad] = useState({
     vehicleNo: '',
@@ -535,7 +552,7 @@ const StateTaxForm = ({ stateKey }) => {
                       id='borderBarrier'
                     >
                       <option value=''>--Select Border--</option>
-                      {(stateFields.borderBarrier || []).map((type) => {
+                      {borderOptions.map((type) => {
                         return (
                           <option key={type.name} value={type.name}>
                             {type.name}
@@ -563,7 +580,7 @@ const StateTaxForm = ({ stateKey }) => {
                       id='checkpostName'
                     >
                       <option value=''>--Select Checkpost Name--</option>
-                      {(stateFields.checkpostName || []).map((type) => {
+                      {checkpostOptions.map((type) => {
                         return (
                           <option key={type.name} value={type.name}>
                             {type.name}
