@@ -42,6 +42,14 @@ import Puducherry from "./pages/Puducherry";
 import DamanDiu from "./pages/DamanDiu";
 import Sikkim from "./pages/Sikkim";
 import Tripura from "./pages/Tripura";
+import AndhraPradesh from "./pages/AndhraPradesh";
+import ArunachalPradesh from "./pages/ArunachalPradesh";
+import Goa from "./pages/Goa";
+import Manipur from "./pages/Manipur";
+import Meghalaya from "./pages/Meghalaya";
+import Mizoram from "./pages/Mizoram";
+import Nagaland from "./pages/Nagaland";
+import WestBengal from "./pages/WestBengal";
 
 import { LOCAL_STORAGE_KEY } from "./constants";
 import { useState } from "react";
@@ -59,28 +67,48 @@ function App() {
           <AdminRoute exact path="/admin/create-user" component={CreateUser} />
           <AdminRoute exact path="/admin/edit-user/:id" component={EditUser} />
           <ProtectedRoute exact path="/reports" component={Bills} />
-          <ProtectedRoute exact path="/pb" component={Punjab} />
-          <ProtectedRoute exact path="/hr" component={Haryana} />
-          <ProtectedRoute exact path="/uk" component={Uttrakhand} />
-          <ProtectedRoute exact path="/up" component={Up} />
-          <ProtectedRoute exact path="/bh" component={Bihar} />
-          <ProtectedRoute exact path="/gj" component={Gujrat} />
-          <ProtectedRoute exact path="/rj" component={Rajasthan} />
-          <ProtectedRoute exact path="/mh" component={Maharashtra} />
-          <ProtectedRoute exact path="/hp" component={HimachalPradesh} />
-          <ProtectedRoute exact path="/ka" component={karnataka} />
-          <ProtectedRoute exact path="/mp" component={MadhyaPardesh} />
-          <ProtectedRoute exact path="/jh" component={Jharkhand} />
-          <ProtectedRoute exact path="/cg" component={Chhattisgarh} />
-          <ProtectedRoute exact path="/od" component={Odisha} />
-          <ProtectedRoute exact path="/tn" component={Tamilnadu} />
-          <ProtectedRoute exact path="/kl" component={Kerala} />
-          <ProtectedRoute exact path="/tg" component={Telangana} />
-          <ProtectedRoute exact path="/as" component={Assam} />
-          <ProtectedRoute exact path="/py" component={Puducherry} />
-          <ProtectedRoute exact path="/dd" component={DamanDiu} />
-          <ProtectedRoute exact path="/sk" component={Sikkim} />
-          <ProtectedRoute exact path="/tr" component={Tripura} />
+          <ProtectedRoute exact path="/andhra-pradesh" component={AndhraPradesh} />
+          <ProtectedRoute
+            exact
+            path="/arunachal-pradesh"
+            component={ArunachalPradesh}
+          />
+          <ProtectedRoute exact path="/assam" component={Assam} />
+          <ProtectedRoute exact path="/bihar" component={Bihar} />
+          <ProtectedRoute exact path="/chhattisgarh" component={Chhattisgarh} />
+          <ProtectedRoute exact path="/goa" component={Goa} />
+          <ProtectedRoute exact path="/gujarat" component={Gujrat} />
+          <ProtectedRoute exact path="/haryana" component={Haryana} />
+          <ProtectedRoute
+            exact
+            path="/himachal-pradesh"
+            component={HimachalPradesh}
+          />
+          <ProtectedRoute exact path="/jharkhand" component={Jharkhand} />
+          <ProtectedRoute exact path="/karnataka" component={karnataka} />
+          <ProtectedRoute exact path="/kerala" component={Kerala} />
+          <ProtectedRoute
+            exact
+            path="/madhya-pradesh"
+            component={MadhyaPardesh}
+          />
+          <ProtectedRoute exact path="/maharashtra" component={Maharashtra} />
+          <ProtectedRoute exact path="/manipur" component={Manipur} />
+          <ProtectedRoute exact path="/meghalaya" component={Meghalaya} />
+          <ProtectedRoute exact path="/mizoram" component={Mizoram} />
+          <ProtectedRoute exact path="/nagaland" component={Nagaland} />
+          <ProtectedRoute exact path="/odisha" component={Odisha} />
+          <ProtectedRoute exact path="/punjab" component={Punjab} />
+          <ProtectedRoute exact path="/rajasthan" component={Rajasthan} />
+          <ProtectedRoute exact path="/sikkim" component={Sikkim} />
+          <ProtectedRoute exact path="/tamil-nadu" component={Tamilnadu} />
+          <ProtectedRoute exact path="/telangana" component={Telangana} />
+          <ProtectedRoute exact path="/tripura" component={Tripura} />
+          <ProtectedRoute exact path="/uttar-pradesh" component={Up} />
+          <ProtectedRoute exact path="/uttarakhand" component={Uttrakhand} />
+          <ProtectedRoute exact path="/west-bengal" component={WestBengal} />
+          <ProtectedRoute exact path="/puducherry" component={Puducherry} />
+          <ProtectedRoute exact path="/daman-diu" component={DamanDiu} />
 
           <ProtectedRoute
             exact
