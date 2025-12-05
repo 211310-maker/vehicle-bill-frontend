@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory } from "react-router";
 import ActionButtons from "../components/ActionButtons";
 import Header from "../components/Header";
 import Loader from "../components/Loader";
@@ -7,9 +7,9 @@ import { fields, LOCAL_STORAGE_KEY } from "../constants";
 import { getDetailsApi } from "../utils/api";
 
 const Kerala = () => {
-  const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "null");
+  const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
-  const state = "kerala";
+  const state = "kerela";
   const history = useHistory();
 
   // all input fields
@@ -44,15 +44,6 @@ const Kerala = () => {
     permitEndoresment: "",
     routeOfTheJourney: "",
     purposeOfJourney: "",
-    districtName: "",
-    checkpostName: "",
-    enteringDistrict: "",
-    enteringDistrict: "",
-    purposeOfJourney: "",
-    source: "",
-    destination: "",
-    permitValidity: "",
-    permitAuthorizationDate: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -128,8 +119,7 @@ const Kerala = () => {
     setPayLoad({ ...p });
   };
 
-  // Guard against missing login/access
-  if (!isLoggedIn || !isLoggedIn.accessState || !isLoggedIn.accessState.includes(fields.stateName.kerala)) {
+  if (!isLoggedIn.accessState.includes(fields.stateName.bihar)) {
     return (
       <>
         <Header />
@@ -145,7 +135,7 @@ const Kerala = () => {
       <Header />
       <div className="text-center">
         <p className="login-heading mt-4">
-          <b>BORDER TAX PAYMENT FOR ENTRY INTO</b> <span>KERALA</span>
+          <b>BORDER TAX PAYMENT FOR ENTRY INTO</b> <span>KERELA</span>
         </p>
       </div>
       <div className="box box--main">
@@ -252,13 +242,6 @@ const Kerala = () => {
                       id="districtName"
                     >
                       <option value="">--Select District--</option>
-                      {fields.kerala.districtName && fields.kerala.districtName.map((dist) => {
-                        return (
-                          <option key={dist.name} value={dist.name}>
-                            {dist.name}
-                          </option>
-                        );
-                      })}
                     </select>
                   </div>
                 </div>
@@ -280,13 +263,6 @@ const Kerala = () => {
                       id="checkpostName"
                     >
                       <option value="">--Select Checkpost Name--</option>
-                      {fields.kerala.checkPostName && fields.kerala.checkPostName.map((checkPost) => {
-                        return (
-                          <option key={checkPost.name} value={checkPost.name}>
-                            {checkPost.name}
-                          </option>
-                        );
-                      })}
                     </select>
                   </div>
                 </div>
@@ -311,7 +287,7 @@ const Kerala = () => {
                       id="vehiclePermitType"
                     >
                       <option value="">--Select Vehicle Type--</option>
-                      {fields.kerala.vehiclePermitType && fields.kerala.vehiclePermitType.map((type) => {
+                      {fields.kerala.vehiclePermitType.map((type) => {
                         return (
                           <option value={type.name} key={type.name}>
                             {type.name}
@@ -596,7 +572,7 @@ const Kerala = () => {
                       id="taxMode"
                     >
                       <option value="">--Select Tax Mode--</option>
-                      {fields.kerala.taxMode && fields.kerala.taxMode.map((type) => {
+                      {fields?.Kerala?.taxMode.map((type) => {
                         return (
                           <option value={type.name} key={type.name}>
                             {type.name}
@@ -758,6 +734,7 @@ const Kerala = () => {
                     <input
                       required
                       tabIndex="5"
+                     
                       disabled={isLoading}
                       onChange={onChangeHandler}
                       className="form__input w-100"
@@ -938,13 +915,13 @@ const Kerala = () => {
                       tabIndex="13"
                       required
                       disabled={isLoading}
-                      value={payLoad.purposeOfJourney}
+                      value={payLoad.borderBarrier}
                       onChange={onChangeHandler}
                       name="purposeOfJourney"
                       id="purposeOfJourney"
                     >
                       <option value="">--Purpose of Journey--</option>
-                      {fields.kerala.purposeOfJourney && fields.kerala.purposeOfJourney.map((dist) => {
+                      {fields.kerala.purposeOfJourney.map((dist) => {
                         return (
                           <option key={dist.name} value={dist.name}>
                             {dist.name}
@@ -973,7 +950,7 @@ const Kerala = () => {
                       id="enteringDistrict"
                     >
                       <option value="">--Select Entering District--</option>
-                      {fields.kerala.enteringDistrict && fields.kerala.enteringDistrict.map((dist) => {
+                      {fields.kerala.enteringDistrict.map((dist) => {
                         return (
                           <option key={dist.name} value={dist.name}>
                             {dist.name}
@@ -1162,8 +1139,22 @@ const Kerala = () => {
                   tabIndex="18"
                   min="0"
                   disabled
-                  value={payLoad.totalAmount}
-                  onChange={onChangeHandler}
+                  value={
+                    (payLoad.vehiclePermitType ===
+                      "CONSTRUCTION EQUIPMENT VEHICLE" &&
+                      payLoad.permitType === "NOT APPLICABLE") ||
+                    (payLoad.vehiclePermitType ===
+                      "CONTRACT CARRIAGE/PASSANGER VEHICLES" &&
+                      payLoad.permitType === "TOURIST PERMIT") ||
+                    (payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+                      payLoad.permitType === "NATIONAL PERMIT")
+                      ? +payLoad.mvTax + +payLoad.cess + +payLoad.infraCess
+                      : +payLoad.mvTax +
+                        +payLoad.cess +
+                        +payLoad.infraCess +
+                        +payLoad.permitFee +
+                        +payLoad.permitEndoresment
+                  }
                   className="form__input w-100"
                   type="number"
                   id="totalAmount"
