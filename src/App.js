@@ -79,6 +79,7 @@ function App() {
           <ProtectedRoute exact path="/goa" component={Goa} />
           <ProtectedRoute exact path="/gujrat" component={Gujrat} />
           <ProtectedRoute exact path="/haryana" component={Haryana} />
+          <ProtectedRoute exact path="/gujarat" component={Gujrat} />
           <ProtectedRoute
             exact
             path="/himachal-pradesh"
