@@ -74,6 +74,27 @@ const Kerala = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useRef(null);
+  
+  const keralaFields = (fields && fields.kerala) ? fields.kerala : {};
+  const kerala = {
+  districtName: keralaFields.districtName || [],
+  checkPostName: keralaFields.checkPostName || [],
+  vehiclePermitType: keralaFields.vehiclePermitType || [],
+  vehicleClass: keralaFields.vehicleClass || [],
+  goodsName: keralaFields.goodsName || [],
+  permitType: keralaFields.permitType || [],
+  permitCategory: keralaFields.permitCategory || [],
+  registrationType: keralaFields.registrationType || [],
+  vehicleCategory: keralaFields.vehicleCategory || [],
+  tipperBody: keralaFields.tipperBody || [],
+  permit: keralaFields.permit || [],
+  serviceType: keralaFields.serviceType || [],
+  taxMode: keralaFields.taxMode || [],
+  fuelType: keralaFields.fuelType || [],
+  enteringDistrict: keralaFields.enteringDistrict || [],
+  purposeOfJourney: keralaFields.purposeOfJourney || [],
+};
+
 
   const getDetailsHandler = async () => {
     if (!payLoad.vehicleNo) {
