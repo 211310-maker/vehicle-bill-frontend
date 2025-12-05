@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import { randomNumber } from '../utils/helper';
 import ActionButtons from '../components/ActionButtons';
 import Header from '../components/Header';
@@ -105,11 +105,7 @@ const Gujrat = () => {
     setPayLoad({ ...p });
   };
 
-  if (
-    !isLoggedIn ||
-    !isLoggedIn.accessState ||
-    !isLoggedIn.accessState.includes(fields.stateName.gujrat)
-  ) {
+  if (!isLoggedIn.accessState.includes(fields.stateName.gujrat)) {
     return (
       <>
         <Header />
@@ -790,35 +786,35 @@ const Gujrat = () => {
                   min='0'
                   disabled={isLoading}
                   value={payLoad.mvTax}
-                          onChange={onChangeHandler}
-                          className='form__input w-100'
-                          type='number'
-                          id='mvTax'
-                          name='mvTax'
-                        />
-                      </div>
-                    </div>
-                    <div className='col-sm-6'>
-                      <label className='form__label d-block w-100 text-left'>
-                        &nbsp;
-                      </label>
-                      <ActionButtons isDisabled={isLoading} onReset={onResetHandler} />
-                    </div>
-                  </div>
-                </form>
-                <br />
+                  onChange={onChangeHandler}
+                  className='form__input w-100'
+                  type='number'
+                  id='mvTax'
+                  name='mvTax'
+                />
               </div>
-              <br />
-              <br />
-              <br />
-              <br />
-              <br />
-              <br />
-              <br />
-              <br />
-              <br />
-            </>
-          );
-        };
-        
-        export default Gujrat;
+            </div>
+            <div className='col-sm-6'>
+              <label className='form__label d-block w-100 text-left'>
+                &nbsp;
+              </label>
+              <ActionButtons isDisabled={isLoading} onReset={onResetHandler} />
+            </div>
+          </div>
+        </form>
+        <br />
+      </div>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+    </>
+  );
+};
+
+export default Gujrat;
