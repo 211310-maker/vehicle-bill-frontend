@@ -2270,3 +2270,11 @@ fields.bihar.paymentMode = fields.bihar.paymentMode || [{ name: "CASH" }, { name
 fields.bihar.permitType = fields.bihar.permitType || [{ name: "TOURIST" }, { name: "OTHER" }];
 fields.bihar.borderBarrier = fields.bihar.borderBarrier || [{ name: "PATNA" }, { name: "GAYA" }];
 fields.bihar.checkPostName = fields.bihar.checkPostName || [{ name: "PATNA CHECKPOST" }, { name: "GAYA CHECKPOST" }];
+
+// --- SAFEGUARDS FOR JHARKHAND (only add if missing) ---
+fields.jharkhand = fields.jharkhand || {};
+fields.jharkhand.vehiclePermitType = fields.jharkhand.vehiclePermitType || [{ name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" }, { name: "GOODS VEHICLE" }];
+fields.jharkhand.permitType = fields.jharkhand.permitType || [{ name: "TOURIST" }];
+fields.jharkhand.borderBarrier = fields.jharkhand.borderBarrier || [{ name: "RANCHI" }];
+fields.jharkhand.checkPostName = fields.jharkhand.checkPostName || [{ name: "RANCHI CHECKPOST" }];
+fields.jharkhand.serviceType = fields.jharkhand.serviceType || [{ name: "Tourist" }];
