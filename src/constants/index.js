@@ -2262,3 +2262,11 @@ export const fields = {
     serviceType: [{ name: "NOT APPLICABLE" }],
   },
 };
+
+// --- SAFEGUARDS FOR BIHAR (only add if missing) ---
+fields.bihar = fields.bihar || {};
+fields.bihar.vehiclePermitType = fields.bihar.vehiclePermitType || [{ name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" }, { name: "GOODS VEHICLE" }];
+fields.bihar.paymentMode = fields.bihar.paymentMode || [{ name: "CASH" }, { name: "ONLINE" }];
+fields.bihar.permitType = fields.bihar.permitType || [{ name: "TOURIST" }, { name: "OTHER" }];
+fields.bihar.borderBarrier = fields.bihar.borderBarrier || [{ name: "PATNA" }, { name: "GAYA" }];
+fields.bihar.checkPostName = fields.bihar.checkPostName || [{ name: "PATNA CHECKPOST" }, { name: "GAYA CHECKPOST" }];
