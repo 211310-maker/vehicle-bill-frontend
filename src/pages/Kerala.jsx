@@ -7,17 +7,10 @@ import { fields, LOCAL_STORAGE_KEY } from "../constants";
 import { getDetailsApi } from "../utils/api";
 
 const Kerala = () => {
-  // Safe parse so JSON.parse won't throw when localStorage is empty
-  const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "null");
+  const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
   const state = "kerala";
   const history = useHistory();
-
-  // helper to safely convert to number
-  const num = (v) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  };
 
   // all input fields
   const [payLoad, setPayLoad] = useState({
@@ -88,61 +81,48 @@ const Kerala = () => {
       return;
     }
     setIsLoading(true);
-    try {
-      const { data } = await getDetailsApi({
-        vehicleNo: payLoad.vehicleNo,
+    const { data } = await getDetailsApi({
+      vehicleNo: payLoad.vehicleNo,
+    });
+    setIsLoading(false);
+    if (data && data.success) {
+      const preLoadedData = {};
+      ["chassisNo", "mobileNo", "ownerName", "borderBarrier"].forEach((key) => {
+        if (data.detail[key]) {
+          preLoadedData[key] = data.detail[key];
+        }
       });
-      if (data && data.success) {
-        const preLoadedData = {};
-        [
-          "chassisNo",
-          "mobileNo",
-          "ownerName",
-          "borderBarrier",
-          "checkpostName",
-          "seatingCapacityExcludingDriver",
-          "serviceType",
-          "taxMode",
-        ].forEach((key) => {
-          if (data.detail && data.detail[key]) {
-            preLoadedData[key] = data.detail[key];
-          }
-        });
-        setPayLoad((e) => ({
-          ...e,
-          ...preLoadedData,
-        }));
-      } else {
-        // no detail or success false - you could show a message if needed
-      }
-    } catch (err) {
-      console.error("getDetailsHandler error:", err);
-      alert("Failed to fetch vehicle details.");
-    } finally {
-      setIsLoading(false);
+      setPayLoad((e) => ({
+        ...e,
+        ...preLoadedData,
+      }));
     }
   };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    // ensure numeric fallback
     if (!payLoad.unladenWeight) {
       payLoad.unladenWeight = 0;
     }
 
-    // Kerala-specific fee rules (kept from your code) with safe numeric coercion
-    if (payLoad.vehiclePermitType === "GOODS VEHICLE" && payLoad.vehicleCategory === "HEAVY Goods vehicle") {
-      payLoad.totalAmount =
-        num(payLoad.mvTax) + num(payLoad.userCharge) + num(payLoad.permitFee) + num(payLoad.cess) + num(payLoad.surChargeFee);
-    } else if (
-      (payLoad.vehiclePermitType === "CONTRACT CARRIAGE/PASSANGER VEHICLES" && payLoad.vehicleClass === "MAXI CAB") ||
-      (payLoad.vehiclePermitType === "GOODS VEHICLE" && payLoad.vehicleCategory === "MEDIUM Goods vehicle")
+    if (
+      payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+      payLoad.vehicleCategory === 'HEAVY Goods vehicle'
     ) {
-      payLoad.totalAmount = num(payLoad.mvTax) + num(payLoad.userCharge) + num(payLoad.permitFee);
-    } else if (payLoad.vehiclePermitType === "CONTRACT CARRIAGE/PASSANGER VEHICLES" && payLoad.vehicleClass === "MOTOR CAB") {
-      payLoad.totalAmount = num(payLoad.mvTax) + num(payLoad.userCharge) + num(payLoad.permitFee) + num(payLoad.cess);
+      payLoad.totalAmount = +payLoad.mvTax + +payLoad.userCharge + +payLoad.permitFee + +payLoad.cess + +payLoad.surChargeFee
+    } else if (
+      (payLoad.vehiclePermitType ===
+        'CONTRACT CARRIAGE/PASSANGER VEHICLES' &&
+        payLoad.vehicleClass === 'MAXI CAB') ||
+      (payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+        payLoad.vehicleCategory === 'MEDIUM Goods vehicle')) {
+      payLoad.totalAmount = +payLoad.mvTax + +payLoad.userCharge + +payLoad.permitFee
+    } else if (payLoad.vehiclePermitType ===
+      'CONTRACT CARRIAGE/PASSANGER VEHICLES' &&
+      payLoad.vehicleClass === "MOTOR CAB") {
+      payLoad.totalAmount = +payLoad.mvTax + +payLoad.userCharge + +payLoad.permitFee + +payLoad.cess
     } else {
-      payLoad.totalAmount = num(payLoad.mvTax) + num(payLoad.cess);
+      payLoad.totalAmount = +payLoad.mvTax + +payLoad.cess
     }
 
     history.push("/select-payment", {
@@ -158,13 +138,15 @@ const Kerala = () => {
   };
 
   const onResetHandler = () => {
-    const p = {};
-    Object.keys(payLoad).forEach((k) => (p[k] = ""));
-    setPayLoad(p);
+    let x = { ...payLoad };
+    let p = {};
+    Object.keys(x).forEach((e) => {
+      p[e] = "";
+    });
+    setPayLoad({ ...p });
   };
 
-  // Access guard: avoid crash if isLoggedIn null and check the correct state
-  if (!isLoggedIn || !isLoggedIn.accessState || !isLoggedIn.accessState.includes(fields.stateName.kerala)) {
+  if (!isLoggedIn.accessState.includes(fields.stateName.bihar)) {
     return (
       <>
         <Header />
@@ -175,43 +157,29 @@ const Kerala = () => {
     );
   }
 
-  // safe getters for fields to avoid undefined map/filter crashes
-  const keralaFields = fields && fields.kerala ? fields.kerala : {};
-  const kerala = {
-    districtName: keralaFields.districtName || [],
-    checkPostName: keralaFields.checkPostName || [],
-    vehiclePermitType: keralaFields.vehiclePermitType || [],
-    vehicleClass: keralaFields.vehicleClass || [],
-    goodsName: keralaFields.goodsName || [],
-    permitType: keralaFields.permitType || [],
-    permitCategory: keralaFields.permitCategory || [],
-    registrationType: keralaFields.registrationType || [],
-    vehicleCategory: keralaFields.vehicleCategory || [],
-    tipperBody: keralaFields.tipperBody || [],
-    permit: keralaFields.permit || [],
-    serviceType: keralaFields.serviceType || [],
-    taxMode: keralaFields.taxMode || [],
-    purposeOfJourney: keralaFields.purposeOfJourney || [],
-    enteringDistrict: keralaFields.enteringDistrict || [],
-    fuelType: keralaFields.fuelType || [],
-  };
-
   return (
     <>
       <Header />
       <div className="text-center">
         <p className="login-heading mt-4">
-          <b>BORDER TAX PAYMENT FOR ENTRY INTO</b> <span>KERALA</span>
+          <b>BORDER TAX PAYMENT FOR ENTRY INTO</b> <span>KERELA</span>
         </p>
       </div>
       <div className="box box--main">
         <div className="box__heading--blue">Tax Payment Details</div>
-        <form ref={form} onSubmit={onSubmitHandler} className="service-type tax-details mt-4">
+        <form
+          ref={form}
+          onSubmit={onSubmitHandler}
+          className="service-type tax-details mt-4"
+        >
           <div className="row">
             <div className="col-6">
-              {/* vehicle number */}
+              {/* <!-- vehicle number --> */}
               <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="vehicleNo">
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="vehicleNo"
+                >
                   Vehicle No.<sup>*</sup>
                 </label>
                 <input
@@ -229,12 +197,14 @@ const Kerala = () => {
                   name="vehicleNo"
                 />
               </div>
-
               <div className="row">
                 <div className="col-sm-6">
-                  {/* chassis number */}
+                  {/* <!-- chassis number --> */}
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="chassisNo">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="chassisNo"
+                    >
                       Chassis No.<sup>*</sup>
                     </label>
                     <input
@@ -252,11 +222,13 @@ const Kerala = () => {
                     />
                   </div>
                 </div>
-
                 <div className="col-sm-6">
-                  {/* mobile number */}
+                  {/* <!-- mobile number --> */}
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="mobileNo">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="mobileNo"
+                    >
                       Mobile No.<sup>*</sup>
                     </label>
                     <input
@@ -282,7 +254,10 @@ const Kerala = () => {
                 {/* District Name */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="districtName">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="districtName"
+                    >
                       District Name<sup>*</sup>
                     </label>
                     <select
@@ -294,47 +269,54 @@ const Kerala = () => {
                       id="districtName"
                     >
                       <option value="">--Select District--</option>
-                      {kerala.districtName.map((dist) => (
-                        <option key={dist.name} value={dist.name}>
-                          {dist.name}
-                        </option>
-                      ))}
+                      {fields.kerala.districtName.map((dist) => {
+                        return (
+                          <option key={dist.name} value={dist.name}>
+                            {dist.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
-
                 {/* Checkpost Name */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="checkpostName">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="checkpostName"
+                    >
                       Checkpost Name
                     </label>
                     <select
                       tabIndex="4"
                       value={payLoad.checkpostName}
                       onChange={onChangeHandler}
+                      required
                       name="checkpostName"
                       id="checkpostName"
                     >
                       <option value="">--Select Checkpost Name--</option>
-                      {payLoad.districtName &&
-                        kerala.checkPostName
-                          .filter((e) => (e.district || "").toLowerCase() === (payLoad.districtName || "").toLowerCase())
-                          .map((checkpost) => (
-                            <option key={checkpost.name} value={checkpost.name}>
-                              {checkpost.name}
-                            </option>
-                          ))}
+                      {payLoad.districtName && fields.kerala.checkPostName.filter(e => e.district === payLoad.districtName).map((checkpost) => {
+                        return (
+                          <option key={checkpost.name} value={checkpost.name}>
+                            {checkpost.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
               </div>
 
               <div className="row">
-                {/* vehicle type */}
+                {/* <!-- vehicle type --> */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="vehiclePermitType">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="vehiclePermitType"
+                    >
                       Vehicle Type<sup>*</sup>
                     </label>
                     <select
@@ -346,19 +328,23 @@ const Kerala = () => {
                       id="vehiclePermitType"
                     >
                       <option value="">--Select Vehicle Type--</option>
-                      {kerala.vehiclePermitType.map((type) => (
-                        <option value={type.name} key={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
+                      {fields.kerala.vehiclePermitType.map((type) => {
+                        return (
+                          <option value={type.name} key={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
-
-                {/* vehicle class */}
+                {/* <!-- vehicle className --> */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="vehicleClass">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="vehicleClass"
+                    >
                       Vehicle Class<sup>*</sup>
                     </label>
                     <select
@@ -371,25 +357,29 @@ const Kerala = () => {
                       id="vehicleClass"
                     >
                       <option value="">--Select Vehicle Class--</option>
-                      {kerala.vehicleClass
-                        .filter((e) => e.category === payLoad.vehiclePermitType)
-                        .map((type) => (
+                      {payLoad.vehiclePermitType && fields.kerala.vehicleClass.filter(e => e.category == payLoad.vehiclePermitType).map((type) => {
+                        return (
                           <option value={type.name} key={type.name}>
                             {type.name}
                           </option>
-                        ))}
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
               </div>
 
-              {payLoad.vehiclePermitType === "CONTRACT CARRIAGE/PASSANGER VEHICLES" ? (
+              {payLoad.vehiclePermitType ==
+                "CONTRACT CARRIAGE/PASSANGER VEHICLES" ? (
                 <div className="row">
-                  {/* seating capacity */}
+                  {/* <!-- seating capacity --> */}
                   <div className="col-sm-6">
                     <div className="form__control">
-                      <label className="form__label d-block w-100 text-left" htmlFor="seatingCapacityExcludingDriver">
-                        Seating Capacity(Ex. Driver)<sup>*</sup>
+                      <label
+                        className="form__label d-block w-100 text-left"
+                        htmlFor="seatingCapacityExcludingDriver"
+                      >
+                          Seating Capacity(Including Driver)<sup>*</sup>
                       </label>
                       <input
                         required
@@ -406,10 +396,13 @@ const Kerala = () => {
                     </div>
                   </div>
 
-                  {/* sleeper capacity */}
+                  {/* <!-- sleeper capacity  --> */}
                   <div className="col-sm-6">
                     <div className="form__control">
-                      <label className="form__label d-block w-100 text-left" htmlFor="sleeperCap">
+                      <label
+                        className="form__label d-block w-100 text-left"
+                          htmlFor="sleeperCap"
+                      >
                         Sleeper Capacity <sup>*</sup>
                       </label>
                       <input
@@ -418,21 +411,24 @@ const Kerala = () => {
                         min="0"
                         disabled={isLoading}
                         onChange={onChangeHandler}
-                        value={payLoad.sleeperCap}
+                          value={payLoad.sleeperCap}
                         className="form__input w-100"
                         type="number"
-                        id="sleeperCap"
-                        name="sleeperCap"
+                          id="sleeperCap"
+                          name="sleeperCap"
                       />
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="row">
-                  {/* gross weight */}
+                  {/* <!-- gross vehicle weight --> */}
                   <div className="col-sm-6">
                     <div className="form__control">
-                      <label className="form__label d-block w-100 text-left" htmlFor="grossVehicleWeight">
+                      <label
+                        className="form__label d-block w-100 text-left"
+                        htmlFor="grossVehicleWeight"
+                      >
                         Gross Vehicle Wt.(in kg)<sup>*</sup>
                       </label>
                       <input
@@ -449,11 +445,13 @@ const Kerala = () => {
                       />
                     </div>
                   </div>
-
-                  {/* unladen */}
+                  {/* <!-- un laden weight --> */}
                   <div className="col-sm-6">
                     <div className="form__control">
-                      <label className="form__label d-block w-100 text-left" htmlFor="unladenWeight">
+                      <label
+                        className="form__label d-block w-100 text-left"
+                        htmlFor="unladenWeight"
+                      >
                         Unladen Wt.(in kg)<sup>*</sup>
                       </label>
                       <input
@@ -475,9 +473,12 @@ const Kerala = () => {
 
               <div className="row">
                 <div className="col-sm-6">
-                  {/* Name Of Goods */}
+                  {/* <!-- Name Of Goods --> */}
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="goodsName">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="goodsName"
+                    >
                       Name of Goods<sup>*</sup>
                     </label>
                     <select
@@ -490,18 +491,23 @@ const Kerala = () => {
                       id="goodsName"
                     >
                       <option value="">--Select Name of Goods--</option>
-                      {kerala.goodsName.map((type) => (
-                        <option value={type.name} key={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
+                      {fields.kerala.goodsName.map((type) => {
+                        return (
+                          <option value={type.name} key={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
-
+                {/* <!-- Road Tax Validity --> */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="ordinarySeats">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="ordinarySeats"
+                    >
                       Ordinary seats
                     </label>
                     <input
@@ -519,14 +525,150 @@ const Kerala = () => {
                 </div>
               </div>
 
-              {/* rest of left column... */}
-              {/* Insurance, Tax Mode, Tax From Date etc. */}
               <div className="row">
                 <div className="col-sm-6">
-                  {/* Insurance Validity */}
+                  {/* <!-- Permit Category --> */}
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="insuranceValidity">
-                      Insurance Validity<sup>*</sup>
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="permitType"
+                    >
+                      Permit Type<sup>*</sup>
+                    </label>
+                    <select
+                      required
+                      tabIndex="12"
+                      disabled={isLoading}
+                      value={payLoad.permitType}
+                      onChange={onChangeHandler}
+                      name="permitType"
+                      id="permitType"
+                    >
+                      <option value="">--Select Permit Type--</option>
+                      {fields.kerala.permitType.filter(e => e.category === payLoad.vehiclePermitType).map((type) => {
+                        return (
+                          <option value={type.name} key={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+                {/* <!-- Road Tax Validity --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="permitCategory"
+                    >
+                      Permit Category<sup>*</sup>
+                    </label>
+                    <select
+                      required
+                      tabIndex="12"
+                      disabled={isLoading}
+                      value={payLoad.permitCategory}
+                      onChange={onChangeHandler}
+                      name="permitCategory"
+                      id="permitCategory"
+                    >
+                      <option value="">--Select Permit Category--</option>
+                      {fields.kerala.permitCategory.filter(e => e.category === payLoad.vehiclePermitType).map((type) => {
+                        return (
+                          <option value={type.name} key={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-sm-6">
+                  {/* <!-- Floor Area--> */}
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="floorArea"
+                    >
+                      Floor Area(In Meter)
+                    </label>
+                    <input
+                      required
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="number"
+                      id="floorArea"
+                      name="floorArea"
+                      onChange={onChangeHandler}
+                      value={payLoad.floorArea}
+                    />
+                  </div>
+                </div>
+                {/* <!-- Cubic Cap --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="cubicCap"
+                    >
+                      Cubic Cap(CC)
+                    </label>
+                    <input
+                      required
+                      tabIndex="16"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      id="cubicCap"
+                      name="cubicCap"
+                      type="number"
+                      value={payLoad.cubicCap}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form__control">
+                {/* Registration Type */}
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="registrationType"
+                >
+                  Registration Type<sup>*</sup>
+                </label>
+                <select
+                  required
+                  tabIndex="12"
+                  disabled={isLoading}
+                  value={payLoad.registrationType}
+                  onChange={onChangeHandler}
+                  name="registrationType"
+                  id="registrationType"
+                >
+                  <option value="">--Select Permit Category--</option>
+                  {fields.kerala.registrationType.map((type) => {
+                    return (
+                      <option value={type.name} key={type.name}>
+                        {type.name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <div className="row">
+                <div className="col-sm-6">
+                  {/* <!-- Permit validity --> */}
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="permitValidity"
+                    >
+                      Basic Permit validity<sup>*</sup>
                     </label>
                     <input
                       required
@@ -534,38 +676,142 @@ const Kerala = () => {
                       disabled={isLoading}
                       className="form__input w-100"
                       type="datetime-local"
-                      id="insuranceValidity"
-                      name="insuranceValidity"
+                      id="permitValidity"
+                      name="permitValidity"
                       onChange={onChangeHandler}
-                      value={payLoad.insuranceValidity}
+                      value={payLoad.permitValidity}
                     />
                   </div>
                 </div>
 
+                {/* <!-- Fitness valid --> */}
                 <div className="col-sm-6">
-                  {/* Road Tax Validity */}
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="roadTaxValidity">
-                      Road Tax Validity<sup>*</sup>
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="fitnessValidity"
+                    >
+                      Fitness Validity<sup>*</sup>
                     </label>
                     <input
                       required
                       tabIndex="16"
                       disabled={isLoading}
                       className="form__input w-100"
-                      id="roadTaxValidity"
-                      name="roadTaxValidity"
+                      id="fitnessValidity"
+                      name="fitnessValidity"
+                      type="date"
+                      value={payLoad.fitnessValidity}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
+
+                {/* <!-- Pucc valid --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="puccValidUpto"
+                    >
+                      PUCC Valid up to<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="16"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      id="puccValidity"
+                      name="puccValidity"
+                      type="date"
+                      value={payLoad.puccValidity}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
+                {/* <!-- Permit Authorization Date --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="permitAuthorizationValidity"
+                    >
+                      Authorization Valid up to<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="16"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      id="permitAuthorizationValidity"
+                      name="permitAuthorizationValidity"
                       type="datetime-local"
-                      value={payLoad.roadTaxValidity}
+                      value={payLoad.permitAuthorizationValidity}
                       onChange={onChangeHandler}
                     />
                   </div>
                 </div>
               </div>
+              <div className="row">
+                {/* <!-- Registration Date --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="regnDate"
+                    >
+                      Registration Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="16"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      id="regnDate"
+                      name="regnDate"
+                      type="date"
+                      value={payLoad.regnDate}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="fuelType"
+                    >
+                      Fuel<sup>*</sup>
+                    </label>
+                    <select
+                      tabIndex="7"
+                      required
+                      disabled={isLoading}
+                      onChange={onChangeHandler}
+                      value={payLoad.fuelType}
+                      name="fuelType"
+                      id="fuelType"
+                    >
+                      <option value="">--Select Fuel--</option>
+                      {fields?.kerala?.fuelType.map((type) => {
+                        return (
+                          <option value={type.name} key={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
 
-              {/* Tax mode */}
+              </div>
+
+              {/* <!-- Tax mode --> */}
               <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="taxMode">
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="taxMode"
+                >
                   Tax Mode<sup>*</sup>
                 </label>
                 <select
@@ -578,49 +824,46 @@ const Kerala = () => {
                   id="taxMode"
                 >
                   <option value="">--Select Tax Mode--</option>
-                  {kerala.taxMode.map((type) => (
-                    <option value={type.name} key={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
+                  {fields?.kerala?.taxMode.map((type) => {
+                    return (
+                      <option value={type.name} key={type.name}>
+                        {type.name}
+                      </option>
+                    );
+                  })}
                 </select>
-              </div>
-
-              {/* Tax From Date */}
-              <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="taxFromDate">
-                  Tax From Date<sup>*</sup>
-                </label>
-                <input
-                  required
-                  tabIndex="15"
-                  disabled={isLoading}
-                  className="form__input w-100"
-                  type="datetime-local"
-                  id="taxFromDate"
-                  name="taxFromDate"
-                  onChange={onChangeHandler}
-                  value={payLoad.taxFromDate}
-                />
               </div>
             </div>
 
-            {/* RIGHT COLUMN */}
+
+
+
+
+            {/* =========================== right side fields ============================ */}
             <div className="col-6">
               <div className="form__control text-left">
-                <label className="form__label d-block w-100 text-left">&nbsp;</label>
+                <label className="form__label d-block w-100 text-left">
+                  &nbsp;
+                </label>
                 {isLoading && <Loader className="loader__get-details" />}
                 {!isLoading && (
-                  <button disabled={isLoading} type="button" onClick={getDetailsHandler} className="box__button get-details">
+                  <button
+                    disabled={isLoading}
+                    type="button"
+                    onClick={getDetailsHandler}
+                    className="box__button get-details"
+                  >
                     <span className="glyphicon glyphicon-arrow-down mr-3"></span>
                     Get Details
                   </button>
                 )}
               </div>
-
-              {/* owner name */}
+              {/* <!-- owner name --> */}
               <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="ownerName">
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="ownerName"
+                >
                   Owner Name<sup>*</sup>
                 </label>
                 <input
@@ -637,39 +880,67 @@ const Kerala = () => {
                 />
               </div>
 
-              {/* from state / issuing authority */}
               <div className="row">
+                {/* <!-- from state --> */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="fromState">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="fromState"
+                    >
                       From State<sup>*</sup>
                     </label>
-                    <select tabIndex="10" disabled={isLoading} required value={payLoad.fromState} onChange={onChangeHandler} name="fromState" id="fromState">
+                    <select
+                      tabIndex="10"
+                      disabled={isLoading}
+                      required
+                      value={payLoad.fromState}
+                      onChange={onChangeHandler}
+                      name="fromState"
+                      id="fromState"
+                    >
                       <option value="">--Select State--</option>
-                      {(fields.fromState || []).map((type) => (
-                        <option key={type.name} value={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
+                      {fields.fromState.map((type) => {
+                        return (
+                          <option key={type.name} value={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
-
+                {/* <!-- Issuing Authority --> */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="issuingAuthority">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="issuingAuthority"
+                    >
                       Issuing Authority<sup>*</sup>
                     </label>
-                    <input tabIndex="15" disabled={isLoading} className="form__input w-100" type="text" id="issuingAuthority" name="issuingAuthority" onChange={onChangeHandler} value={payLoad.issuingAuthority} />
+                    <input
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="text"
+                      id="issuingAuthority"
+                      name="issuingAuthority"
+                      onChange={onChangeHandler}
+                      value={payLoad.issuingAuthority}
+                    />
                   </div>
                 </div>
               </div>
 
-              {/* vehicle category / DL */}
               <div className="row">
+                {/* <!-- Vehicle Category --> */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="vehicleCategory">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="vehicleCategory"
+                    >
                       Vehicle Category<sup>*</sup>
                     </label>
                     <select
@@ -682,69 +953,404 @@ const Kerala = () => {
                       id="vehicleCategory"
                     >
                       <option value="">--Select Vehicle Category--</option>
-                      {kerala.vehicleCategory
-                        .filter((e) => e.category === payLoad.vehiclePermitType)
-                        .map((type) => (
+                      {fields.kerala.vehicleCategory.filter(e => e.category === payLoad.vehiclePermitType).map((type) => {
+                        return (
                           <option key={type.name} value={type.name}>
                             {type.name}
                           </option>
-                        ))}
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
-
+                {/* <!-- DL Number --> */}
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="dlNumber">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="dlNumber"
+                    >
                       DL Number<sup>*</sup>
                     </label>
-                    <input required tabIndex="5" disabled={isLoading} onChange={onChangeHandler} className="form__input w-100" type="text" value={payLoad.dlNumber} id="dlNumber" name="dlNumber" />
+                    <input
+                      required
+                      tabIndex="5"
+                      disabled={isLoading}
+                      onChange={onChangeHandler}
+                      className="form__input w-100"
+                      type="text"
+                      value={payLoad.dlNumber}
+                      id="dlNumber"
+                      name="dlNumber"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                {/* <!-- Driver Details--> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="driverName"
+                    >
+                      Driver Name<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="5"
+                      disabled={isLoading}
+                      onChange={onChangeHandler}
+                      className="form__input w-100"
+                      type="text"
+                      value={payLoad.driverName}
+                      id="driverName"
+                      name="driverName"
+                    />
+                  </div>
+                </div>
+                {/* <!--   DL Valid Upto --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="dlValidUptoDate"
+                    >
+                      DL Valid Upto<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="date"
+                      id="dlValidUptoDate"
+                      name="dlValidUptoDate"
+                      onChange={onChangeHandler}
+                      value={payLoad.dlValidUptoDate}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                {/* <!-- Pushback Seats --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="pushbackSeats"
+                    >
+                      Pushback seats
+                    </label>
+                    <input
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="number"
+                      id="pushbackSeats"
+                      name="pushbackSeats"
+                      onChange={onChangeHandler}
+                      value={payLoad.pushbackSeats}
+                    />
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="tipperBody"
+                    >
+                      Tipper Body<sup>*</sup>
+                    </label>
+                    <select
+                      required
+                      tabIndex="11"
+                      disabled={isLoading}
+                      name="tipperBody"
+                      id="tipperBody"
+                      value={payLoad.tipperBody}
+                      onChange={onChangeHandler}
+                    >
+                      <option value="">--Select Tipper Body--</option>
+                      {fields.kerala.tipperBody.map((type) => {
+                        return (
+                          <option value={type.name} key={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
+                    </select>
                   </div>
                 </div>
               </div>
 
-              {/* Service / Permit type */}
+              <div className="row">
+                {/* Permit and Base permit no */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="permit"
+                    >
+                      Permit<sup>*</sup>
+                    </label>
+                    <select
+                      required
+                      tabIndex="11"
+                      disabled={isLoading}
+                      name="permit"
+                      id="permit"
+                      value={payLoad.permit}
+                      onChange={onChangeHandler}
+                    >
+                      <option value="">--Select Permit--</option>
+                      {fields.kerala.permit.filter(e => e.category === payLoad.vehiclePermitType).map((type) => {
+                        return (
+                          <option value={type.name} key={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="permitNo"
+                    >
+                      Base Permit No
+                    </label>
+                    <input
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="text"
+                      id="permitNo"
+                      name="permitNo"
+                      onChange={onChangeHandler}
+                      value={payLoad.permitNo}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form__control">
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="routeOfTheJourney"
+                >
+                  Route
+                </label>
+                <input
+                  inputMode="text"
+                  disabled={isLoading}
+                  onChange={onChangeHandler}
+                  value={payLoad.routeOfTheJourney}
+                  className="form__input w-100"
+                  type="text"
+                  id="routeOfTheJourney"
+                  name="routeOfTheJourney"
+                />
+
+              </div>
+              <div className="row">
+                <div className="col-sm-6">
+                  {/* <!-- Purpose of Journey --> */}
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="serviceType"
+                    >
+                      Service Type<sup>*</sup>
+                    </label>
+                    <select
+                      tabIndex="13"
+                      required
+                      disabled={isLoading}
+                      value={payLoad.serviceType}
+                      onChange={onChangeHandler}
+                      name="serviceType"
+                      id="serviceType"
+                    >
+                      <option value="">--Service Type--</option>
+                      {fields.kerala.serviceType.map((dist) => {
+                        return (
+                          <option key={dist.name} value={dist.name}>
+                            {dist.name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+                {/* <!-- Entering District --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="saleAmount"
+                    >
+                      Sale Amount
+                    </label>
+                    <input
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="number"
+                      id="saleAmount"
+                      name="saleAmount"
+                      onChange={onChangeHandler}
+                      value={payLoad.saleAmount}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-sm-6">
+                  {/* <!-- Insurance Validity --> */}
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="insuranceValidity"
+                    >
+                      Insurance Validity<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="datetime-local"
+                      id="insuranceValidity"
+                      name="insuranceValidity"
+                      onChange={onChangeHandler}
+                      value={payLoad.insuranceValidity}
+                    />
+                  </div>
+                </div>
+                {/* <!-- Road Tax Validity --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="taxValidity"
+                    >
+                      Tax Validity<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="16"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      id="taxValidity"
+                      name="taxValidity"
+                      type="datetime-local"
+                      value={payLoad.taxValidity}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-sm-6">
+                  {/* <!-- Green Tax Paid --> */}
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="greenTaxValidity"
+                    >
+                      Green Tax Paid upto Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="datetime-local"
+                      id="greenTaxValidity"
+                      name="greenTaxValidity"
+                      onChange={onChangeHandler}
+                      value={payLoad.greenTaxValidity}
+                    />
+                  </div>
+                </div>
+                {/* <!-- Cess Paid Date --> */}
+                <div className="col-sm-6">
+                  <div className="form__control">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="cessPaidDate"
+                    >
+                      Cess Paid Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex="16"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      id="cessPaidDate"
+                      name="cessPaidDate"
+                      type="datetime-local"
+                      value={payLoad.cessPaidDate}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* <!-- Tax From Date --> */}
+              {/* <!-- Tax upto Date --> */}
               <div className="row">
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="serviceType">
-                      Service type<sup>*</sup>
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="taxFromDate"
+                    >
+                      Tax From Date<sup>*</sup>
                     </label>
-                    <select required tabIndex="11" disabled={isLoading} name="serviceType" id="serviceType" value={payLoad.serviceType} onChange={onChangeHandler}>
-                      <option value="">--Select Service Type--</option>
-                      {kerala.serviceType.map((type) => (
-                        <option value={type.name} key={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
-                    </select>
+                    <input
+                      required
+                      tabIndex="15"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      type="datetime-local"
+                      id="taxFromDate"
+                      name="taxFromDate"
+                      onChange={onChangeHandler}
+                      value={payLoad.taxFromDate}
+                    />
+
                   </div>
                 </div>
-
                 <div className="col-sm-6">
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="permitType">
-                      Permit Type<sup>*</sup>
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="taxUptoDate"
+                    >
+                      Tax Upto Date<sup>*</sup>
                     </label>
-                    <select required tabIndex="12" disabled={isLoading} value={payLoad.permitType} onChange={onChangeHandler} name="permitType" id="permitType">
-                      <option value="">--Select Permit Type--</option>
-                      {kerala.permitType.filter((e) => e.category === payLoad.vehiclePermitType).map((type) => (
-                        <option value={type.name} key={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
-                    </select>
+                    <input
+                      required
+                      tabIndex="16"
+                      disabled={isLoading}
+                      className="form__input w-100"
+                      id="taxUptoDate"
+                      name="taxUptoDate"
+                      type="datetime-local"
+                      value={payLoad.taxUptoDate}
+                      onChange={onChangeHandler}
+                    />
                   </div>
                 </div>
               </div>
-
-              {/* ... other right column inputs preserved ... */}
-
-              {/* Total amount and action buttons at bottom (kept as-is further down) */}
             </div>
           </div>
-
-          {/* =============== table & total ======================== */}
+          {/* =============== table ======================== */}
           <div className="row mt-3">
             <div className="col-12">
               <table className="hr-table">
@@ -765,13 +1371,26 @@ const Kerala = () => {
                     <td className=""></td>
                     <td className="input-box">
                       <center>
-                        <input tabIndex="17" required disabled={isLoading} value={payLoad.mvTax} onChange={onChangeHandler} name="mvTax" type="number" min="0" inputMode="numeric" />
+                        <input
+                          tabIndex="17"
+                          required
+                          disabled={isLoading}
+                          value={payLoad.mvTax}
+                          onChange={onChangeHandler}
+                          name="mvTax"
+                          type="number"
+                          min="0"
+                          inputMode="numeric"
+                        />
                       </center>
                     </td>
                   </tr>
 
-                  {((payLoad.vehiclePermitType === "CONTRACT CARRIAGE/PASSANGER VEHICLES" && payLoad.vehicleClass !== "MAXI CAB") ||
-                    (payLoad.vehiclePermitType === "GOODS VEHICLE" && payLoad.vehicleCategory !== "MEDIUM Goods vehicle")) && (
+                  {((payLoad.vehiclePermitType ===
+                    'CONTRACT CARRIAGE/PASSANGER VEHICLES' &&
+                    payLoad.vehicleClass !== 'MAXI CAB') ||
+                    (payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+                      payLoad.vehicleCategory !== 'MEDIUM Goods vehicle')) && (
                     <tr>
                       <td className="">2</td>
                       <td className="pb-table-text">Cess</td>
@@ -779,14 +1398,25 @@ const Kerala = () => {
                       <td className=""></td>
                       <td className="input-box">
                         <center>
-                          <input tabIndex="17" required disabled={isLoading} value={payLoad.cess} onChange={onChangeHandler} name="cess" type="number" min="0" inputMode="numeric" />
+                          <input
+                            tabIndex="17"
+                            required
+                            disabled={isLoading}
+                            value={payLoad.cess}
+                            onChange={onChangeHandler}
+                            name="cess"
+                            type="number"
+                            min="0"
+                            inputMode="numeric"
+                          />
                         </center>
                       </td>
                     </tr>
-                  )}
+                    )}
 
                   {/* Five Line Case Only */}
-                  {payLoad.vehiclePermitType === "GOODS VEHICLE" && payLoad.vehicleCategory === "HEAVY Goods vehicle" && (
+                  {(payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+                    payLoad.vehicleCategory === 'HEAVY Goods vehicle') && (
                     <tr>
                       <td className="">3</td>
                       <td className="pb-table-text">Green Tax</td>
@@ -794,53 +1424,102 @@ const Kerala = () => {
                       <td className=""></td>
                       <td className="input-box">
                         <center>
-                          <input tabIndex="17" required disabled={isLoading} value={payLoad.surChargeFee} onChange={onChangeHandler} name="surChargeFee" type="number" min="0" inputMode="numeric" />
+                          <input
+                            tabIndex="17"
+                            required
+                            disabled={isLoading}
+                            value={payLoad.surChargeFee}
+                            onChange={onChangeHandler}
+                            name="surChargeFee"
+                            type="number"
+                            min="0"
+                            inputMode="numeric"
+                          />
                         </center>
                       </td>
                     </tr>
-                  )}
+                    )}
 
-                  {((payLoad.vehiclePermitType === "CONTRACT CARRIAGE/PASSANGER VEHICLES" && payLoad.vehicleClass === "MOTOR CAB") ||
-                    (payLoad.vehiclePermitType === "CONTRACT CARRIAGE/PASSANGER VEHICLES" && payLoad.vehicleClass === "MAXI CAB") ||
-                    (payLoad.vehiclePermitType === "GOODS VEHICLE" && payLoad.vehicleCategory === "MEDIUM Goods vehicle") ||
-                    (payLoad.vehiclePermitType === "GOODS VEHICLE" && payLoad.vehicleCategory === "HEAVY Goods vehicle")) && (
-                    <>
-                      <tr>
-                        <td className="">4</td>
-                        <td className="pb-table-text">Permit Fee</td>
-                        <td className=""></td>
-                        <td className=""></td>
-                        <td className="input-box">
-                          <center>
-                            <input tabIndex="17" required disabled={isLoading} value={payLoad.permitFee} onChange={onChangeHandler} name="permitFee" type="number" min="0" inputMode="numeric" />
-                          </center>
-                        </td>
-                      </tr>
+                  {((payLoad.vehiclePermitType ===
+                    'CONTRACT CARRIAGE/PASSANGER VEHICLES' &&
+                    payLoad.vehicleClass === "MOTOR CAB") ||
+                    (payLoad.vehiclePermitType ===
+                    'CONTRACT CARRIAGE/PASSANGER VEHICLES' &&
+                      payLoad.vehicleClass === 'MAXI CAB') ||
+                    (payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+                      payLoad.vehicleCategory === 'MEDIUM Goods vehicle') ||
+                    (payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+                      payLoad.vehicleCategory === 'HEAVY Goods vehicle')) && (
+                      <>
+                        <tr>
+                          <td className="">4</td>
+                          <td className="pb-table-text">Permit Fee</td>
+                          <td className=""></td>
+                          <td className=""></td>
+                          <td className="input-box">
+                            <center>
+                              <input
+                                tabIndex="17"
+                                required
+                                disabled={isLoading}
+                                value={payLoad.permitFee}
+                                onChange={onChangeHandler}
+                                name="permitFee"
+                                type="number"
+                                min="0"
+                                inputMode="numeric"
+                              />
+                            </center>
+                          </td>
+                        </tr>
+                      </>
+                    )}
+
+                  {((payLoad.vehiclePermitType ===
+                    'CONTRACT CARRIAGE/PASSANGER VEHICLES' &&
+                    payLoad.vehicleClass === "MOTOR CAB") ||
+                    (payLoad.vehiclePermitType ===
+                    'CONTRACT CARRIAGE/PASSANGER VEHICLES' &&
+                      payLoad.vehicleClass === 'MAXI CAB') ||
+                    (payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+                      payLoad.vehicleCategory === 'MEDIUM Goods vehicle') ||
+                    (payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+                      payLoad.vehicleCategory === 'HEAVY Goods vehicle')) && (
                       <tr>
                         <td className="">5</td>
-                        <td className="pb-table-text">Service/User Charge</td>
+                      <td className="pb-table-text">Service/User Charge</td>
                         <td className=""></td>
                         <td className=""></td>
                         <td className="input-box">
                           <center>
-                            <input tabIndex="17" required disabled={isLoading} value={payLoad.userCharge} onChange={onChangeHandler} name="userCharge" type="number" min="0" inputMode="numeric" />
+                            <input
+                              tabIndex="17"
+                              required
+                              disabled={isLoading}
+                            value={payLoad.userCharge}
+                              onChange={onChangeHandler}
+                            name="userCharge"
+                              type="number"
+                              min="0"
+                              inputMode="numeric"
+                            />
                           </center>
                         </td>
-                      </tr>
-                    </>
-                  )}
+                    </tr>
+                    )}
                 </tbody>
               </table>
             </div>
           </div>
-
           <br />
-
           <div className="row">
             <div className="col-sm-6">
-              {/* Total amount */}
+              {/* <!-- Total amount --> */}
               <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="totalAmount">
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="totalAmount"
+                >
                   Total amount<sup>*</sup>
                 </label>
                 <input
@@ -849,11 +1528,16 @@ const Kerala = () => {
                   min="0"
                   disabled
                   value={
-                    (payLoad.vehiclePermitType === "CONSTRUCTION EQUIPMENT VEHICLE" && payLoad.permitType === "NOT APPLICABLE") ||
-                    (payLoad.vehiclePermitType === "CONTRACT CARRIAGE/PASSANGER VEHICLES" && payLoad.permitType === "TOURIST PERMIT") ||
-                    (payLoad.vehiclePermitType === "GOODS VEHICLE" && payLoad.permitType === "NATIONAL PERMIT")
-                      ? num(payLoad.mvTax) + num(payLoad.cess) + num(payLoad.infraCess)
-                      : num(payLoad.mvTax) + num(payLoad.cess) + num(payLoad.infraCess) + num(payLoad.permitFee) + num(payLoad.permitEndoresment)
+                    (payLoad.vehiclePermitType ===
+                      "CONSTRUCTION EQUIPMENT VEHICLE" &&
+                      payLoad.permitType === "NOT APPLICABLE") ||
+                      (payLoad.vehiclePermitType ===
+                      "CONTRACT CARRIAGE/PASSANGER VEHICLES" &&
+                        payLoad.permitType === "TOURIST PERMIT") ||
+                      (payLoad.vehiclePermitType === "GOODS VEHICLE" &&
+                        payLoad.permitType === "NATIONAL PERMIT")
+                      ? +payLoad.mvTax + +payLoad.userCharge + +payLoad.permitFee + +payLoad.cess + +payLoad.surChargeFee
+                      : +payLoad.mvTax + +payLoad.userCharge + +payLoad.permitFee + +payLoad.cess + +payLoad.surChargeFee
                   }
                   className="form__input w-100"
                   type="number"
@@ -862,16 +1546,20 @@ const Kerala = () => {
                 />
               </div>
             </div>
-
             <div className="col-sm-6">
-              <label className="form__label d-block w-100 text-left">&nbsp;</label>
-              <ActionButtons tabIndex="19" isDisabled={isLoading} onReset={onResetHandler} />
+              <label className="form__label d-block w-100 text-left">
+                &nbsp;
+              </label>
+              <ActionButtons
+                tabIndex="19"
+                isDisabled={isLoading}
+                onReset={onResetHandler}
+              />
             </div>
           </div>
         </form>
         <br />
       </div>
-
       <br />
       <br />
       <br />
