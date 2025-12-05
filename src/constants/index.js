@@ -2278,3 +2278,105 @@ fields.jharkhand.permitType = fields.jharkhand.permitType || [{ name: "TOURIST" 
 fields.jharkhand.borderBarrier = fields.jharkhand.borderBarrier || [{ name: "RANCHI" }];
 fields.jharkhand.checkPostName = fields.jharkhand.checkPostName || [{ name: "RANCHI CHECKPOST" }];
 fields.jharkhand.serviceType = fields.jharkhand.serviceType || [{ name: "Tourist" }];
+
+// ---------------- SAFEGUARDS FOR STATES ----------------
+// Add this after your `fields` object is defined. It will NOT
+// overwrite existing data — only provide defaults if missing.
+
+fields.karnataka = fields.karnataka || {};
+fields.karnataka.vehiclePermitType = fields.karnataka.vehiclePermitType || [
+  { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "GOODS VEHICLE" }
+];
+fields.karnataka.permitType = fields.karnataka.permitType || [
+  { name: "TOURIST PERMIT" },
+  { name: "NATIONAL PERMIT" }
+];
+fields.karnataka.borderBarrier = fields.karnataka.borderBarrier || [
+  { name: "BENGALURU" }
+];
+fields.karnataka.checkPostName = fields.karnataka.checkPostName || [
+  { name: "BENGALURU CHECKPOST", district: "BENGALURU" }
+];
+fields.karnataka.serviceType = fields.karnataka.serviceType || [
+  { name: "Tourist" }
+];
+fields.karnataka.taxMode = fields.karnataka.taxMode || fields.taxMode || [
+  { name: "ANNUAL" },
+  { name: "MONTHLY" }
+];
+
+// ---------------- Kerala ----------------
+fields.kerala = fields.kerala || {};
+fields.kerala.vehiclePermitType = fields.kerala.vehiclePermitType || [
+  { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "GOODS VEHICLE" }
+];
+fields.kerala.permitType = fields.kerala.permitType || [
+  { name: "TOURIST" }
+];
+fields.kerala.borderBarrier = fields.kerala.borderBarrier || [
+  { name: "THIRUVANANTHAPURAM" }
+];
+fields.kerala.checkPostName = fields.kerala.checkPostName || [
+  { name: "KOCHI CP", district: "KOCHI" }
+];
+fields.kerala.districtName = fields.kerala.districtName || [
+  { name: "KOCHI" }
+];
+fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || [
+  { name: "KOCHI" }
+];
+fields.kerala.purposeOfJourney = fields.kerala.purposeOfJourney || [
+  { name: "TOURISM" }
+];
+fields.kerala.serviceType = fields.kerala.serviceType || [
+  { name: "Tourist" }
+];
+fields.kerala.taxMode = fields.kerala.taxMode || fields.taxMode || [
+  { name: "ANNUAL" },
+  { name: "MONTHLY" }
+];
+
+// ---------------- Madhya Pradesh (mp) ----------------
+fields.mp = fields.mp || {};
+fields.mp.vehiclePermitType = fields.mp.vehiclePermitType || [
+  { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "GOODS VEHICLE" }
+];
+fields.mp.permitType = fields.mp.permitType || [
+  { name: "TOURIST" }
+];
+fields.mp.borderBarrier = fields.mp.borderBarrier || [
+  { name: "BHOPAL" }
+];
+fields.mp.serviceType = fields.mp.serviceType || [{ name: "Tourist" }];
+fields.mp.taxMode = fields.mp.taxMode || fields.taxMode || [
+  { name: "ANNUAL" },
+  { name: "MONTHLY" }
+];
+
+// ---------------- Maharashtra ----------------
+fields.maharashtra = fields.maharashtra || {};
+fields.maharashtra.vehiclePermitType = fields.maharashtra.vehiclePermitType || [
+  { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "GOODS VEHICLE" }
+];
+fields.maharashtra.permitType = fields.maharashtra.permitType || [
+  { name: "TOURIST" }
+];
+fields.maharashtra.borderBarrier = fields.maharashtra.borderBarrier || [
+  { name: "MUMBAI" }
+];
+fields.maharashtra.checkPostName = fields.maharashtra.checkPostName || [
+  { name: "MUMBAI CHECKPOST", district: "MUMBAI" }
+];
+fields.maharashtra.serviceType = fields.maharashtra.serviceType || [
+  { name: "Tourist" }
+];
+fields.maharashtra.taxMode = fields.maharashtra.taxMode || fields.taxMode || [
+  { name: "ANNUAL" },
+  { name: "MONTHLY" }
+];
+// ---------------------------------------------------
+
