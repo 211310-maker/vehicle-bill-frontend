@@ -2312,9 +2312,12 @@ fields.kerala.vehiclePermitType = fields.kerala.vehiclePermitType || [
   { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
   { name: "GOODS VEHICLE" }
 ];
+fields.kerala.vehicleClass = fields.kerala.vehicleClass || [];
+fields.kerala.goodsName = fields.kerala.goodsName || [];
 fields.kerala.permitType = fields.kerala.permitType || [
   { name: "TOURIST" }
 ];
+fields.kerala.permitCategory = fields.kerala.permitCategory || [];
 fields.kerala.borderBarrier = fields.kerala.borderBarrier || [
   { name: "THIRUVANANTHAPURAM" }
 ];
@@ -2330,13 +2333,19 @@ fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || [
 fields.kerala.purposeOfJourney = fields.kerala.purposeOfJourney || [
   { name: "TOURISM" }
 ];
+fields.kerala.registrationType = fields.kerala.registrationType || [];
 fields.kerala.serviceType = fields.kerala.serviceType || [
   { name: "Tourist" }
 ];
+fields.kerala.vehicleCategory = fields.kerala.vehicleCategory || [];
+fields.kerala.tipperBody = fields.kerala.tipperBody || [];
+fields.kerala.permit = fields.kerala.permit || [];
+fields.kerala.fuelType = fields.kerala.fuelType || [];
 fields.kerala.taxMode = fields.kerala.taxMode || fields.taxMode || [
   { name: "ANNUAL" },
   { name: "MONTHLY" }
 ];
+fields.stateName.kerala = fields.stateName.kerala || "kerala";
 
 // ---------------- Madhya Pradesh (mp) ----------------
 fields.mp = fields.mp || {};
