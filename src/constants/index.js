@@ -2321,12 +2321,16 @@ fields.kerala.permitCategory = fields.kerala.permitCategory || [];
 fields.kerala.borderBarrier = fields.kerala.borderBarrier || [
   { name: "THIRUVANANTHAPURAM" }
 ];
-fields.kerala.checkPostName = fields.kerala.checkPostName || [
-  { name: "KOCHI CP", district: "KOCHI" }
-];
-fields.kerala.districtName = fields.kerala.districtName || [
-  { name: "KOCHI" }
-];
+fields.kerala.checkPostName = Array.isArray(fields.kerala.checkPostName)
+  ? fields.kerala.checkPostName
+  : [
+      { name: "KOCHI CP", district: "KOCHI" }
+    ];
+fields.kerala.districtName = Array.isArray(fields.kerala.districtName)
+  ? fields.kerala.districtName
+  : [
+      { name: "KOCHI" }
+    ];
 fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || [
   { name: "KOCHI" }
 ];
