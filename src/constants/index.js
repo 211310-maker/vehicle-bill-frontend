@@ -2307,45 +2307,151 @@ fields.karnataka.taxMode = fields.karnataka.taxMode || fields.taxMode || [
 ];
 
 // ---------------- Kerala ----------------
+// ---------------- Kerala ----------------
 fields.kerala = fields.kerala || {};
+
+fields.kerala.paymentMode = fields.kerala.paymentMode || [
+  { name: "CASH" },
+  { name: "ONLINE" },
+];
+
+fields.kerala.taxMode = fields.kerala.taxMode || [
+  { name: "DAYS" },
+  { name: "WEEKLY" },
+  { name: "MONTHLY" },
+];
+
+fields.kerala.permitType = fields.kerala.permitType || [
+  { name: "NOT APPLICABLE" },
+  { name: "TEMPORARY PERMIT" },
+  { name: "TOURIST PERMIT" },
+  { name: "HOME STATE PERMIT" },
+  { name: "NATIONAL PERMIT" },
+];
+
+fields.kerala.purposeOfJourney = fields.kerala.purposeOfJourney || [
+  { name: "CARRYING GOODS" },
+  { name: "CARRYING PASSENGER" },
+];
+
+fields.kerala.serviceType = fields.kerala.serviceType || [
+  { name: "DELUX AIR CONDITIONED" },
+  { name: "DELUX" },
+  { name: "ORDINARY (3 X 2 SEATER)" },
+  { name: "SLEEPER" },
+  { name: "NOT APPLICABLE" },
+  { name: "ORDINARY" },
+];
+
+// Kerala districts (14)
+fields.kerala.districtName = fields.kerala.districtName || [
+  { name: "THIRUVANANTHAPURAM" },
+  { name: "KOLLAM" },
+  { name: "PATHANAMTHITTA" },
+  { name: "ALAPPUZHA" },
+  { name: "KOTTAYAM" },
+  { name: "IDUKKI" },
+  { name: "ERNAKULAM" },
+  { name: "THRISSUR" },
+  { name: "PALAKKAD" },
+  { name: "MALAPPURAM" },
+  { name: "KOZHIKODE" },
+  { name: "WAYANAD" },
+  { name: "KANNUR" },
+  { name: "KASARAGOD" },
+];
+
+// enteringDistrict — set to the same Kerala district list (used by some pages)
+fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || fields.kerala.districtName;
+
+// borderBarrier: common/known Kerala border barriers (kept in uppercase to match your style)
+fields.kerala.borderBarrier = fields.kerala.borderBarrier || [
+  { name: "WALAYAR" },       // Palakkad
+  { name: "MUTHANGA" },      // Wayanad
+  { name: "MANJESHWAR" },    // Kasaragod
+  { name: "ARYANKAVU" },     // Kollam
+  { name: "KUMILY" },        // Idukki
+  { name: "PARASSALA" },     // Thiruvananthapuram
+  { name: "NEYYATTINKARA" }, // Thiruvananthapuram
+  { name: "KOCHI" },         // Ernakulam
+  { name: "KOZHIKODE" },     // Kozhikode
+  { name: "THALASSERY" },    // Kannur area
+];
+
+// checkPostName: each entry has { name, district } so UI can filter by district.
+// IMPORTANT: frontend must filter like: fields.kerala.checkPostName.filter(e => e.district === payLoad.districtName)
+fields.kerala.checkPostName = fields.kerala.checkPostName || [
+  // Thiruvananthapuram
+  { name: "PARASSALA CHECKPOST", district: "THIRUVANANTHAPURAM" },
+  { name: "NEYATTINKARA CHECKPOST", district: "THIRUVANANTHAPURAM" },
+
+  // Kollam
+  { name: "ARYANKAVU CHECKPOST", district: "KOLLAM" },
+  { name: "TENNAMPARA CHECKPOST", district: "KOLLAM" },
+
+  // Pathanamthitta
+  { name: "KOLENCHERY CHECKPOST", district: "PATHANAMTHITTA" },
+  { name: "KOOVAPPALLY CHECKPOST", district: "PATHANAMTHITTA" },
+
+  // Alappuzha
+  { name: "KARUNAGAPALLY CHECKPOST", district: "ALAPPUZHA" },
+
+  // Kottayam
+  { name: "KUMARAKOM CHECKPOST", district: "KOTTAYAM" },
+
+  // Idukki
+  { name: "KUMILY CHECKPOST", district: "IDUKKI" },
+  { name: "THODUPUZHA CHECKPOST", district: "IDUKKI" },
+
+  // Ernakulam
+  { name: "KOCHI CHECKPOST", district: "ERNAKULAM" },
+  { name: "ALUVA CHECKPOST", district: "ERNAKULAM" },
+
+  // Thrissur
+  { name: "THRISSUR OUTER CHECKPOST", district: "THRISSUR" },
+
+  // Palakkad
+  { name: "WALAYAR CHECKPOST", district: "PALAKKAD" },
+  { name: "CHELANNUR CHECKPOST", district: "PALAKKAD" },
+
+  // Malappuram
+  { name: "MALAPPURAM CHECKPOST", district: "MALAPPURAM" },
+
+  // Kozhikode
+  { name: "KOZHIKODE CHECKPOST", district: "KOZHIKODE" },
+
+  // Wayanad
+  { name: "MUTHANGA CHECKPOST", district: "WAYANAD" },
+  { name: "BANDIPUR GATE", district: "WAYANAD" },
+
+  // Kannur
+  { name: "THALASSERY CHECKPOST", district: "KANNUR" },
+  { name: "CANNANORE CHECKPOST", district: "KANNUR" },
+
+  // Kasaragod
+  { name: "MANJESHWAR CHECKPOST", district: "KASARAGOD" },
+  { name: "KASARAGOD CENTRAL CHECKPOST", district: "KASARAGOD" },
+];
+
+// serviceType already defined earlier; keep as-is or extend
+fields.kerala.serviceType = fields.kerala.serviceType || [
+  { name: "DELUX AIR CONDITIONED" },
+  { name: "DELUX" },
+  { name: "ORDINARY (3 X 2 SEATER)" },
+  { name: "SLEEPER" },
+  { name: "NOT APPLICABLE" },
+  { name: "ORDINARY" },
+];
+
+// keep any other kerala defaults safe
 fields.kerala.vehiclePermitType = fields.kerala.vehiclePermitType || [
   { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "GOODS VEHICLE" }
+  { name: "GOODS VEHICLE" },
+  { name: "EDUCATIONAL INSTITUTIONAL BUS" },
+  { name: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "PRIVATE VEHICLE" },
 ];
-fields.kerala.vehicleClass = fields.kerala.vehicleClass || [];
-fields.kerala.goodsName = fields.kerala.goodsName || [];
-fields.kerala.permitType = fields.kerala.permitType || [
-  { name: "TOURIST" }
-];
-fields.kerala.permitCategory = fields.kerala.permitCategory || [];
-fields.kerala.borderBarrier = fields.kerala.borderBarrier || [
-  { name: "THIRUVANANTHAPURAM" }
-];
-fields.kerala.checkPostName = fields.kerala.checkPostName || [
-  { name: "KOCHI CP", district: "KOCHI" }
-];
-fields.kerala.districtName = fields.kerala.districtName || [
-  { name: "KOCHI" }
-];
-fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || [
-  { name: "KOCHI" }
-];
-fields.kerala.purposeOfJourney = fields.kerala.purposeOfJourney || [
-  { name: "TOURISM" }
-];
-fields.kerala.registrationType = fields.kerala.registrationType || [];
-fields.kerala.serviceType = fields.kerala.serviceType || [
-  { name: "Tourist" }
-];
-fields.kerala.vehicleCategory = fields.kerala.vehicleCategory || [];
-fields.kerala.tipperBody = fields.kerala.tipperBody || [];
-fields.kerala.permit = fields.kerala.permit || [];
-fields.kerala.fuelType = fields.kerala.fuelType || [];
-fields.kerala.taxMode = fields.kerala.taxMode || fields.taxMode || [
-  { name: "ANNUAL" },
-  { name: "MONTHLY" }
-];
-fields.stateName.kerala = fields.stateName.kerala || "kerala";
+
 
 // ---------------- Madhya Pradesh (mp) ----------------
 fields.mp = fields.mp || {};
