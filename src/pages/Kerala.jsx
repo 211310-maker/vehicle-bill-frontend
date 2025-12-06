@@ -6,6 +6,9 @@ import Loader from "../components/Loader";
 import { fields, LOCAL_STORAGE_KEY } from "../constants";
 import { getDetailsApi } from "../utils/api";
 
+// safe helper to avoid calling .map on undefined
+const safe = (v) => (Array.isArray(v) ? v : []);
+
 const Kerala = () => {
   const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
@@ -74,26 +77,28 @@ const Kerala = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useRef(null);
-  
+
   const keralaFields = (fields && fields.kerala) ? fields.kerala : {};
   const kerala = {
-  districtName: keralaFields.districtName || [],
-  checkPostName: keralaFields.checkPostName || [],
-  vehiclePermitType: keralaFields.vehiclePermitType || [],
-  vehicleClass: keralaFields.vehicleClass || [],
-  goodsName: keralaFields.goodsName || [],
-  permitType: keralaFields.permitType || [],
-  permitCategory: keralaFields.permitCategory || [],
-  registrationType: keralaFields.registrationType || [],
-  vehicleCategory: keralaFields.vehicleCategory || [],
-  tipperBody: keralaFields.tipperBody || [],
-  permit: keralaFields.permit || [],
-  serviceType: keralaFields.serviceType || [],
-  taxMode: keralaFields.taxMode || [],
-  fuelType: keralaFields.fuelType || [],
-  enteringDistrict: keralaFields.enteringDistrict || [],
-  purposeOfJourney: keralaFields.purposeOfJourney || [],
-};
+    districtName: keralaFields.districtName || [],
+    checkPostName: keralaFields.checkPostName || [],
+    vehiclePermitType: keralaFields.vehiclePermitType || [],
+    vehicleClass: keralaFields.vehicleClass || [],
+    goodsName: keralaFields.goodsName || [],
+    permitType: keralaFields.permitType || [],
+    permitCategory: keralaFields.permitCategory || [],
+    registrationType: keralaFields.registrationType || [],
+    vehicleCategory: keralaFields.vehicleCategory || [],
+    tipperBody: keralaFields.tipperBody || [],
+    permit: keralaFields.permit || [],
+    serviceType: keralaFields.serviceType || [],
+    taxMode: keralaFields.taxMode || [],
+    fuelType: keralaFields.fuelType || [],
+    enteringDistrict: keralaFields.enteringDistrict || [],
+    purposeOfJourney: keralaFields.purposeOfJourney || [],
+  };
+
+  console.debug('fields.kerala', fields?.kerala);
 
 
   const getDetailsHandler = async () => {
@@ -167,7 +172,7 @@ const Kerala = () => {
     setPayLoad({ ...p });
   };
 
-  if (!isLoggedIn.accessState.includes(fields.stateName.bihar)) {
+  if (!isLoggedIn || !Array.isArray(isLoggedIn.accessState) || !isLoggedIn.accessState.includes(fields?.stateName?.kerala || "kerala")) {
     return (
       <>
         <Header />
@@ -290,7 +295,7 @@ const Kerala = () => {
                       id="districtName"
                     >
                       <option value="">--Select District--</option>
-                      {fields.kerala.districtName.map((dist) => {
+                      {safe(fields?.kerala?.districtName).map((dist) => {
                         return (
                           <option key={dist.name} value={dist.name}>
                             {dist.name}
@@ -318,13 +323,17 @@ const Kerala = () => {
                       id="checkpostName"
                     >
                       <option value="">--Select Checkpost Name--</option>
-                      {payLoad.districtName && fields.kerala.checkPostName.filter(e => e.district === payLoad.districtName).map((checkpost) => {
-                        return (
-                          <option key={checkpost.name} value={checkpost.name}>
-                            {checkpost.name}
-                          </option>
-                        );
-                      })}
+                      {safe(fields?.kerala?.checkPostName)
+                        .filter(
+                          (e) => (e.district || "").toLowerCase() === (payLoad.districtName || "").toLowerCase()
+                        )
+                        .map((checkpost) => {
+                          return (
+                            <option key={checkpost.name} value={checkpost.name}>
+                              {checkpost.name}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                 </div>
@@ -349,7 +358,7 @@ const Kerala = () => {
                       id="vehiclePermitType"
                     >
                       <option value="">--Select Vehicle Type--</option>
-                      {fields.kerala.vehiclePermitType.map((type) => {
+                      {safe(fields?.kerala?.vehiclePermitType).map((type) => {
                         return (
                           <option value={type.name} key={type.name}>
                             {type.name}
@@ -378,13 +387,17 @@ const Kerala = () => {
                       id="vehicleClass"
                     >
                       <option value="">--Select Vehicle Class--</option>
-                      {payLoad.vehiclePermitType && fields.kerala.vehicleClass.filter(e => e.category == payLoad.vehiclePermitType).map((type) => {
-                        return (
-                          <option value={type.name} key={type.name}>
-                            {type.name}
-                          </option>
-                        );
-                      })}
+                      {safe(fields?.kerala?.vehicleClass)
+                        .filter(
+                          (e) => (e.category || "").toLowerCase() === (payLoad.vehiclePermitType || "").toLowerCase()
+                        )
+                        .map((type) => {
+                          return (
+                            <option value={type.name} key={type.name}>
+                              {type.name}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                 </div>
@@ -512,7 +525,7 @@ const Kerala = () => {
                       id="goodsName"
                     >
                       <option value="">--Select Name of Goods--</option>
-                      {fields.kerala.goodsName.map((type) => {
+                      {safe(fields?.kerala?.goodsName).map((type) => {
                         return (
                           <option value={type.name} key={type.name}>
                             {type.name}
@@ -566,13 +579,17 @@ const Kerala = () => {
                       id="permitType"
                     >
                       <option value="">--Select Permit Type--</option>
-                      {fields.kerala.permitType.filter(e => e.category === payLoad.vehiclePermitType).map((type) => {
-                        return (
-                          <option value={type.name} key={type.name}>
-                            {type.name}
-                          </option>
-                        );
-                      })}
+                      {safe(fields?.kerala?.permitType)
+                        .filter(
+                          (e) => (e.category || "").toLowerCase() === (payLoad.vehiclePermitType || "").toLowerCase()
+                        )
+                        .map((type) => {
+                          return (
+                            <option value={type.name} key={type.name}>
+                              {type.name}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                 </div>
@@ -595,13 +612,17 @@ const Kerala = () => {
                       id="permitCategory"
                     >
                       <option value="">--Select Permit Category--</option>
-                      {fields.kerala.permitCategory.filter(e => e.category === payLoad.vehiclePermitType).map((type) => {
-                        return (
-                          <option value={type.name} key={type.name}>
-                            {type.name}
-                          </option>
-                        );
-                      })}
+                      {safe(fields?.kerala?.permitCategory)
+                        .filter(
+                          (e) => (e.category || "").toLowerCase() === (payLoad.vehiclePermitType || "").toLowerCase()
+                        )
+                        .map((type) => {
+                          return (
+                            <option value={type.name} key={type.name}>
+                              {type.name}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                 </div>
@@ -672,7 +693,7 @@ const Kerala = () => {
                   id="registrationType"
                 >
                   <option value="">--Select Permit Category--</option>
-                  {fields.kerala.registrationType.map((type) => {
+                  {safe(fields?.kerala?.registrationType).map((type) => {
                     return (
                       <option value={type.name} key={type.name}>
                         {type.name}
@@ -813,14 +834,14 @@ const Kerala = () => {
                       name="fuelType"
                       id="fuelType"
                     >
-                      <option value="">--Select Fuel--</option>
-                      {fields?.kerala?.fuelType.map((type) => {
-                        return (
-                          <option value={type.name} key={type.name}>
-                            {type.name}
-                          </option>
-                        );
-                      })}
+                  <option value="">--Select Fuel--</option>
+                  {safe(fields?.kerala?.fuelType).map((type) => {
+                    return (
+                      <option value={type.name} key={type.name}>
+                        {type.name}
+                      </option>
+                    );
+                  })}
                     </select>
                   </div>
                 </div>
@@ -845,7 +866,7 @@ const Kerala = () => {
                   id="taxMode"
                 >
                   <option value="">--Select Tax Mode--</option>
-                  {fields?.kerala?.taxMode.map((type) => {
+                  {safe(fields?.kerala?.taxMode).map((type) => {
                     return (
                       <option value={type.name} key={type.name}>
                         {type.name}
@@ -921,7 +942,7 @@ const Kerala = () => {
                       id="fromState"
                     >
                       <option value="">--Select State--</option>
-                      {fields.fromState.map((type) => {
+                      {safe(fields?.fromState).map((type) => {
                         return (
                           <option key={type.name} value={type.name}>
                             {type.name}
@@ -974,13 +995,17 @@ const Kerala = () => {
                       id="vehicleCategory"
                     >
                       <option value="">--Select Vehicle Category--</option>
-                      {fields.kerala.vehicleCategory.filter(e => e.category === payLoad.vehiclePermitType).map((type) => {
-                        return (
-                          <option key={type.name} value={type.name}>
-                            {type.name}
-                          </option>
-                        );
-                      })}
+                      {safe(fields?.kerala?.vehicleCategory)
+                        .filter(
+                          (e) => (e.category || "").toLowerCase() === (payLoad.vehiclePermitType || "").toLowerCase()
+                        )
+                        .map((type) => {
+                          return (
+                            <option key={type.name} value={type.name}>
+                              {type.name}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                 </div>
@@ -1093,7 +1118,7 @@ const Kerala = () => {
                       onChange={onChangeHandler}
                     >
                       <option value="">--Select Tipper Body--</option>
-                      {fields.kerala.tipperBody.map((type) => {
+                      {safe(fields?.kerala?.tipperBody).map((type) => {
                         return (
                           <option value={type.name} key={type.name}>
                             {type.name}
@@ -1125,13 +1150,17 @@ const Kerala = () => {
                       onChange={onChangeHandler}
                     >
                       <option value="">--Select Permit--</option>
-                      {fields.kerala.permit.filter(e => e.category === payLoad.vehiclePermitType).map((type) => {
-                        return (
-                          <option value={type.name} key={type.name}>
-                            {type.name}
-                          </option>
-                        );
-                      })}
+                      {safe(fields?.kerala?.permit)
+                        .filter(
+                          (e) => (e.category || "").toLowerCase() === (payLoad.vehiclePermitType || "").toLowerCase()
+                        )
+                        .map((type) => {
+                          return (
+                            <option value={type.name} key={type.name}>
+                              {type.name}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                 </div>
@@ -1196,7 +1225,7 @@ const Kerala = () => {
                       id="serviceType"
                     >
                       <option value="">--Service Type--</option>
-                      {fields.kerala.serviceType.map((dist) => {
+                      {safe(fields?.kerala?.serviceType).map((dist) => {
                         return (
                           <option key={dist.name} value={dist.name}>
                             {dist.name}
