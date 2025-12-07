@@ -2309,268 +2309,259 @@ fields.karnataka.taxMode = fields.karnataka.taxMode || fields.taxMode || [
 // ---------------- Kerala ----------------
 fields.kerala = fields.kerala || {};
 
-// Basic dropdowns
 fields.kerala.paymentMode = fields.kerala.paymentMode || [
   { name: "CASH" },
   { name: "ONLINE" },
 ];
 
-fields.kerala.taxMode = fields.kerala.taxMode || [
-  { name: "DAYS" },
-  { name: "WEEKLY" },
-  { name: "MONTHLY" },
-];
-
-fields.kerala.permitType = fields.kerala.permitType || [
-  { name: "NOT APPLICABLE" },
-  { name: "TEMPORARY PERMIT" },
-  { name: "TOURIST PERMIT" },
-  { name: "HOME STATE PERMIT" },
-  { name: "NATIONAL PERMIT" },
-];
-
-fields.kerala.purposeOfJourney = fields.kerala.purposeOfJourney || [
-  { name: "CARRYING GOODS" },
-  { name: "CARRYING PASSENGER" },
-];
-
-fields.kerala.serviceType = fields.kerala.serviceType || [
-  { name: "DELUX AIR CONDITIONED" },
-  { name: "DELUX" },
-  { name: "ORDINARY (3 X 2 SEATER)" },
-  { name: "SLEEPER" },
-  { name: "NOT APPLICABLE" },
-  { name: "ORDINARY" },
-];
-
-// Kerala districts (14)
-fields.kerala.districtName = fields.kerala.districtName || [
-  { name: "THIRUVANANTHAPURAM" },
-  { name: "KOLLAM" },
-  { name: "PATHANAMTHITTA" },
-  { name: "ALAPPUZHA" },
-  { name: "KOTTAYAM" },
-  { name: "IDUKKI" },
-  { name: "ERNAKULAM" },
-  { name: "THRISSUR" },
-  { name: "PALAKKAD" },
-  { name: "MALAPPURAM" },
-  { name: "KOZHIKODE" },
-  { name: "WAYANAD" },
-  { name: "KANNUR" },
-  { name: "KASARAGOD" },
-];
-
-// enteringDistrict — set to same list (used by some pages)
-fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || fields.kerala.districtName.slice();
-
-// borderBarrier (major/commonly used barrier/checkpoints)
-fields.kerala.borderBarrier = fields.kerala.borderBarrier || [
-  { name: "WALAYAR" },       // Palakkad
-  { name: "MUTHANGA" },      // Wayanad
-  { name: "MANJESHWAR" },    // Kasaragod
-  { name: "ARYANKAVU" },     // Kollam
-  { name: "KUMILY" },        // Idukki (Kerala-TN border)
-  { name: "PARASSALA" },     // Thiruvananthapuram
-  { name: "NEYYATTINKARA" }, // Thiruvananthapuram
-  { name: "KOCHI" },         // Ernakulam area
-  { name: "KOZHIKODE" },     // Kozhikode area
-  { name: "THALASSERY" },    // Kannur area
-  { name: "THRISSUR" },      // Thrissur
-  { name: "PALAKKAD" },      // Palakkad
-];
-
-// checkPostName: each entry has { name, district } so UI can filter by district.
-fields.kerala.checkPostName = fields.kerala.checkPostName || [
-  // THIRUVANANTHAPURAM
-  { name: "PARASSALA CHECKPOST", district: "THIRUVANANTHAPURAM" },
-  { name: "NEYATTINKARA CHECKPOST", district: "THIRUVANANTHAPURAM" },
-  { name: "AMARAVILA CHECKPOST", district: "THIRUVANANTHAPURAM" },
-  { name: "POOVAR CHECKPOST", district: "THIRUVANANTHAPURAM" },
-
-  // KOLLAM
-  { name: "ARYANKAVU CHECKPOST", district: "KOLLAM" },
-  { name: "THENMALA CHECKPOST", district: "KOLLAM" },
-  { name: "KOLLAM OUTER CHECKPOST", district: "KOLLAM" },
-
-  // PATHANAMTHITTA
-  { name: "KOZHENCHERRY CHECKPOST", district: "PATHANAMTHITTA" },
-  { name: "ARANMULA CHECKPOST", district: "PATHANAMTHITTA" },
-  { name: "PATHANAMTHITTA GATE / BORDER", district: "PATHANAMTHITTA" },
-
-  // ALAPPUZHA
-  { name: "KARUNAGAPALLY CHECKPOST", district: "ALAPPUZHA" },
-  { name: "CHENGANNUR CHECKPOST", district: "ALAPPUZHA" },
-  { name: "CHERTHALA CHECKPOST", district: "ALAPPUZHA" },
-
-  // KOTTAYAM
-  { name: "KUMARAKOM CHECKPOST", district: "KOTTAYAM" },
-  { name: "KOOVAPPALLY CHECKPOST", district: "KOTTAYAM" },
-  { name: "KOTTAYAM OUTER CHECKPOST", district: "KOTTAYAM" },
-
-  // IDUKKI
-  { name: "KUMILY CHECKPOST", district: "IDUKKI" },
-  { name: "THODUPUZHA CHECKPOST", district: "IDUKKI" },
-  { name: "KATTAPANA CHECKPOST", district: "IDUKKI" },
-  { name: "THEKKADY GATE", district: "IDUKKI" },
-
-  // ERNAKULAM
-  { name: "KOCHI CHECKPOST", district: "ERNAKULAM" },
-  { name: "ALUVA CHECKPOST", district: "ERNAKULAM" },
-  { name: "VYPEEN / VYPIN CHECKPOST", district: "ERNAKULAM" },
-  { name: "EDAPPALLY CHECKPOST", district: "ERNAKULAM" },
-
-  // THRISSUR
-  { name: "THRISSUR OUTER CHECKPOST", district: "THRISSUR" },
-  { name: "CHAVAKKAD CHECKPOST", district: "THRISSUR" },
-  { name: "GURUVAYUR CHECKPOST", district: "THRISSUR" },
-
-  // PALAKKAD
-  { name: "WALAYAR CHECKPOST (PALAKKAD)", district: "PALAKKAD" },
-  { name: "PALAKKAD TOLL / CHECKPOST", district: "PALAKKAD" },
-  { name: "MANNARKKAD CHECKPOST", district: "PALAKKAD" },
-  { name: "CHITTUR CHECKPOST", district: "PALAKKAD" },
-
-  // MALAPPURAM
-  { name: "MALAPPURAM CHECKPOST", district: "MALAPPURAM" },
-  { name: "TIRUR CHECKPOST", district: "MALAPPURAM" },
-  { name: "PARAPPANANGADI CHECKPOST", district: "MALAPPURAM" },
-
-  // KOZHIKODE
-  { name: "KOZHIKODE CHECKPOST", district: "KOZHIKODE" },
-  { name: "CHELANNUR CHECKPOST", district: "KOZHIKODE" },
-  { name: "VADAKARA CHECKPOST", district: "KOZHIKODE" },
-
-  // WAYANAD
-  { name: "MUTHANGA CHECKPOST", district: "WAYANAD" },
-  { name: "KATTIKULAM CHECKPOST", district: "WAYANAD" },
-  { name: "BANDIPUR GATE (WAYANAD SIDE)", district: "WAYANAD" },
-
-  // KANNUR
-  { name: "THALASSERY CHECKPOST", district: "KANNUR" },
-  { name: "CANNANORE / KANNUR CHECKPOST", district: "KANNUR" },
-  { name: "PAYYANNUR CHECKPOST", district: "KANNUR" },
-
-  // KASARAGOD
-  { name: "MANJESHWAR CHECKPOST", district: "KASARAGOD" },
-  { name: "KASARAGOD CENTRAL CHECKPOST", district: "KASARAGOD" },
-  { name: "NEELESWARAM CHECKPOST", district: "KASARAGOD" },
-
-  // Useful extras to improve UX
-  { name: "PALAKKAD CENTRAL CHECKPOST", district: "PALAKKAD" },
-  { name: "MALAPPURAM CENTRAL CHECKPOST", district: "MALAPPURAM" },
-];
-
-// extra dropdowns used in the form (new)
-fields.kerala.registrationType = fields.kerala.registrationType || [
-  { name: "PRIVATE" },
-  { name: "COMMERCIAL" },
-  { name: "GOVT" },
-];
-
-fields.kerala.tipperBody = fields.kerala.tipperBody || [
-  { name: "OPEN BODY" },
-  { name: "CLOSED BODY" },
-  { name: "TIPPING BODY" },
-  { name: "TRAILER" },
-];
-
 fields.kerala.fuelType = fields.kerala.fuelType || [
-  { name: "PETROL" },
-  { name: "DIESEL" },
-  { name: "CNG" },
-  { name: "LPG" },
-  { name: "ELECTRIC" },
-  { name: "HYBRID" },
-];
-
-fields.kerala.vehicleCategory = fields.kerala.vehicleCategory || [
-  { name: "MOTOR CAB" },
-  { name: "MAXI CAB" },
-  { name: "OMNI BUS" },
-  { name: "GOODS CARRIER" },
-  { name: "TRACTOR" },
-  { name: "LIGHT GOODS VEHICLE" },
-  { name: "MEDIUM GOODS VEHICLE" },
-  { name: "HEAVY GOODS VEHICLE" },
-];
-
-fields.kerala.permitCategory = fields.kerala.permitCategory || [
-  { name: "REGULAR" },
-  { name: "TEMPORARY" },
-  { name: "SPECIAL" },
-];
-
-fields.kerala.permit = fields.kerala.permit || [
-  { name: "NOT APPLICABLE", category: "" },
-  { name: "SINGLE RETURN TRIP", category: "" },
-  { name: "MULTI TRIP", category: "" },
-  { name: "ANNUAL PERMIT", category: "" },
+  { name: "CNG only" },
+  { name: "Diesel" },
+  { name: "Diesel/Hybrid" },
+  { name: "Electric(BOV)" },
+  { name: "Ethanol" },
+  { name: "LPG Only" },
+  { name: "Others" },
+  { name: "Petrol" },
+  { name: "Petrol/CNG" },
+  { name: "Petrol/Hybrid" },
+  { name: "Petrol/LPG" },
+  { name: "SOLAR" }
 ];
 
 fields.kerala.goodsName = fields.kerala.goodsName || [
-  { name: "GENERAL GOODS" },
-  { name: "FOOD ITEMS" },
-  { name: "CHEMICALS" },
-  { name: "ELECTRONICS" },
-  { name: "CONSTRUCTION MATERIALS" },
-  { name: "OTHERS" },
+  { name: "Not Applicable" },
+  { name: "Rice" },
+  { name: "Wheat" },
+  { name: "Flour" },
+  { name: "Pulses" },
+  { name: "Sugar" },
+  { name: "Salt" },
+  { name: "Milk" },
+  { name: "Edible Oil" }
 ];
 
-// VEHICLE CLASS and VEHICLE CATEGORY (these are the two missing fields)
-// vehicleClass items contain a `category` property that matches a vehiclePermitType
+fields.kerala.registrationType = fields.kerala.registrationType || [
+  { name: "Ex Army/Auction vehicle" },
+  { name: "New Regn Against Auction/Confiscated vehicle" },
+  { name: "CD/Embassy/Foreign Vehicle" },
+  { name: "New" },
+  { name: "Other State Vehicle" },
+  { name: "Other RTC/MLO/Artc/DTO/Region vehicle" },
+  { name: "New regn Against scrapped vehicle" },
+  { name: "TEMPORARY REGISTERED VEHICLE" }
+];
+
+fields.kerala.taxMode = fields.kerala.taxMode || [
+  { name: 'WEEKLY' },
+  { name: 'MONTHLY' }
+];
+
+fields.kerala.permitType = fields.kerala.permitType || [
+  { name: 'NOT APPLICABLE', category: "" },
+  { name: 'CONTRACT CARRIAGE PERMIT', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'All INDIA TOURIST PERMIT', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'Goods permit', category: 'GOODS VEHICLE' }
+];
+
+fields.kerala.permit = fields.kerala.permit || [
+  { name: "EV Permit", category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'TEMPORARY Permit', category: 'GOODS VEHICLE' }
+];
+
+fields.kerala.vehicleCategory = fields.kerala.vehicleCategory || [
+  { name: 'NOT APPLICABLE', category: '' },
+  { name: 'LIGHT PASSANGER VEHICLE', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'HEAVY PASSANGER VEHICLE', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'MEDIUM PASSANGER VEHICLE', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'HEAVY Goods vehicle', category: 'GOODS VEHICLE' },
+  { name: 'LIGHT Goods vehicle', category: 'GOODS VEHICLE' },
+  { name: 'MEDIUM Goods vehicle', category: 'GOODS VEHICLE' }
+];
+
+fields.kerala.permitCategory = fields.kerala.permitCategory || [
+  { name: 'NOT APPLICABLE', category: '' },
+  { name: 'Motor cab permit', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'All India TOURIST OMNI BUS Permit', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'Goods CARRIERS', category: 'GOODS VEHICLE' },
+  { name: 'Tipper', category: 'GOODS VEHICLE' }
+];
+
+fields.kerala.purposeOfJourney = fields.kerala.purposeOfJourney || [
+  { name: 'CARRYING GOODS' },
+  { name: 'CARRYING PASSANGER' }
+];
+
+fields.kerala.serviceType = fields.kerala.serviceType || [
+  { name: 'ORDINARY SERVICE' },
+  { name: 'AIR CONDITIONED SERVICE' },
+  { name: 'Night Service' },
+  { name: 'SLEEPER AC Service' },
+  { name: 'Sleeper NON-AC Service' },
+  { name: 'LUXURY Service' },
+  { name: 'Super-Luxury Service' },
+  { name: 'Sleeper Super-Luxury Service' },
+  { name: 'Rural Service' },
+  { name: 'Within Municipal Area' },
+  { name: 'Outside Municipal Area' },
+  { name: 'Goods Service' },
+  { name: 'Express Service' },
+  { name: 'SPECIAL Service(Minibus)' },
+  { name: 'Limited Service' },
+  { name: 'Inter state Service' },
+  { name: 'Intra state Service' },
+  { name: 'Rural' },
+  { name: 'Urban' },
+  { name: 'Sub-Urban' },
+  { name: 'Other' },
+  { name: 'AC DELUXE Service' },
+  { name: 'AC DELUXE Sleeper Service' },
+  { name: 'DELUXE Service' },
+  { name: 'Integral Buses' },
+  { name: 'Super Integral Buses' },
+  { name: 'Ghat Section' },
+  { name: 'Public Carrier' },
+  { name: 'PRIVATE Carrier' },
+  { name: 'Semi-Deluxe Service' },
+  { name: 'Metropolitan Area' },
+  { name: 'Town/City Service' },
+  { name: 'Mofussil Service' },
+  { name: 'Bazar Service' }
+];
+
+fields.kerala.tipperBody = fields.kerala.tipperBody || [
+  { name: "Not Applicable" },
+  { name: "Yes" },
+  { name: "No" }
+];
+
+fields.kerala.districtName = fields.kerala.districtName || [
+  { name: 'IDUKKI' },
+  { name: 'KANNUR' },
+  { name: 'KASARGODE' },
+  { name: 'KOLLAM' },
+  { name: 'MALAPPURAM' },
+  { name: 'PALAKKAD' },
+  { name: 'THIRUVANANTHAPURAM' },
+  { name: 'WAYANAD' }
+];
+
+fields.kerala.checkPostName = fields.kerala.checkPostName || [
+  // IDUKKI
+  { name: 'KUMILI', district: 'IDUKKI' },
+
+  // KANNUR
+  { name: 'IRITTY', district: 'KANNUR' },
+
+  // KASARGODE
+  { name: 'MANJESWARAM-Thalapady', district: 'KASARGODE' },
+  { name: 'NEELESWARAM', district: 'KASARGODE' },
+  { name: 'PERLA-Adkadsthala', district: 'KASARGODE' },
+
+  // KOLLAM
+  { name: 'ARYANKAVU', district: 'KOLLAM' },
+
+  // MALAPPURAM
+  { name: 'VAZHIKKADAVU', district: 'MALAPPURAM' },
+
+  // PALAKKAD
+  { name: 'GOPALAPURAM', district: 'PALAKKAD' },
+  { name: 'GOVINDAPURAM', district: 'PALAKKAD' },
+  { name: 'MEENAKSHIPURAM', district: 'PALAKKAD' },
+  { name: 'NADUPPUNI', district: 'PALAKKAD' },
+  { name: 'VALAYAR IN', district: 'PALAKKAD' },
+  { name: 'VALAYAR OUT', district: 'PALAKKAD' },
+  { name: 'VELANTHAVALAM', district: 'PALAKKAD' },
+
+  // THIRUVANANTHAPURAM
+  { name: 'AMARAVILA (IN)', district: 'THIRUVANANTHAPURAM' },
+  { name: 'KURUMKUTTY (AMARAVILA-OUT)', district: 'THIRUVANANTHAPURAM' },
+  { name: 'POOVAR', district: 'THIRUVANANTHAPURAM' },
+
+  // WAYANAD
+  { name: 'BATHERI (MUTHANGA)', district: 'WAYANAD' },
+  { name: 'KATTIKULAM', district: 'WAYANAD' }
+];
+
+fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || [
+  { name: 'ANUGUL' },
+  { name: 'BALANGIR' },
+  { name: 'BALESHWAR' },
+  { name: 'BARGARH' },
+  { name: 'BAUDH' },
+  { name: 'BHADRAK' },
+  { name: 'CUTTACK' },
+  { name: 'DEBAGARH' },
+  { name: 'DHENKANAL' },
+  { name: 'GAJAPATI' },
+  { name: 'GANJAM' },
+  { name: 'JAGATSINGHAPUR' },
+  { name: 'JAJAPUR' },
+  { name: 'JHARSUGUDA' },
+  { name: 'KALAHANDI' },
+  { name: 'KANDHAMAL' },
+  { name: 'KENDRAPARA' },
+  { name: 'KENDUJHAR' },
+  { name: 'KHORDHA' },
+  { name: 'KORAPUT' },
+  { name: 'MALKANGIRI' },
+  { name: 'MAYURBHANJ' },
+  { name: 'NABARANGAPUR' },
+  { name: 'NAYAGARH' },
+  { name: 'NUAPADA' },
+  { name: 'PURI' },
+  { name: 'RAYAGADA' },
+  { name: 'SAMBALPUR' },
+  { name: 'STATE TRANSPORT AUTHORITY' },
+  { name: 'SUBARNAPUR' },
+  { name: 'SUNDARGARH' }
+];
+
+fields.kerala.vehiclePermitType = fields.kerala.vehiclePermitType || [
+  { name: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'GOODS VEHICLE' },
+  { name: 'CONSTRUCTION EQUIPMENT VEHICLE' }
+];
+
 fields.kerala.vehicleClass = fields.kerala.vehicleClass || [
   // CONTRACT CARRIAGE / PASSANGER VEHICLES
-  { name: "THREE WHEELER(PASSENGER)", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "MOTOR CAB", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "MAXI CAB", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "OMNI BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "PRIVATE SERVICE VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "EDUCATIONAL BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: 'MOTOR CAB', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'MAXI CAB', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'OMNI BUS', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'BUS', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'EDUCATIONAL BUS', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'MOTOR CYCLE/SCOOTER USED FOR HIRE', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
+  { name: 'QUADRICYCLE(COMMERCIAL)', category: 'CONTRACT CARRIAGE/PASSANGER VEHICLES' },
 
   // GOODS VEHICLE
-  { name: "LIGHT GOODS VEHICLE", category: "GOODS VEHICLE" },
-  { name: "MEDIUM GOODS VEHICLE", category: "GOODS VEHICLE" },
-  { name: "HEAVY GOODS VEHICLE", category: "GOODS VEHICLE" },
-  { name: "CASH VAN", category: "GOODS VEHICLE" },
-  { name: "ARTICULATED VAN", category: "GOODS VEHICLE" },
+  { name: 'THREE WHEELER(GOODS)', category: 'GOODS VEHICLE' },
+  { name: 'TRAILER', category: 'GOODS VEHICLE' },
+  { name: 'MOBILE CANTEEN', category: 'GOODS VEHICLE' },
+  { name: 'LIBRARY VAN', category: 'GOODS VEHICLE' },
+  { name: 'MOBILE CLINIC', category: 'GOODS VEHICLE' },
+  { name: 'X-RAY VAN', category: 'GOODS VEHICLE' },
+  { name: 'CASH VAN', category: 'GOODS VEHICLE' },
+  { name: 'ARTICULATED VEHICLE', category: 'GOODS VEHICLE' },
+  { name: 'CAMPER VAN/TRAILER', category: 'GOODS VEHICLE' },
+  { name: 'GOOD CARRIERS', category: 'GOODS VEHICLE' },
+  { name: 'DUMPER', category: 'GOODS VEHICLE' },
 
   // CONSTRUCTION EQUIPMENT VEHICLE
-  { name: "CHASSIS OF VEHICLES", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
-  { name: "VEHICLE FITTED WITH RIG", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
-  { name: "FORK LIFT", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
-
-  // PRIVATE VEHICLE
-  { name: "MOTOR CYCLE", category: "PRIVATE VEHICLE" },
-  { name: "MOTOR CAR", category: "PRIVATE VEHICLE" },
-  { name: "TRAILER", category: "PRIVATE VEHICLE" },
-  { name: "TRACTOR", category: "PRIVATE VEHICLE" },
-
-  // EDUCATIONAL INSTITUTIONAL BUS classes (if separate)
-  { name: "EDUCATIONAL BUS", category: "EDUCATIONAL INSTITUTIONAL BUS" },
+  { name: 'BREAKDOWN VAN', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'CONSTRUCTION EQUIPMENT VEHICLE', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'VEHICLE FITTED WITH RIG', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'VEHICLE FITTED WITH COMPRESSOR', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'CRANE MOUNTED VEHICLE', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'FORK LIFT', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'VEHICLE FITTED WITH AIR GENERATOR', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'HARVESTER', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'AMBULANCE', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'EXCAVATOR', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'EARTH MOVING EQUIPMENT', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'RECOVERY VEHICLE', category: 'CONSTRUCTION EQUIPMENT VEHICLE' },
+  { name: 'TOW TRUCK', category: 'CONSTRUCTION EQUIPMENT VEHICLE' }
 ];
 
-// vehicleCategory — shorter list used on some pages
-fields.kerala.vehicleCategory = fields.kerala.vehicleCategory || [
-  { name: "MOTOR CAB" },
-  { name: "MAXI CAB" },
-  { name: "OMNI BUS" },
-  { name: "GOODS CARRIER" },
-  { name: "TRACTOR" },
-  { name: "LIGHT GOODS VEHICLE" },
-  { name: "MEDIUM GOODS VEHICLE" },
-  { name: "HEAVY GOODS VEHICLE" },
-];
-
-// keep vehiclePermitType default
-fields.kerala.vehiclePermitType = fields.kerala.vehiclePermitType || [
-  { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "GOODS VEHICLE" },
-  { name: "EDUCATIONAL INSTITUTIONAL BUS" },
-  { name: "CONSTRUCTION EQUIPMENT VEHICLE" },
-  { name: "PRIVATE VEHICLE" },
-];
 
 
 // ---------------- Madhya Pradesh (mp) ----------------
