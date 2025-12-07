@@ -1,17 +1,4 @@
 export const LOCAL_STORAGE_KEY = "user@bill";
-// keep existing borderBarriers export as-is (no deletion)
-// Add districts alias for new code to consume
-export const districts = borderBarriers;
-// Ensure fields.*.districtName is present -- populate from borderBarriers if missing
-Object.keys(borderBarriers).forEach((stateKey) => {
-  fields[stateKey] = fields[stateKey] || {};
-  if (!fields[stateKey].districtName || !fields[stateKey].districtName.length) {
-    // convert borderBarrier entries to districtName entries (preserve name casing)
-    fields[stateKey].districtName = (borderBarriers[stateKey] || []).map((b) => ({
-      name: b.name,
-    }));
-  }
-});
 
 export const borderBarriers = {
   andhraPradesh: [
