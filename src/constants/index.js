@@ -159,10 +159,13 @@ export const borderBarriers = {
     { name: "JHALAWAR" },
   ],
   sikkim: [
-    { name: "RANGPO" },
-    { name: "MELLI" },
-    { name: "SINGTAM" },
-    { name: "RHENOCK" },
+    // replaced border/barrier entries with actual districts for Sikkim
+    { name: "Gangtok" },
+    { name: "Pakyong" },
+    { name: "Namchi" },
+    { name: "Gyalshing" },
+    { name: "Soreng" },
+    { name: "Mangan (North)" },
   ],
   tamilNadu: [
     { name: "HOSUR" },
@@ -371,11 +374,36 @@ export const checkposts = {
     { name: "SANGARIA" },
     { name: "TEENDHAR JHALAWAR" },
   ],
-  sikkim: [
-    { name: "RANGPO CHECKPOST" },
-    { name: "MELLI CHECKPOST" },
-    { name: "SINGTAM CHECKPOST" },
-    { name: "RHENOCK CHECKPOST" },
+   sikkim: [
+    // Gangtok district checkposts
+    { name: "Rangpo", district: "Gangtok" },
+    { name: "Singtam", district: "Gangtok" },
+    { name: "32 Mile", district: "Gangtok" },
+    { name: "Rorathang", district: "Gangtok" },
+
+    // Pakyong district checkposts
+    { name: "Pakyong", district: "Pakyong" },
+    { name: "Rorathang", district: "Pakyong" },
+
+    // Namchi district checkposts
+    { name: "Melli", district: "Namchi" },
+    { name: "Jorethang", district: "Namchi" },
+    { name: "Namchi", district: "Namchi" },
+
+    // Gyalshing district checkposts
+    { name: "Dentam", district: "Gyalshing" },
+    { name: "Gyalshing", district: "Gyalshing" },
+
+    // Soreng district checkposts
+    { name: "Sombaria", district: "Soreng" },
+    { name: "Soreng", district: "Soreng" },
+
+    // Mangan (North) district checkposts
+    { name: "Mangan", district: "Mangan (North)" },
+    { name: "Chungthang", district: "Mangan (North)" },
+    { name: "Toong", district: "Mangan (North)" },
+    { name: "Lachen", district: "Mangan (North)" },
+    { name: "Lachung", district: "Mangan (North)" },
   ],
   tamilNadu: [
     { name: "HOSUR CHECKPOST" },
