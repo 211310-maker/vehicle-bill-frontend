@@ -28,7 +28,8 @@ const StateTaxForm = ({ stateKey }) => {
     borderBarriers[resolvedStateFieldKey] ||
     stateFields.borderBarrier ||
     [];
-  const checkpostOptions =
+  // raw checkpost options (may include `district` or `borderBarrier` as the district key)
+  const rawCheckpostOptions =
     checkposts[stateKey] ||
     checkposts[resolvedStateFieldKey] ||
     stateFields.checkpostName ||
@@ -42,7 +43,7 @@ const StateTaxForm = ({ stateKey }) => {
     vehiclePermitType: '',
     seatingCapacityExcludingDriver: '',
     sleeperCapacityExcludingDriver: '',
-    borderBarrier: '',
+    borderBarrier: '', // still named borderBarrier for backend compatibility but label shown as District
     totalAmount: '',
     ownerName: '',
     fromState: '',
@@ -77,7 +78,20 @@ const StateTaxForm = ({ stateKey }) => {
     }
     if (data && data.success) {
       const preLoadedData = {};
+      // Populate known keys. For borderBarrier we accept alternative names returned by backend.
       Object.keys(payLoad).forEach((key) => {
+        // handle borderBarrier specially so we accept different shapes returned by backend
+        if (key === 'borderBarrier') {
+          if (data.detail && data.detail.borderBarrier) {
+            preLoadedData.borderBarrier = data.detail.borderBarrier;
+          } else if (data.detail && data.detail.districtName) {
+            preLoadedData.borderBarrier = data.detail.districtName;
+          } else if (data.detail && data.detail.district) {
+            preLoadedData.borderBarrier = data.detail.district;
+          }
+          return;
+        }
+
         if (
           data.detail &&
           data.detail[key] !== undefined &&
@@ -87,6 +101,7 @@ const StateTaxForm = ({ stateKey }) => {
           preLoadedData[key] = data.detail[key];
         }
       });
+
       setPayLoad((e) => ({
         ...e,
         ...preLoadedData,
@@ -133,6 +148,16 @@ const StateTaxForm = ({ stateKey }) => {
       </>
     );
   }
+
+  // filter checkposts by selected district (which is stored in `borderBarrier` for compatibility).
+  // Accept either `cp.district` or `cp.borderBarrier` as metadata on the checkpost.
+  const filteredCheckposts = (rawCheckpostOptions || []).filter((cp) => {
+    if (!payLoad.borderBarrier) return true; // show all when no district selected
+    if (cp.district) return cp.district === payLoad.borderBarrier;
+    if (cp.borderBarrier) return cp.borderBarrier === payLoad.borderBarrier;
+    // if checkpost has no district metadata, keep it (backwards compatibility)
+    return true;
+  });
 
   return (
     <>
@@ -582,7 +607,7 @@ const StateTaxForm = ({ stateKey }) => {
                       id='checkpostName'
                     >
                       <option value=''>--Select Checkpost Name--</option>
-                      {checkpostOptions.map((type) => {
+                      {filteredCheckposts.map((type) => {
                         return (
                           <option key={type.name} value={type.name}>
                             {type.name}
