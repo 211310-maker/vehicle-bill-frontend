@@ -2517,6 +2517,52 @@ fields.kerala.goodsName = fields.kerala.goodsName || [
   { name: "OTHERS" },
 ];
 
+// VEHICLE CLASS and VEHICLE CATEGORY (these are the two missing fields)
+// vehicleClass items contain a `category` property that matches a vehiclePermitType
+fields.kerala.vehicleClass = fields.kerala.vehicleClass || [
+  // CONTRACT CARRIAGE / PASSANGER VEHICLES
+  { name: "THREE WHEELER(PASSENGER)", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "MOTOR CAB", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "MAXI CAB", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "OMNI BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "PRIVATE SERVICE VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "EDUCATIONAL BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+
+  // GOODS VEHICLE
+  { name: "LIGHT GOODS VEHICLE", category: "GOODS VEHICLE" },
+  { name: "MEDIUM GOODS VEHICLE", category: "GOODS VEHICLE" },
+  { name: "HEAVY GOODS VEHICLE", category: "GOODS VEHICLE" },
+  { name: "CASH VAN", category: "GOODS VEHICLE" },
+  { name: "ARTICULATED VAN", category: "GOODS VEHICLE" },
+
+  // CONSTRUCTION EQUIPMENT VEHICLE
+  { name: "CHASSIS OF VEHICLES", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "VEHICLE FITTED WITH RIG", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "FORK LIFT", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+
+  // PRIVATE VEHICLE
+  { name: "MOTOR CYCLE", category: "PRIVATE VEHICLE" },
+  { name: "MOTOR CAR", category: "PRIVATE VEHICLE" },
+  { name: "TRAILER", category: "PRIVATE VEHICLE" },
+  { name: "TRACTOR", category: "PRIVATE VEHICLE" },
+
+  // EDUCATIONAL INSTITUTIONAL BUS classes (if separate)
+  { name: "EDUCATIONAL BUS", category: "EDUCATIONAL INSTITUTIONAL BUS" },
+];
+
+// vehicleCategory — shorter list used on some pages
+fields.kerala.vehicleCategory = fields.kerala.vehicleCategory || [
+  { name: "MOTOR CAB" },
+  { name: "MAXI CAB" },
+  { name: "OMNI BUS" },
+  { name: "GOODS CARRIER" },
+  { name: "TRACTOR" },
+  { name: "LIGHT GOODS VEHICLE" },
+  { name: "MEDIUM GOODS VEHICLE" },
+  { name: "HEAVY GOODS VEHICLE" },
+];
+
 // keep vehiclePermitType default
 fields.kerala.vehiclePermitType = fields.kerala.vehiclePermitType || [
   { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
