@@ -253,43 +253,31 @@ export const checkposts = {
 ],
  
    assam: [
-    // Kamrup Metropolitan
-    { name: "Jalukbari Checkpost", district: "Kamrup Metropolitan" },
-    { name: "Sonapur Checkpost", district: "Kamrup Metropolitan" },
+    { name: "Jalukbari Checkpost", borderBarrier: "Kamrup Metropolitan" },
+    { name: "Sonapur Checkpost", borderBarrier: "Kamrup Metropolitan" },
 
-    // Kamrup Rural
-    { name: "Chaygaon Checkpost", district: "Kamrup Rural" },
+    { name: "Chaygaon Checkpost", borderBarrier: "Kamrup Rural" },
 
-    // Goalpara
-    { name: "Dudhnoi Checkpost", district: "Goalpara" },
-    { name: "Krishnai Checkpost", district: "Goalpara" },
+    { name: "Dudhnoi Checkpost", borderBarrier: "Goalpara" },
+    { name: "Krishnai Checkpost", borderBarrier: "Goalpara" },
 
-    // Karimganj
-    { name: "Churaibari Checkpost", district: "Karimganj" },
+    { name: "Churaibari Checkpost", borderBarrier: "Karimganj" },
 
-    // Cachar
-    { name: "Lailapur Checkpost", district: "Cachar" },
+    { name: "Lailapur Checkpost", borderBarrier: "Cachar" },
 
-    // Hailakandi
-    { name: "Ramnathpur Checkpost", district: "Hailakandi" },
+    { name: "Ramnathpur Checkpost", borderBarrier: "Hailakandi" },
 
-    // Dhubri
-    { name: "Srirampur Checkpost", district: "Dhubri" },
+    { name: "Srirampur Checkpost", borderBarrier: "Dhubri" },
 
-    // Bongaigaon
-    { name: "Jogighopa Checkpost", district: "Bongaigaon" },
+    { name: "Jogighopa Checkpost", borderBarrier: "Bongaigaon" },
 
-    // Barpeta
-    { name: "Barpeta Road Checkpost", district: "Barpeta" },
+    { name: "Barpeta Road Checkpost", borderBarrier: "Barpeta" },
 
-    // Nagaon
-    { name: "Jakhalabandha Checkpost", district: "Nagaon" },
+    { name: "Jakhalabandha Checkpost", borderBarrier: "Nagaon" },
 
-    // Sonitpur
-    { name: "Banderdewa Checkpost", district: "Sonitpur" },
+    { name: "Banderdewa Checkpost", borderBarrier: "Sonitpur" },
 
-    // Tinsukia
-    { name: "Dirak Checkpost", district: "Tinsukia" },
+    { name: "Dirak Checkpost", borderBarrier: "Tinsukia" },
   ],
 
   bihar: [
@@ -306,13 +294,11 @@ export const checkposts = {
     { name: "BACHELI BARRIER" },
   ],
   damanDiu: [
-    // Daman District
-    { name: "Vapi–Daman Checkpost", district: "Daman District" },
-    { name: "Somnath Junction Checkpost", district: "Daman District" },
+    { name: "Vapi–Daman Checkpost", borderBarrier: "Daman District" },
+    { name: "Somnath Junction Checkpost", borderBarrier: "Daman District" },
 
-    // Diu District
-    { name: "Ghoghla Checkpost", district: "Diu District" },
-    { name: "Simbor Checkpost", district: "Diu District" },
+    { name: "Ghoghla Checkpost", borderBarrier: "Diu District" },
+    { name: "Simbor Checkpost", borderBarrier: "Diu District" },
   ],
   goa: [
     { name: "PATRADEVI CHECKPOST" },
@@ -410,20 +396,16 @@ export const checkposts = {
     { name: "LUHURACHATI BARRIER" },
   ],
   puducherry: [
-    // Puducherry District
-    { name: "Gorimedu Checkpost", district: "Puducherry" },
-    { name: "Kottakuppam Checkpost", district: "Puducherry" }, // TN border
-    { name: "Thavalakuppam Checkpost", district: "Puducherry" },
+    { name: "Gorimedu Checkpost", borderBarrier: "Puducherry" },
+    { name: "Kottakuppam Checkpost", borderBarrier: "Puducherry" }, // TN border
+    { name: "Thavalakuppam Checkpost", borderBarrier: "Puducherry" },
 
-    // Karaikal District
-    { name: "Thirunallar Checkpost", district: "Karaikal" },
-    { name: "Neravy Checkpost", district: "Karaikal" },
+    { name: "Thirunallar Checkpost", borderBarrier: "Karaikal" },
+    { name: "Neravy Checkpost", borderBarrier: "Karaikal" },
 
-    // Mahe District
-    { name: "Chokli/Chalassery Checkpost", district: "Mahe" },
+    { name: "Chokli/Chalassery Checkpost", borderBarrier: "Mahe" },
 
-    // Yanam District
-    { name: "Yedurlanka Checkpost", district: "Yanam" },
+    { name: "Yedurlanka Checkpost", borderBarrier: "Yanam" },
   ],
 
   punjab: [
@@ -440,36 +422,37 @@ export const checkposts = {
     { name: "SANGARIA" },
     { name: "TEENDHAR JHALAWAR" },
   ],
-   sikkim: [
-    // Gangtok district checkposts
-    { name: "Rangpo", district: "Gangtok" },
-    { name: "Singtam", district: "Gangtok" },
-    { name: "32 Mile", district: "Gangtok" },
-    { name: "Rorathang", district: "Gangtok" },
+  sikkim: [
+    // Gangtok district
+    { name: "Rangpo Checkpost", borderBarrier: "Gangtok" },
+    { name: "Singtam Checkpost", borderBarrier: "Gangtok" },
+    { name: "32 Mile Checkpost", borderBarrier: "Gangtok" },
+    { name: "Rorathang Checkpost", borderBarrier: "Gangtok" },
 
-    // Pakyong district checkposts
-    { name: "Pakyong", district: "Pakyong" },
-    { name: "Rorathang", district: "Pakyong" },
+    // Pakyong district
+    { name: "Pakyong Checkpost", borderBarrier: "Pakyong" },
+    // Rorathang is already listed under Gangtok but also used for Pakyong routes; include a separate entry if needed:
+    { name: "Rorathang Checkpost (Pakyong)", borderBarrier: "Pakyong" },
 
-    // Namchi district checkposts
-    { name: "Melli", district: "Namchi" },
-    { name: "Jorethang", district: "Namchi" },
-    { name: "Namchi", district: "Namchi" },
+    // Namchi district
+    { name: "Melli Checkpost", borderBarrier: "Namchi" },
+    { name: "Jorethang Checkpost", borderBarrier: "Namchi" },
+    { name: "Namchi Checkpost", borderBarrier: "Namchi" },
 
-    // Gyalshing district checkposts
-    { name: "Dentam", district: "Gyalshing" },
-    { name: "Gyalshing", district: "Gyalshing" },
+    // Gyalshing district
+    { name: "Dentam Checkpost", borderBarrier: "Gyalshing" },
+    { name: "Gyalshing Checkpost", borderBarrier: "Gyalshing" },
 
-    // Soreng district checkposts
-    { name: "Sombaria", district: "Soreng" },
-    { name: "Soreng", district: "Soreng" },
+    // Soreng district
+    { name: "Sombaria Checkpost", borderBarrier: "Soreng" },
+    { name: "Soreng Checkpost", borderBarrier: "Soreng" },
 
-    // Mangan (North) district checkposts
-    { name: "Mangan", district: "Mangan (North)" },
-    { name: "Chungthang", district: "Mangan (North)" },
-    { name: "Toong", district: "Mangan (North)" },
-    { name: "Lachen", district: "Mangan (North)" },
-    { name: "Lachung", district: "Mangan (North)" },
+    // Mangan (North)
+    { name: "Mangan Checkpost", borderBarrier: "Mangan (North)" },
+    { name: "Chungthang Checkpost", borderBarrier: "Mangan (North)" },
+    { name: "Toong Checkpost", borderBarrier: "Mangan (North)" },
+    { name: "Lachen Checkpost", borderBarrier: "Mangan (North)" },
+    { name: "Lachung Checkpost", borderBarrier: "Mangan (North)" },
   ],
   tamilNadu: [
     { name: "HOSUR CHECKPOST" },
@@ -479,80 +462,58 @@ export const checkposts = {
     { name: "GUDALUR NADUGANI CHECKPOST" },
   ],
   telangana: [
-    // Adilabad
-    { name: "Bela Checkpost", district: "Adilabad" },
-    { name: "Mancherial Checkpost", district: "Adilabad" },
+    { name: "Bela Checkpost", borderBarrier: "Adilabad" },
+    { name: "Mancherial Checkpost", borderBarrier: "Adilabad" },
 
-    // Kumuram Bheem (Asifabad)
-    { name: "Sirpur Checkpost", district: "Kumuram Bheem (Asifabad)" },
+    { name: "Sirpur Checkpost", borderBarrier: "Kumuram Bheem (Asifabad)" },
 
-    // Nirmal
-    { name: "Soan Checkpost", district: "Nirmal" },
+    { name: "Soan Checkpost", borderBarrier: "Nirmal" },
 
-    // Nizamabad
-    { name: "Basar Checkpost", district: "Nizamabad" },
-    { name: "Madnoor Border Checkpost", district: "Nizamabad" },
+    { name: "Basar Checkpost", borderBarrier: "Nizamabad" },
+    { name: "Madnoor Border Checkpost", borderBarrier: "Nizamabad" },
 
-    // Kamareddy
-    { name: "Jukkal Checkpost", district: "Kamareddy" },
+    { name: "Jukkal Checkpost", borderBarrier: "Kamareddy" },
 
-    // Sangareddy
-    { name: "Zaheerabad Checkpost", district: "Sangareddy" },
-    { name: "Narayankhed Checkpost", district: "Sangareddy" },
+    { name: "Zaheerabad Checkpost", borderBarrier: "Sangareddy" },
+    { name: "Narayankhed Checkpost", borderBarrier: "Sangareddy" },
 
-    // Vikarabad
-    { name: "Tandur Checkpost", district: "Vikarabad" },
+    { name: "Tandur Checkpost", borderBarrier: "Vikarabad" },
 
-    // Mahabubnagar
-    { name: "Jadcherla Checkpost", district: "Mahabubnagar" },
-    { name: "Narayanpet–KA Border Checkpost", district: "Mahabubnagar" },
+    { name: "Jadcherla Checkpost", borderBarrier: "Mahabubnagar" },
+    { name: "Narayanpet–KA Border Checkpost", borderBarrier: "Mahabubnagar" },
 
-    // Jogulamba Gadwal
-    { name: "Gadwal–Kurnool Checkpost", district: "Jogulamba Gadwal" },
+    { name: "Gadwal–Kurnool Checkpost", borderBarrier: "Jogulamba Gadwal" },
 
-    // Wanaparthy
-    { name: "Pebbair Checkpost", district: "Wanaparthy" },
+    { name: "Pebbair Checkpost", borderBarrier: "Wanaparthy" },
 
-    // Nagarkurnool
-    { name: "Kalwakurthy–Srisailam Route Checkpost", district: "Nagarkurnool" },
+    { name: "Kalwakurthy–Srisailam Route Checkpost", borderBarrier: "Nagarkurnool" },
 
-    // Nalgonda
-    { name: "Kodad Checkpost", district: "Nalgonda" },
+    { name: "Kodad Checkpost", borderBarrier: "Nalgonda" },
 
-    // Suryapet
-    { name: "Khammam Border Checkpost", district: "Suryapet" },
+    { name: "Khammam Border Checkpost", borderBarrier: "Suryapet" },
 
-    // Khammam
-    { name: "Wyra Checkpost", district: "Khammam" },
-    { name: "Madhira–AP Border Checkpost", district: "Khammam" },
+    { name: "Wyra Checkpost", borderBarrier: "Khammam" },
+    { name: "Madhira–AP Border Checkpost", borderBarrier: "Khammam" },
 
-    // Bhadradri Kothagudem
-    { name: "Bhadrachalam Checkpost", district: "Bhadradri Kothagudem" },
+    { name: "Bhadrachalam Checkpost", borderBarrier: "Bhadradri Kothagudem" },
   ],
   tripura: [
-    // West Tripura
-    { name: "Akhaura Checkpost", district: "West Tripura" }, // international
-    { name: "Agartala Checkpost", district: "West Tripura" },
+    { name: "Akhaura Checkpost", borderBarrier: "West Tripura" }, // international
+    { name: "Agartala Checkpost", borderBarrier: "West Tripura" },
 
-    // Sepahijala
-    { name: "Bishalgarh Checkpost", district: "Sepahijala" },
+    { name: "Bishalgarh Checkpost", borderBarrier: "Sepahijala" },
 
-    // Gomati
-    { name: "Rani Bazar Checkpost", district: "Gomati" },
-    { name: "Muhuripur Checkpost", district: "Gomati" },
+    { name: "Rani Bazar Checkpost", borderBarrier: "Gomati" },
+    { name: "Muhuripur Checkpost", borderBarrier: "Gomati" },
 
-    // South Tripura
-    { name: "Belonia Checkpost", district: "South Tripura" }, // India–Bangladesh
-    { name: "Sabroom Checkpost", district: "South Tripura" },
+    { name: "Belonia Checkpost", borderBarrier: "South Tripura" }, // India–Bangladesh
+    { name: "Sabroom Checkpost", borderBarrier: "South Tripura" },
 
-    // North Tripura
-    { name: "Churaibari Checkpost", district: "North Tripura" },
+    { name: "Churaibari Checkpost", borderBarrier: "North Tripura" },
 
-    // Unakoti
-    { name: "Kumarghat Checkpost", district: "Unakoti" },
+    { name: "Kumarghat Checkpost", borderBarrier: "Unakoti" },
 
-    // Dhalai
-    { name: "Ambassa Checkpost", district: "Dhalai" },
+    { name: "Ambassa Checkpost", borderBarrier: "Dhalai" },
   ],
 
   up: [
