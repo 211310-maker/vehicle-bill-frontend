@@ -2581,24 +2581,177 @@ fields.kerala.vehicleClass = fields.kerala.vehicleClass || [
 ];
 
 
-
 // ---------------- Madhya Pradesh (mp) ----------------
 fields.mp = fields.mp || {};
+
+// Payment / tax / service / permit basics
+fields.mp.paymentMode = fields.mp.paymentMode || [{ name: "CASH" }, { name: "ONLINE" }];
+fields.mp.taxMode = fields.mp.taxMode || fields.taxMode || [
+  { name: "DAYS" },
+  { name: "WEEKLY" },
+  { name: "MONTHLY" },
+  { name: "QUARTERLY" },
+  { name: "ANNUAL" },
+];
+
+fields.mp.serviceType = fields.mp.serviceType || [
+  { name: "NOT APPLICABLE" },
+  { name: "ORDINARY" },
+  { name: "DELUXE AIR CONDITIONED" },
+  { name: "SLEEPER" },
+  { name: "AIR CONDITIONED" },
+];
+
+// Vehicle / permit options
 fields.mp.vehiclePermitType = fields.mp.vehiclePermitType || [
   { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "GOODS VEHICLE" }
+  { name: "GOODS VEHICLE" },
+  { name: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "PRIVATE VEHICLE" },
 ];
+
 fields.mp.permitType = fields.mp.permitType || [
-  { name: "TOURIST" }
+  { name: "NOT APPLICABLE" },
+  { name: "TEMPORARY PERMIT" },
+  { name: "TOURIST PERMIT" },
+  { name: "NATIONAL PERMIT" },
+  { name: "HOME STATE PERMIT" },
+  { name: "CONTRACT CARRIAGE PERMIT" },
 ];
+
+fields.mp.permit = fields.mp.permit || [
+  { name: "NOT APPLICABLE", category: "" },
+  { name: "TEMPORARY Permit", category: "" },
+  { name: "ANNUAL Permit", category: "" },
+];
+
+// vehicleCategory (optional classification used by some pages)
+fields.mp.vehicleCategory = fields.mp.vehicleCategory || [
+  { name: "NOT APPLICABLE", category: "" },
+  { name: "LIGHT PASSANGER VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "MEDIUM PASSANGER VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "HEAVY PASSANGER VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "LIGHT Goods vehicle", category: "GOODS VEHICLE" },
+  { name: "MEDIUM Goods vehicle", category: "GOODS VEHICLE" },
+  { name: "HEAVY Goods vehicle", category: "GOODS VEHICLE" },
+];
+
+// vehicleClass: include common classes grouped by vehiclePermitType (UI can filter by category)
+fields.mp.vehicleClass = fields.mp.vehicleClass || [
+  // CONTRACT CARRIAGE/PASSANGER VEHICLES
+  { name: "THREE WHEELER(PASSENGER)", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "MOTOR CAB", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "MAXI CAB", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "OMNI BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "EDUCATIONAL BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "PRIVATE SERVICE VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+
+  // GOODS VEHICLE
+  { name: "LIGHT GOODS VEHICLE", category: "GOODS VEHICLE" },
+  { name: "MEDIUM GOODS VEHICLE", category: "GOODS VEHICLE" },
+  { name: "HEAVY GOODS VEHICLE", category: "GOODS VEHICLE" },
+  { name: "LIBRARY VAN", category: "GOODS VEHICLE" },
+  { name: "MOBILE WORKSHOP", category: "GOODS VEHICLE" },
+  { name: "MOBILE CLINIC", category: "GOODS VEHICLE" },
+  { name: "X-RAY VAN", category: "GOODS VEHICLE" },
+  { name: "CASH VAN", category: "GOODS VEHICLE" },
+  { name: "ARTICULATED VAN", category: "GOODS VEHICLE" },
+  { name: "MULTI-AXLED GOODS", category: "GOODS VEHICLE" },
+
+  // CONSTRUCTION EQUIPMENT VEHICLE
+  { name: "CHASSIS OF VEHICLES", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "VEHICLE FITTED WITH RIG", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "VEHICLE FITTED WITH COMPRESSOR", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "TOWER WAGONS", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "FORK LIFT", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "EXCAVATOR", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+];
+
+// permitCategory
+fields.mp.permitCategory = fields.mp.permitCategory || [
+  { name: "NOT APPLICABLE" },
+  { name: "REGULAR" },
+  { name: "TEMPORARY" },
+  { name: "SPECIAL" },
+  { name: "TIPPER" },
+  { name: "GOODS CARRIERS" },
+];
+
+// common goods/fuel/registration lists (small sets; expand as needed)
+fields.mp.goodsName = fields.mp.goodsName || [
+  { name: "GENERAL GOODS" },
+  { name: "FOOD ITEMS" },
+  { name: "CONSTRUCTION MATERIALS" },
+  { name: "CHEMICALS" },
+  { name: "ELECTRONICS" },
+  { name: "OTHERS" },
+];
+
+fields.mp.fuelType = fields.mp.fuelType || [
+  { name: "PETROL" },
+  { name: "DIESEL" },
+  { name: "CNG" },
+  { name: "LPG" },
+  { name: "ELECTRIC" },
+  { name: "HYBRID" },
+];
+
+fields.mp.registrationType = fields.mp.registrationType || [
+  { name: "PRIVATE" },
+  { name: "COMMERCIAL" },
+  { name: "TEMPORARY REGISTERED VEHICLE" },
+];
+
+// Districts (major MP districts - extend as needed)
+fields.mp.districtName = fields.mp.districtName || [
+  { name: "BHOPAL" },
+  { name: "INDORE" },
+  { name: "JABALPUR" },
+  { name: "GWALIOR" },
+  { name: "REWA" },
+  { name: "MORENA" },
+  { name: "BETUL" },
+  { name: "SENDHWA" },
+  { name: "SATNA" },
+  { name: "UJJAIN" },
+  { name: "GWALIOR" },
+  { name: "VIDISHA" },
+  { name: "RATLAM" },
+  { name: "CHHINDWARA" },
+  { name: "DEWAS" },
+];
+
+// Border / barrier list (common MP border checkposts / RTOs)
 fields.mp.borderBarrier = fields.mp.borderBarrier || [
-  { name: "BHOPAL" }
+  { name: "SENDHWA" },
+  { name: "BETUL" },
+  { name: "MORENA" },
+  { name: "REWA" },
+  { name: "BHOPAL" },
+  { name: "INDORE" },
+  { name: "GUNA" },
+  { name: "SATNA" },
+  { name: "RATLAM" },
 ];
-fields.mp.serviceType = fields.mp.serviceType || [{ name: "Tourist" }];
-fields.mp.taxMode = fields.mp.taxMode || fields.taxMode || [
-  { name: "ANNUAL" },
-  { name: "MONTHLY" }
+
+// checkPostName with district so UI can filter by selected district
+fields.mp.checkPostName = fields.mp.checkPostName || [
+  { name: "SENDHWA CHECKPOST", district: "SENDHWA" },
+  { name: "BETUL CHECKPOST", district: "BETUL" },
+  { name: "MORENA CHECKPOST", district: "MORENA" },
+  { name: "REWA CHECKPOST", district: "REWA" },
+  { name: "BHOPAL OUTER CHECKPOST", district: "BHOPAL" },
+  { name: "INDORE OUTER CHECKPOST", district: "INDORE" },
+  { name: "GWALIOR CHECKPOST", district: "GWALIOR" },
+  { name: "JABALPUR CHECKPOST", district: "JABALPUR" },
+  { name: "UJJAIN CHECKPOST", district: "UJJAIN" },
+  { name: "RATLAM CHECKPOST", district: "RATLAM" },
 ];
+
+// Ensure UI compatibility: alias with full name if some pages reference fields.madhyaPradesh
+fields.madhyaPradesh = fields.madhyaPradesh || fields.mp;
+
 
 // ---------------- Maharashtra ----------------
 fields.maharashtra = fields.maharashtra || {};
