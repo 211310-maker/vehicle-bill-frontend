@@ -2307,9 +2307,9 @@ fields.karnataka.taxMode = fields.karnataka.taxMode || fields.taxMode || [
 ];
 
 // ---------------- Kerala ----------------
-// ---------------- Kerala ----------------
 fields.kerala = fields.kerala || {};
 
+// Basic dropdowns
 fields.kerala.paymentMode = fields.kerala.paymentMode || [
   { name: "CASH" },
   { name: "ONLINE" },
@@ -2361,89 +2361,163 @@ fields.kerala.districtName = fields.kerala.districtName || [
   { name: "KASARAGOD" },
 ];
 
-// enteringDistrict — set to the same Kerala district list (used by some pages)
-fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || fields.kerala.districtName;
+// enteringDistrict — set to same list (used by some pages)
+fields.kerala.enteringDistrict = fields.kerala.enteringDistrict || fields.kerala.districtName.slice();
 
-// borderBarrier: common/known Kerala border barriers (kept in uppercase to match your style)
+// borderBarrier (major/commonly used barrier/checkpoints)
 fields.kerala.borderBarrier = fields.kerala.borderBarrier || [
   { name: "WALAYAR" },       // Palakkad
   { name: "MUTHANGA" },      // Wayanad
   { name: "MANJESHWAR" },    // Kasaragod
   { name: "ARYANKAVU" },     // Kollam
-  { name: "KUMILY" },        // Idukki
+  { name: "KUMILY" },        // Idukki (Kerala-TN border)
   { name: "PARASSALA" },     // Thiruvananthapuram
   { name: "NEYYATTINKARA" }, // Thiruvananthapuram
-  { name: "KOCHI" },         // Ernakulam
-  { name: "KOZHIKODE" },     // Kozhikode
+  { name: "KOCHI" },         // Ernakulam area
+  { name: "KOZHIKODE" },     // Kozhikode area
   { name: "THALASSERY" },    // Kannur area
+  { name: "THRISSUR" },      // Thrissur
+  { name: "PALAKKAD" },      // Palakkad
 ];
 
 // checkPostName: each entry has { name, district } so UI can filter by district.
-// IMPORTANT: frontend must filter like: fields.kerala.checkPostName.filter(e => e.district === payLoad.districtName)
 fields.kerala.checkPostName = fields.kerala.checkPostName || [
-  // Thiruvananthapuram
+  // THIRUVANANTHAPURAM
   { name: "PARASSALA CHECKPOST", district: "THIRUVANANTHAPURAM" },
   { name: "NEYATTINKARA CHECKPOST", district: "THIRUVANANTHAPURAM" },
+  { name: "AMARAVILA CHECKPOST", district: "THIRUVANANTHAPURAM" },
+  { name: "POOVAR CHECKPOST", district: "THIRUVANANTHAPURAM" },
 
-  // Kollam
+  // KOLLAM
   { name: "ARYANKAVU CHECKPOST", district: "KOLLAM" },
-  { name: "TENNAMPARA CHECKPOST", district: "KOLLAM" },
+  { name: "THENMALA CHECKPOST", district: "KOLLAM" },
+  { name: "KOLLAM OUTER CHECKPOST", district: "KOLLAM" },
 
-  // Pathanamthitta
-  { name: "KOLENCHERY CHECKPOST", district: "PATHANAMTHITTA" },
-  { name: "KOOVAPPALLY CHECKPOST", district: "PATHANAMTHITTA" },
+  // PATHANAMTHITTA
+  { name: "KOZHENCHERRY CHECKPOST", district: "PATHANAMTHITTA" },
+  { name: "ARANMULA CHECKPOST", district: "PATHANAMTHITTA" },
+  { name: "PATHANAMTHITTA GATE / BORDER", district: "PATHANAMTHITTA" },
 
-  // Alappuzha
+  // ALAPPUZHA
   { name: "KARUNAGAPALLY CHECKPOST", district: "ALAPPUZHA" },
+  { name: "CHENGANNUR CHECKPOST", district: "ALAPPUZHA" },
+  { name: "CHERTHALA CHECKPOST", district: "ALAPPUZHA" },
 
-  // Kottayam
+  // KOTTAYAM
   { name: "KUMARAKOM CHECKPOST", district: "KOTTAYAM" },
+  { name: "KOOVAPPALLY CHECKPOST", district: "KOTTAYAM" },
+  { name: "KOTTAYAM OUTER CHECKPOST", district: "KOTTAYAM" },
 
-  // Idukki
+  // IDUKKI
   { name: "KUMILY CHECKPOST", district: "IDUKKI" },
   { name: "THODUPUZHA CHECKPOST", district: "IDUKKI" },
+  { name: "KATTAPANA CHECKPOST", district: "IDUKKI" },
+  { name: "THEKKADY GATE", district: "IDUKKI" },
 
-  // Ernakulam
+  // ERNAKULAM
   { name: "KOCHI CHECKPOST", district: "ERNAKULAM" },
   { name: "ALUVA CHECKPOST", district: "ERNAKULAM" },
+  { name: "VYPEEN / VYPIN CHECKPOST", district: "ERNAKULAM" },
+  { name: "EDAPPALLY CHECKPOST", district: "ERNAKULAM" },
 
-  // Thrissur
+  // THRISSUR
   { name: "THRISSUR OUTER CHECKPOST", district: "THRISSUR" },
+  { name: "CHAVAKKAD CHECKPOST", district: "THRISSUR" },
+  { name: "GURUVAYUR CHECKPOST", district: "THRISSUR" },
 
-  // Palakkad
-  { name: "WALAYAR CHECKPOST", district: "PALAKKAD" },
-  { name: "CHELANNUR CHECKPOST", district: "PALAKKAD" },
+  // PALAKKAD
+  { name: "WALAYAR CHECKPOST (PALAKKAD)", district: "PALAKKAD" },
+  { name: "PALAKKAD TOLL / CHECKPOST", district: "PALAKKAD" },
+  { name: "MANNARKKAD CHECKPOST", district: "PALAKKAD" },
+  { name: "CHITTUR CHECKPOST", district: "PALAKKAD" },
 
-  // Malappuram
+  // MALAPPURAM
   { name: "MALAPPURAM CHECKPOST", district: "MALAPPURAM" },
+  { name: "TIRUR CHECKPOST", district: "MALAPPURAM" },
+  { name: "PARAPPANANGADI CHECKPOST", district: "MALAPPURAM" },
 
-  // Kozhikode
+  // KOZHIKODE
   { name: "KOZHIKODE CHECKPOST", district: "KOZHIKODE" },
+  { name: "CHELANNUR CHECKPOST", district: "KOZHIKODE" },
+  { name: "VADAKARA CHECKPOST", district: "KOZHIKODE" },
 
-  // Wayanad
+  // WAYANAD
   { name: "MUTHANGA CHECKPOST", district: "WAYANAD" },
-  { name: "BANDIPUR GATE", district: "WAYANAD" },
+  { name: "KATTIKULAM CHECKPOST", district: "WAYANAD" },
+  { name: "BANDIPUR GATE (WAYANAD SIDE)", district: "WAYANAD" },
 
-  // Kannur
+  // KANNUR
   { name: "THALASSERY CHECKPOST", district: "KANNUR" },
-  { name: "CANNANORE CHECKPOST", district: "KANNUR" },
+  { name: "CANNANORE / KANNUR CHECKPOST", district: "KANNUR" },
+  { name: "PAYYANNUR CHECKPOST", district: "KANNUR" },
 
-  // Kasaragod
+  // KASARAGOD
   { name: "MANJESHWAR CHECKPOST", district: "KASARAGOD" },
   { name: "KASARAGOD CENTRAL CHECKPOST", district: "KASARAGOD" },
+  { name: "NEELESWARAM CHECKPOST", district: "KASARAGOD" },
+
+  // Useful extras to improve UX
+  { name: "PALAKKAD CENTRAL CHECKPOST", district: "PALAKKAD" },
+  { name: "MALAPPURAM CENTRAL CHECKPOST", district: "MALAPPURAM" },
 ];
 
-// serviceType already defined earlier; keep as-is or extend
-fields.kerala.serviceType = fields.kerala.serviceType || [
-  { name: "DELUX AIR CONDITIONED" },
-  { name: "DELUX" },
-  { name: "ORDINARY (3 X 2 SEATER)" },
-  { name: "SLEEPER" },
-  { name: "NOT APPLICABLE" },
-  { name: "ORDINARY" },
+// extra dropdowns used in the form (new)
+fields.kerala.registrationType = fields.kerala.registrationType || [
+  { name: "PRIVATE" },
+  { name: "COMMERCIAL" },
+  { name: "GOVT" },
 ];
 
-// keep any other kerala defaults safe
+fields.kerala.tipperBody = fields.kerala.tipperBody || [
+  { name: "OPEN BODY" },
+  { name: "CLOSED BODY" },
+  { name: "TIPPING BODY" },
+  { name: "TRAILER" },
+];
+
+fields.kerala.fuelType = fields.kerala.fuelType || [
+  { name: "PETROL" },
+  { name: "DIESEL" },
+  { name: "CNG" },
+  { name: "LPG" },
+  { name: "ELECTRIC" },
+  { name: "HYBRID" },
+];
+
+fields.kerala.vehicleCategory = fields.kerala.vehicleCategory || [
+  { name: "MOTOR CAB" },
+  { name: "MAXI CAB" },
+  { name: "OMNI BUS" },
+  { name: "GOODS CARRIER" },
+  { name: "TRACTOR" },
+  { name: "LIGHT GOODS VEHICLE" },
+  { name: "MEDIUM GOODS VEHICLE" },
+  { name: "HEAVY GOODS VEHICLE" },
+];
+
+fields.kerala.permitCategory = fields.kerala.permitCategory || [
+  { name: "REGULAR" },
+  { name: "TEMPORARY" },
+  { name: "SPECIAL" },
+];
+
+fields.kerala.permit = fields.kerala.permit || [
+  { name: "NOT APPLICABLE", category: "" },
+  { name: "SINGLE RETURN TRIP", category: "" },
+  { name: "MULTI TRIP", category: "" },
+  { name: "ANNUAL PERMIT", category: "" },
+];
+
+fields.kerala.goodsName = fields.kerala.goodsName || [
+  { name: "GENERAL GOODS" },
+  { name: "FOOD ITEMS" },
+  { name: "CHEMICALS" },
+  { name: "ELECTRONICS" },
+  { name: "CONSTRUCTION MATERIALS" },
+  { name: "OTHERS" },
+];
+
+// keep vehiclePermitType default
 fields.kerala.vehiclePermitType = fields.kerala.vehiclePermitType || [
   { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
   { name: "GOODS VEHICLE" },
