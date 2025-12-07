@@ -2777,3 +2777,136 @@ fields.maharashtra.taxMode = fields.maharashtra.taxMode || fields.taxMode || [
 ];
 // ---------------------------------------------------
 
+// ---------------- West Bengal (wb) ----------------
+fields.westBengal = fields.westBengal || {};
+
+// basic
+fields.westBengal.paymentMode = fields.westBengal.paymentMode || [
+  { name: "CASH" },
+  { name: "ONLINE" },
+];
+
+// vehicle permit types commonly used
+fields.westBengal.vehiclePermitType = fields.westBengal.vehiclePermitType || [
+  { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "GOODS VEHICLE" },
+  { name: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "PRIVATE VEHICLE" },
+  { name: "EDUCATIONAL INSTITUTIONAL BUS" },
+];
+
+// permit types
+fields.westBengal.permitType = fields.westBengal.permitType || [
+  { name: "NOT APPLICABLE" },
+  { name: "TEMPORARY PERMIT" },
+  { name: "TOURIST PERMIT" },
+  { name: "HOME STATE PERMIT" },
+  { name: "NATIONAL PERMIT" },
+];
+
+// service types
+fields.westBengal.serviceType = fields.westBengal.serviceType || [
+  { name: "ORDINARY" },
+  { name: "AIR CONDITIONED" },
+  { name: "SLEEPER" },
+  { name: "DELUXE" },
+  { name: "NOT APPLICABLE" },
+  { name: "LUXURY" },
+];
+
+// taxMode - reuse your common style
+fields.westBengal.taxMode = fields.westBengal.taxMode || [
+  { name: "DAYS" },
+  { name: "WEEKLY" },
+  { name: "MONTHLY" },
+  { name: "QUARTERLY" },
+  { name: "HALF YEARLY" },
+  { name: "YEARLY" },
+];
+
+// Districts of West Bengal (official districts)
+fields.westBengal.districtName = fields.westBengal.districtName || [
+  { name: "ALIPURDUAR" },
+  { name: "BANKURA" },
+  { name: "BIRBHUM" },
+  { name: "COOCH BEHAR" },
+  { name: "DAKSHIN DINAJPUR" },
+  { name: "DARJEELING" },
+  { name: "HOOGHLY" },
+  { name: "HOWRAH" },
+  { name: "JALPAIGURI" },
+  { name: "JHARGRAM" },
+  { name: "KALIMPONG" },
+  { name: "KOLKATA" },
+  { name: "MALDA" },
+  { name: "MURSHIDABAD" },
+  { name: "NADIA" },
+  { name: "NORTH 24 PARGANAS" },
+  { name: "PASCHIM BARDHAMAN" },
+  { name: "PASCHIM MEDINIPUR" },
+  { name: "PURBA BARDHAMAN" },
+  { name: "PURBA MEDINIPUR" },
+  { name: "PURULIA" },
+  { name: "SOUTH 24 PARGANAS" },
+  { name: "UTTAR DINAJPUR" },
+];
+
+// check posts — each entry contains { name, district } so the UI can filter by district
+// (add or adjust entries as you get authoritative local names)
+fields.westBengal.checkPostName = fields.westBengal.checkPostName || [
+  // NORTH 24 PARGANAS
+  { name: "PETRAPOLE ICP", district: "NORTH 24 PARGANAS" },
+
+  // MALDA
+  { name: "PHULBARI CHECKPOST", district: "MALDA" },
+
+  // JALPAIGURI
+  { name: "HALDIBARI CHECKPOST", district: "JALPAIGURI" },
+
+  // UTTAR DINAJPUR
+  { name: "DALKHOLA CHECKPOST", district: "UTTAR DINAJPUR" },
+
+  // COOCH BEHAR / ALIPURDUAR area (examples)
+  { name: "ALIPURDUAR CHECKPOST", district: "ALIPURDUAR" },
+  { name: "COOCH BEHAR CHECKPOST", district: "COOCH BEHAR" },
+
+  // KOLKATA / HOWRAH metro area (examples)
+  { name: "HOWRAH CHECKPOST", district: "HOWRAH" },
+  { name: "KOLKATA (NORTH) CHECKPOST", district: "KOLKATA" },
+
+  // PURBA MEDINIPUR / HALDIA area
+  { name: "HALDIA CHECKPOST", district: "PURBA MEDINIPUR" },
+
+  // PASCHIM MEDINIPUR
+  { name: "KANAYANPUR CHECKPOST", district: "PASCHIM MEDINIPUR" },
+
+  // HOOGHLY
+  { name: "CHANDANNAGAR CHECKPOST", district: "HOOGHLY" },
+
+  // generic fallback entries for districts without specific checkposts above
+  { name: "DISTRICT CENTRAL CHECKPOST (ALTERNATE)", district: "PURBA BARDHAMAN" },
+  { name: "DISTRICT CENTRAL CHECKPOST (ALTERNATE)", district: "PASCHIM BARDHAMAN" },
+];
+
+// also provide a lowercase alias in case some components use checkpostName (lowercase p)
+fields.westBengal.checkpostName = fields.westBengal.checkpostName || fields.westBengal.checkPostName;
+
+// permit categories (if used)
+fields.westBengal.permitCategory = fields.westBengal.permitCategory || [
+  { name: "REGULAR" },
+  { name: "TEMPORARY" },
+  { name: "SPECIAL" },
+];
+
+// goods name examples (if needed)
+fields.westBengal.goodsName = fields.westBengal.goodsName || [
+  { name: "GENERAL GOODS" },
+  { name: "FOOD ITEMS" },
+  { name: "AGRO PRODUCE" },
+  { name: "FERTILIZERS" },
+  { name: "CHEMICALS" },
+  { name: "OTHERS" },
+];
+
+// alias so components using `fields.wb` continue to work
+fields.wb = fields.westBengal;
