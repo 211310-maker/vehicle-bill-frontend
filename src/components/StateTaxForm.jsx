@@ -1,8 +1,8 @@
+// src/components/StateTaxForm.jsx
 import React, { useRef, useState } from 'react';
 import { useHistory } from 'react-router';
 import {
-  // note: changed import from borderBarriers => districts
-  districts,
+  borderBarriers,
   checkposts,
   fields,
   LOCAL_STORAGE_KEY,
@@ -23,19 +23,16 @@ const StateTaxForm = ({ stateKey }) => {
   const stateDisplayName = fields.stateName[stateKey] || stateKey;
   const accessStateName = fields.stateName[stateKey] || stateDisplayName;
 
-  // district options: prefer fields.<state>.districtName, then districts export
-  const districtOptions =
-    stateFields.districtName ||
-    districts[stateKey] ||
-    districts[resolvedStateFieldKey] ||
+  const borderOptions =
+    borderBarriers[stateKey] ||
+    borderBarriers[resolvedStateFieldKey] ||
+    stateFields.borderBarrier ||
     [];
-
-  // raw checkpost options: prefer stateFields' checkPostName and fall back to global checkposts
-  const rawCheckpostOptions =
-    stateFields.checkPostName ||
-    stateFields.checkpostName ||
+  const checkpostOptions =
     checkposts[stateKey] ||
     checkposts[resolvedStateFieldKey] ||
+    stateFields.checkpostName ||
+    stateFields.checkPostName ||
     [];
 
   const [payLoad, setPayLoad] = useState({
@@ -45,8 +42,7 @@ const StateTaxForm = ({ stateKey }) => {
     vehiclePermitType: '',
     seatingCapacityExcludingDriver: '',
     sleeperCapacityExcludingDriver: '',
-    // note: replaced `borderBarrier` with `districtName`
-    districtName: '',
+    borderBarrier: '',
     totalAmount: '',
     ownerName: '',
     fromState: '',
@@ -81,19 +77,7 @@ const StateTaxForm = ({ stateKey }) => {
     }
     if (data && data.success) {
       const preLoadedData = {};
-      // Populate keys from API detail. For district, support both districtName and old borderBarrier
       Object.keys(payLoad).forEach((key) => {
-        // handle districtName specially for old backend compatibility
-        if (key === 'districtName') {
-          if (data.detail && data.detail.districtName) {
-            preLoadedData.districtName = data.detail.districtName;
-          } else if (data.detail && data.detail.borderBarrier) {
-            // backward compatibility - some backends returned borderBarrier
-            preLoadedData.districtName = data.detail.borderBarrier;
-          }
-          return;
-        }
-
         if (
           data.detail &&
           data.detail[key] !== undefined &&
@@ -103,7 +87,6 @@ const StateTaxForm = ({ stateKey }) => {
           preLoadedData[key] = data.detail[key];
         }
       });
-
       setPayLoad((e) => ({
         ...e,
         ...preLoadedData,
@@ -150,14 +133,6 @@ const StateTaxForm = ({ stateKey }) => {
       </>
     );
   }
-
-  // filter checkposts by selected district (if applicable). Keep checkposts that don't have district meta.
-  const filteredCheckposts = rawCheckpostOptions.filter((cp) => {
-    if (!payLoad.districtName) return true; // show all when no district selected
-    if (cp.district) return cp.district === payLoad.districtName;
-    // if checkpost has no district metadata, keep it (backwards compatibility)
-    return true;
-  });
 
   return (
     <>
@@ -268,8 +243,6 @@ const StateTaxForm = ({ stateKey }) => {
                   })}
                 </select>
               </div>
-
-              {/* rest of form unchanged except where borderBarrier/districtName used */}
               {payLoad.vehiclePermitType !== 'GOODS VEHICLE' ? (
                 <div className='row'>
                   <div className='col-sm-6'>
@@ -564,9 +537,10 @@ const StateTaxForm = ({ stateKey }) => {
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
+                    {/* LABEL CHANGED: show "District" but keep name/id = borderBarrier */}
                     <label
                       className='form__label d-block w-100 text-left'
-                      htmlFor='districtName'
+                      htmlFor='borderBarrier'
                     >
                       District<sup>*</sup>
                     </label>
@@ -574,13 +548,13 @@ const StateTaxForm = ({ stateKey }) => {
                       tabIndex='13'
                       required
                       disabled={isLoading}
-                      value={payLoad.districtName}
+                      value={payLoad.borderBarrier}
                       onChange={onChangeHandler}
-                      name='districtName'
-                      id='districtName'
+                      name='borderBarrier'
+                      id='borderBarrier'
                     >
                       <option value=''>--Select District--</option>
-                      {districtOptions.map((type) => {
+                      {borderOptions.map((type) => {
                         return (
                           <option key={type.name} value={type.name}>
                             {type.name}
@@ -608,7 +582,7 @@ const StateTaxForm = ({ stateKey }) => {
                       id='checkpostName'
                     >
                       <option value=''>--Select Checkpost Name--</option>
-                      {filteredCheckposts.map((type) => {
+                      {checkpostOptions.map((type) => {
                         return (
                           <option key={type.name} value={type.name}>
                             {type.name}
