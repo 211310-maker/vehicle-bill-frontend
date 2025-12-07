@@ -18,11 +18,18 @@ export const borderBarriers = {
     { name: 'TIRAP' }, 
   ],
   assam: [
-    { name: "SRIRAMPUR" },
-    { name: "CHAGOLIA" },
-    { name: "LAILAPUR" },
-    { name: "DIRAK" },
-    { name: "BOXIRHAT" },
+    { name: "Kamrup Metropolitan" },
+    { name: "Kamrup Rural" },
+    { name: "Goalpara" },
+    { name: "Karimganj" },
+    { name: "Cachar" },
+    { name: "Hailakandi" },
+    { name: "Dhubri" },
+    { name: "Bongaigaon" },
+    { name: "Barpeta" },
+    { name: "Nagaon" },
+    { name: "Sonitpur" },
+    { name: "Tinsukia" },
   ],
   bihar: [
     { name: "RAXAUL" },
@@ -38,10 +45,8 @@ export const borderBarriers = {
     { name: "BACHELI" },
   ],
   damanDiu: [
-    { name: "VAPI" },
-    { name: "NAROLI" },
-    { name: "GHOGHLA" },
-    { name: "SOMNATH GATE" },
+    { name: "Daman District" },
+    { name: "Diu District" },
   ],
   goa: [
     { name: "PATRADEVI" },
@@ -139,10 +144,10 @@ export const borderBarriers = {
     { name: "LUHURACHATI" },
   ],
   puducherry: [
-    { name: "GORIMEDU" },
-    { name: "ARIYANKUPPAM" },
-    { name: "MAHE" },
-    { name: "YANAM" },
+    { name: "Puducherry" },
+    { name: "Karaikal" },
+    { name: "Mahe" },
+    { name: "Yanam" },
   ],
   punjab: [
     { name: "ATTARI" },
@@ -175,16 +180,30 @@ export const borderBarriers = {
     { name: "GUDALUR" },
   ],
   telangana: [
-    { name: "ADILABAD" },
-    { name: "ASWARAOPETA" },
-    { name: "KODAD" },
-    { name: "JADCHERLA" },
+    { name: "Adilabad" },
+    { name: "Kumuram Bheem (Asifabad)" },
+    { name: "Nirmal" },
+    { name: "Nizamabad" },
+    { name: "Kamareddy" },
+    { name: "Sangareddy" },
+    { name: "Vikarabad" },
+    { name: "Mahabubnagar" },
+    { name: "Jogulamba Gadwal" },
+    { name: "Wanaparthy" },
+    { name: "Nagarkurnool" },
+    { name: "Nalgonda" },
+    { name: "Suryapet" },
+    { name: "Khammam" },
+    { name: "Bhadradri Kothagudem" },
   ],
-  tripura: [
-    { name: "CHURAIBARI" },
-    { name: "BOXANAGAR" },
-    { name: "KHOWAI" },
-    { name: "SABROOM" },
+   tripura: [
+    { name: "West Tripura" },
+    { name: "Sepahijala" },
+    { name: "Gomati" },
+    { name: "South Tripura" },
+    { name: "North Tripura" },
+    { name: "Unakoti" },
+    { name: "Dhalai" },
   ],
   up: [
     { name: "GHAZIABAD" },
@@ -233,13 +252,46 @@ export const checkposts = {
     { name: 'KANUBARI' },
 ],
  
-  assam: [
-    { name: "SRIRAMPUR CHECKPOST" },
-    { name: "CHAGOLIA CHECKPOST" },
-    { name: "LAILAPUR CHECKPOST" },
-    { name: "DIRAK GATE" },
-    { name: "BOXIRHAT GATE" },
+   assam: [
+    // Kamrup Metropolitan
+    { name: "Jalukbari Checkpost", district: "Kamrup Metropolitan" },
+    { name: "Sonapur Checkpost", district: "Kamrup Metropolitan" },
+
+    // Kamrup Rural
+    { name: "Chaygaon Checkpost", district: "Kamrup Rural" },
+
+    // Goalpara
+    { name: "Dudhnoi Checkpost", district: "Goalpara" },
+    { name: "Krishnai Checkpost", district: "Goalpara" },
+
+    // Karimganj
+    { name: "Churaibari Checkpost", district: "Karimganj" },
+
+    // Cachar
+    { name: "Lailapur Checkpost", district: "Cachar" },
+
+    // Hailakandi
+    { name: "Ramnathpur Checkpost", district: "Hailakandi" },
+
+    // Dhubri
+    { name: "Srirampur Checkpost", district: "Dhubri" },
+
+    // Bongaigaon
+    { name: "Jogighopa Checkpost", district: "Bongaigaon" },
+
+    // Barpeta
+    { name: "Barpeta Road Checkpost", district: "Barpeta" },
+
+    // Nagaon
+    { name: "Jakhalabandha Checkpost", district: "Nagaon" },
+
+    // Sonitpur
+    { name: "Banderdewa Checkpost", district: "Sonitpur" },
+
+    // Tinsukia
+    { name: "Dirak Checkpost", district: "Tinsukia" },
   ],
+
   bihar: [
     { name: "RAXAUL ICP" },
     { name: "JOGBANI CHECKPOST" },
@@ -254,10 +306,13 @@ export const checkposts = {
     { name: "BACHELI BARRIER" },
   ],
   damanDiu: [
-    { name: "VAPI CHECKPOST" },
-    { name: "NAROLI CHECKPOST" },
-    { name: "GHOGHLA GATE" },
-    { name: "DIU CHECKPOST" },
+    // Daman District
+    { name: "Vapi–Daman Checkpost", district: "Daman District" },
+    { name: "Somnath Junction Checkpost", district: "Daman District" },
+
+    // Diu District
+    { name: "Ghoghla Checkpost", district: "Diu District" },
+    { name: "Simbor Checkpost", district: "Diu District" },
   ],
   goa: [
     { name: "PATRADEVI CHECKPOST" },
@@ -355,11 +410,22 @@ export const checkposts = {
     { name: "LUHURACHATI BARRIER" },
   ],
   puducherry: [
-    { name: "GORIMEDU CHECKPOST" },
-    { name: "ARIYANKUPPAM CHECKPOST" },
-    { name: "MAHE CHECKPOST" },
-    { name: "YANAM CHECKPOST" },
+    // Puducherry District
+    { name: "Gorimedu Checkpost", district: "Puducherry" },
+    { name: "Kottakuppam Checkpost", district: "Puducherry" }, // TN border
+    { name: "Thavalakuppam Checkpost", district: "Puducherry" },
+
+    // Karaikal District
+    { name: "Thirunallar Checkpost", district: "Karaikal" },
+    { name: "Neravy Checkpost", district: "Karaikal" },
+
+    // Mahe District
+    { name: "Chokli/Chalassery Checkpost", district: "Mahe" },
+
+    // Yanam District
+    { name: "Yedurlanka Checkpost", district: "Yanam" },
   ],
+
   punjab: [
     { name: "ATTARI ICP" },
     { name: "SHAMBHU BARRIER" },
@@ -413,17 +479,82 @@ export const checkposts = {
     { name: "GUDALUR NADUGANI CHECKPOST" },
   ],
   telangana: [
-    { name: "ADILABAD ICHODA" },
-    { name: "ASWARAOPETA CHECKPOST" },
-    { name: "KODAD GARIKAPADU GATE" },
-    { name: "JADCHERLA SHADNAGAR CHECKPOST" },
+    // Adilabad
+    { name: "Bela Checkpost", district: "Adilabad" },
+    { name: "Mancherial Checkpost", district: "Adilabad" },
+
+    // Kumuram Bheem (Asifabad)
+    { name: "Sirpur Checkpost", district: "Kumuram Bheem (Asifabad)" },
+
+    // Nirmal
+    { name: "Soan Checkpost", district: "Nirmal" },
+
+    // Nizamabad
+    { name: "Basar Checkpost", district: "Nizamabad" },
+    { name: "Madnoor Border Checkpost", district: "Nizamabad" },
+
+    // Kamareddy
+    { name: "Jukkal Checkpost", district: "Kamareddy" },
+
+    // Sangareddy
+    { name: "Zaheerabad Checkpost", district: "Sangareddy" },
+    { name: "Narayankhed Checkpost", district: "Sangareddy" },
+
+    // Vikarabad
+    { name: "Tandur Checkpost", district: "Vikarabad" },
+
+    // Mahabubnagar
+    { name: "Jadcherla Checkpost", district: "Mahabubnagar" },
+    { name: "Narayanpet–KA Border Checkpost", district: "Mahabubnagar" },
+
+    // Jogulamba Gadwal
+    { name: "Gadwal–Kurnool Checkpost", district: "Jogulamba Gadwal" },
+
+    // Wanaparthy
+    { name: "Pebbair Checkpost", district: "Wanaparthy" },
+
+    // Nagarkurnool
+    { name: "Kalwakurthy–Srisailam Route Checkpost", district: "Nagarkurnool" },
+
+    // Nalgonda
+    { name: "Kodad Checkpost", district: "Nalgonda" },
+
+    // Suryapet
+    { name: "Khammam Border Checkpost", district: "Suryapet" },
+
+    // Khammam
+    { name: "Wyra Checkpost", district: "Khammam" },
+    { name: "Madhira–AP Border Checkpost", district: "Khammam" },
+
+    // Bhadradri Kothagudem
+    { name: "Bhadrachalam Checkpost", district: "Bhadradri Kothagudem" },
   ],
   tripura: [
-    { name: "CHURAIBARI CHECKPOST" },
-    { name: "BOXANAGAR CHECKPOST" },
-    { name: "KHOWAI CHECKPOST" },
-    { name: "SABROOM INTEGRATED CHECKPOST" },
+    // West Tripura
+    { name: "Akhaura Checkpost", district: "West Tripura" }, // international
+    { name: "Agartala Checkpost", district: "West Tripura" },
+
+    // Sepahijala
+    { name: "Bishalgarh Checkpost", district: "Sepahijala" },
+
+    // Gomati
+    { name: "Rani Bazar Checkpost", district: "Gomati" },
+    { name: "Muhuripur Checkpost", district: "Gomati" },
+
+    // South Tripura
+    { name: "Belonia Checkpost", district: "South Tripura" }, // India–Bangladesh
+    { name: "Sabroom Checkpost", district: "South Tripura" },
+
+    // North Tripura
+    { name: "Churaibari Checkpost", district: "North Tripura" },
+
+    // Unakoti
+    { name: "Kumarghat Checkpost", district: "Unakoti" },
+
+    // Dhalai
+    { name: "Ambassa Checkpost", district: "Dhalai" },
   ],
+
   up: [
     { name: "GHAZIABAD DELHI BORDER" },
     { name: "NOIDA DND CHECKPOST" },
