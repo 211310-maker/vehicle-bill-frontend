@@ -569,28 +569,25 @@ const Kerala = () => {
                     >
                       Permit Type<sup>*</sup>
                     </label>
-                    <select
-                      required
-                      tabIndex="12"
-                      disabled={isLoading}
-                      value={payLoad.permitType}
-                      onChange={onChangeHandler}
-                      name="permitType"
-                      id="permitType"
-                    >
-                      <option value="">--Select Permit Type--</option>
-                      {safe(fields?.kerala?.permitType)
-                        .filter(
-                          (e) => (e.category || "").toLowerCase() === (payLoad.vehiclePermitType || "").toLowerCase()
-                        )
-                        .map((type) => {
-                          return (
-                            <option value={type.name} key={type.name}>
-                              {type.name}
-                            </option>
-                          );
-                        })}
-                    </select>
+                  <select
+                    required
+                    tabIndex="12"
+                    disabled={isLoading}
+                    value={payLoad.permitType}
+                    onChange={onChangeHandler}
+                    name="permitType"
+                    id="permitType"        
+                  >
+                  <option value="">--Select Permit Type--</option>
+                   {fields.kerala.permitType
+                    .filter(pt => !pt.category || pt.category === payLoad.vehiclePermitType)
+                    .map((pt) => (
+                      <option key={pt.name} value={pt.name}>
+                        {pt.name}
+                      </option>
+                    ))}
+                 </select>
+
                   </div>
                 </div>
                 {/* <!-- Road Tax Validity --> */}
