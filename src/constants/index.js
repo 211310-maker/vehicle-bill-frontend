@@ -8,10 +8,14 @@ export const borderBarriers = {
     { name: "PALAMANER" },
   ],
   arunachalPradesh: [
-    { name: "BANDERDEWA" },
-    { name: "DIRAK" },
-    { name: "KIMIN" },
-    { name: "BOMDILA" },
+    { name: 'PAPUM PARE' },       // Banderdewa / Kimin / Gohpur
+    { name: 'WEST KAMENG' },      // Bhalukpong
+    { name: 'WEST SIANG' },       // Likabali
+    { name: 'EAST SIANG' },       // Ruksin / Kemi
+    { name: 'LOWER DIBANG VALLEY' }, // Shantipur
+    { name: 'LOHIT' },            // Sunpura / Dirak Gate
+    { name: 'CHANGLANG' },        // Namdang / Jairampur / Kharsang / Bordumsa
+    { name: 'TIRAP' }, 
   ],
   assam: [
     { name: "SRIRAMPUR" },
@@ -208,10 +212,24 @@ export const checkposts = {
   ],
   arunachalPradesh: [
     { name: "BANDERDEWA GATE" },
-    { name: "DIRAK GATE" },
-    { name: "KIMIN CHECKPOST" },
-    { name: "HOLLONGI CHECKPOST" },
-  ],
+    { name: 'KIMIN' },
+    { name: 'GOHPUR' },
+    { name: 'BHALUKPONG' },
+    { name: 'LIKABALI' },
+    { name: 'RUKSIN' },
+    { name: 'KEMI' },
+    { name: 'SHANTIPUR' },
+    { name: 'SUNPURA' },
+    { name: 'DIRAK GATE' },
+    { name: 'NAMDANG' },
+    { name: 'JAIRAMPUR' },
+    { name: 'KHARSANG' },
+    { name: 'BORDUMSA' },
+    { name: 'DEOMALI' },
+    { name: 'HUKANJURI' },
+    { name: 'KANUBARI' },
+],
+ 
   assam: [
     { name: "SRIRAMPUR CHECKPOST" },
     { name: "CHAGOLIA CHECKPOST" },
