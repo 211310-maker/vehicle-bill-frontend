@@ -1,56 +1,48 @@
-// If axios is missing, run: npm install axios
-import React, { useState } from 'react';
-import AutoDownloadPdf from '../components/AutoDownloadPdf';
-import { downloadBillPdf } from '../utils/downloadBillPdf';
+// npm install axios (if not already installed)
+import React, { useState } from "react";
+import AutoDownloadBill from "../components/AutoDownloadBill";
+import { downloadBillPdf } from "../utils/downloadBillPdf";
 
+const SAMPLE_ID = "69368b7b684539e08eb01077";
+
+/**
+ * Simple page that demonstrates manual and optional auto-download of a bill PDF.
+ */
 const DownloadPage = () => {
-  const [billId, setBillId] = useState('example-id');
-  const [status, setStatus] = useState('');
+  const [manualStatus, setManualStatus] = useState("");
+  const [autoEnabled, setAutoEnabled] = useState(false);
 
   const handleManualDownload = async () => {
-    setStatus('Preparing download…');
-    const result = await downloadBillPdf(billId);
-
+    setManualStatus("Preparing download...");
+    const result = await downloadBillPdf({ id: SAMPLE_ID });
     if (result.ok) {
-      setStatus(`Download started (${result.filename})`);
+      setManualStatus(`Download started: ${result.filename}`);
     } else {
-      console.error(result.error);
-      setStatus('Download failed');
+      setManualStatus(`Download failed: ${result.error}`);
     }
   };
 
   return (
-    <div className='container mt-4'>
-      <h1>Bill PDF Download Demo</h1>
-      <p className='text-muted'>Run "npm install axios" if axios is missing.</p>
+    <div style={{ padding: 20 }}>
+      <h2>PDF Download Demo</h2>
 
-      <section className='mb-4'>
-        <h2>Manual download</h2>
-        <p>Enter a bill ID and click the button to trigger a manual download.</p>
-        <div className='form-group'>
-          <label htmlFor='bill-id-input'>Bill ID</label>
-          <input
-            id='bill-id-input'
-            type='text'
-            className='form-control'
-            value={billId}
-            onChange={(e) => setBillId(e.target.value)}
-            placeholder='Enter bill ID'
-          />
-        </div>
-        <button type='button' className='btn btn-primary mt-2' onClick={handleManualDownload}>
-          Download bill PDF
-        </button>
-        {status && <p className='mt-2'>{status}</p>}
+      <section style={{ marginBottom: 24 }}>
+        <h3>Manual download</h3>
+        <button onClick={handleManualDownload}>Download Bill (manual)</button>
+        <p>{manualStatus}</p>
       </section>
 
       <section>
-        <h2>Automatic download on mount</h2>
-        <p>
-          The component below starts downloading as soon as it mounts without navigating away
-          from the page.
-        </p>
-        <AutoDownloadPdf id={billId} />
+        <h3>Auto-download</h3>
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <input
+            type="checkbox"
+            checked={autoEnabled}
+            onChange={(e) => setAutoEnabled(e.target.checked)}
+          />
+          Enable auto-download on mount
+        </label>
+        {autoEnabled && <AutoDownloadBill id={SAMPLE_ID} />}
       </section>
     </div>
   );
