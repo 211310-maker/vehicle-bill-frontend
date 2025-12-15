@@ -77,7 +77,7 @@ const StateTaxForm = ({ stateKey }) => {
     if (!isPassengerVehicle && payLoad.serviceType) {
       setPayLoad((p) => ({ ...p, serviceType: '' }));
     }
-  }, [isPassengerVehicle]); // based on derived flag
+  }, [isPassengerVehicle]);
 
   // ✅ Auto-calc Total Amount = MV Tax + Service/User Charge
   useEffect(() => {
@@ -652,7 +652,6 @@ const StateTaxForm = ({ stateKey }) => {
                 </div>
               </div>
 
-              {/* ✅ Service Type (Passenger vehicles only) */}
               {isPassengerVehicle && (
                 <div className='form__control'>
                   <label
@@ -680,7 +679,6 @@ const StateTaxForm = ({ stateKey }) => {
                 </div>
               )}
 
-              {/* ✅ Validity Dates */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -744,7 +742,6 @@ const StateTaxForm = ({ stateKey }) => {
                 />
               </div>
 
-              {/* Existing Tax Dates (tabIndex shifted) */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -792,6 +789,7 @@ const StateTaxForm = ({ stateKey }) => {
             </div>
           </div>
 
+          {/* ✅ FIXED TABLE: valid HTML + two rows + normal text */}
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
@@ -807,10 +805,22 @@ const StateTaxForm = ({ stateKey }) => {
 
                 <tbody>
                   <tr>
-                    <td className='hr-table-body'>1</td>
-                    <td className='hr-table-body'>MV Tax</td>
-                    <td className='hr-table-body'>{payLoad.taxFromDate || '-'}</td>
-                    <td className='hr-table-body'>{payLoad.taxUptoDate || '-'}</td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>1</span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>MV Tax</span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>
+                        {payLoad.taxFromDate || '-'}
+                      </span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>
+                        {payLoad.taxUptoDate || '-'}
+                      </span>
+                    </td>
                     <td className='hr-table-body'>
                       <input
                         min='0'
@@ -827,10 +837,22 @@ const StateTaxForm = ({ stateKey }) => {
                   </tr>
 
                   <tr>
-                    <td className='hr-table-body'>2</td>
-                    <td className='hr-table-body'>Service/User Charge</td>
-                    <td className='hr-table-body'>{payLoad.taxFromDate || '-'}</td>
-                    <td className='hr-table-body'>{payLoad.taxUptoDate || '-'}</td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>2</span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>Service/User Charge</span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>
+                        {payLoad.taxFromDate || '-'}
+                      </span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>
+                        {payLoad.taxUptoDate || '-'}
+                      </span>
+                    </td>
                     <td className='hr-table-body'>
                       <input
                         min='0'
