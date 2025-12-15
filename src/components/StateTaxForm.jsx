@@ -45,6 +45,8 @@ const StateTaxForm = ({ stateKey }) => {
     sleeperCapacityExcludingDriver: '',
     borderBarrier: '', // still named borderBarrier for backend compatibility but label shown as District
     totalAmount: '',
+    mvTaxAmount: '',
+    serviceUserChargeAmount: '',
     ownerName: '',
     fromState: '',
     vehicleClass: '',
@@ -75,7 +77,19 @@ const StateTaxForm = ({ stateKey }) => {
     if (!isPassengerVehicle && payLoad.serviceType) {
       setPayLoad((p) => ({ ...p, serviceType: '' }));
     }
-  }, [isPassengerVehicle]); // intentionally based on derived flag
+  }, [isPassengerVehicle]); // based on derived flag
+
+  // ✅ Auto-calc Total Amount = MV Tax + Service/User Charge
+  useEffect(() => {
+    const mv = Number(payLoad.mvTaxAmount || 0);
+    const svc = Number(payLoad.serviceUserChargeAmount || 0);
+    const total = mv + svc;
+
+    setPayLoad((p) => ({
+      ...p,
+      totalAmount: total ? String(total) : '',
+    }));
+  }, [payLoad.mvTaxAmount, payLoad.serviceUserChargeAmount]);
 
   const getDetailsHandler = async () => {
     if (!payLoad.vehicleNo) {
@@ -638,7 +652,7 @@ const StateTaxForm = ({ stateKey }) => {
                 </div>
               </div>
 
-              {/* ✅ NEW: Service Type (Passenger vehicles only) */}
+              {/* ✅ Service Type (Passenger vehicles only) */}
               {isPassengerVehicle && (
                 <div className='form__control'>
                   <label
@@ -666,7 +680,7 @@ const StateTaxForm = ({ stateKey }) => {
                 </div>
               )}
 
-              {/* ✅ NEW: Validity Dates */}
+              {/* ✅ Validity Dates */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -730,7 +744,7 @@ const StateTaxForm = ({ stateKey }) => {
                 />
               </div>
 
-              {/* Existing Tax Dates (tabIndex shifted to avoid clashes) */}
+              {/* Existing Tax Dates (tabIndex shifted) */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -790,10 +804,45 @@ const StateTaxForm = ({ stateKey }) => {
                     <th>Amount</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   <tr>
-                    <td className='hr-table-body' colSpan='5'>
-                      No records found
+                    <td className='hr-table-body'>1</td>
+                    <td className='hr-table-body'>MV Tax</td>
+                    <td className='hr-table-body'>{payLoad.taxFromDate || '-'}</td>
+                    <td className='hr-table-body'>{payLoad.taxUptoDate || '-'}</td>
+                    <td className='hr-table-body'>
+                      <input
+                        min='0'
+                        disabled={isLoading}
+                        value={payLoad.mvTaxAmount}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        id='mvTaxAmount'
+                        name='mvTaxAmount'
+                        placeholder='0'
+                      />
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className='hr-table-body'>2</td>
+                    <td className='hr-table-body'>Service/User Charge</td>
+                    <td className='hr-table-body'>{payLoad.taxFromDate || '-'}</td>
+                    <td className='hr-table-body'>{payLoad.taxUptoDate || '-'}</td>
+                    <td className='hr-table-body'>
+                      <input
+                        min='0'
+                        disabled={isLoading}
+                        value={payLoad.serviceUserChargeAmount}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        id='serviceUserChargeAmount'
+                        name='serviceUserChargeAmount'
+                        placeholder='0'
+                      />
                     </td>
                   </tr>
                 </tbody>
@@ -816,6 +865,7 @@ const StateTaxForm = ({ stateKey }) => {
                   tabIndex='21'
                   min='0'
                   disabled={isLoading}
+                  readOnly
                   value={payLoad.totalAmount}
                   onChange={onChangeHandler}
                   className='form__input w-100'
