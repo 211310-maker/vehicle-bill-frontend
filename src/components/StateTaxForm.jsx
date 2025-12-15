@@ -1,5 +1,5 @@
 // src/components/StateTaxForm.jsx
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
 import {
   borderBarriers,
@@ -56,11 +56,26 @@ const StateTaxForm = ({ stateKey }) => {
     permitType: '',
     grossVehicleWeight: '',
     unladenWeight: '',
+    fitnessValidity: '',
+    insuranceValidity: '',
+    permitValidity: '',
+    serviceType: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useRef(null);
+
+  // ✅ Passenger vs Goods
+  const isPassengerVehicle =
+    payLoad.vehiclePermitType && payLoad.vehiclePermitType !== 'GOODS VEHICLE';
+
+  // ✅ Auto-clear serviceType when GOODS VEHICLE selected
+  useEffect(() => {
+    if (!isPassengerVehicle && payLoad.serviceType) {
+      setPayLoad((p) => ({ ...p, serviceType: '' }));
+    }
+  }, [isPassengerVehicle]); // intentionally based on derived flag
 
   const getDetailsHandler = async () => {
     if (!payLoad.vehicleNo) {
@@ -417,6 +432,7 @@ const StateTaxForm = ({ stateKey }) => {
                 </select>
               </div>
             </div>
+
             <div className='col-6'>
               <div className='form__control text-left'>
                 <label className='form__label d-block w-100 text-left'>
@@ -435,6 +451,7 @@ const StateTaxForm = ({ stateKey }) => {
                   </button>
                 )}
               </div>
+
               <div className='form__control'>
                 <label
                   className='form__label d-block w-100 text-left'
@@ -455,6 +472,7 @@ const StateTaxForm = ({ stateKey }) => {
                   value={payLoad.ownerName}
                 />
               </div>
+
               <div className='form__control'>
                 <label
                   className='form__label d-block w-100 text-left'
@@ -529,6 +547,7 @@ const StateTaxForm = ({ stateKey }) => {
                     </select>
                   </div>
                 </div>
+
                 <div className='col-sm-6'>
                   <div className='form__control'>
                     <label
@@ -562,7 +581,6 @@ const StateTaxForm = ({ stateKey }) => {
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    {/* LABEL CHANGED: show "District" but keep name/id = borderBarrier */}
                     <label
                       className='form__label d-block w-100 text-left'
                       htmlFor='borderBarrier'
@@ -589,6 +607,7 @@ const StateTaxForm = ({ stateKey }) => {
                     </select>
                   </div>
                 </div>
+
                 <div className='col-sm-6'>
                   <div className='form__control'>
                     <label
@@ -619,6 +638,99 @@ const StateTaxForm = ({ stateKey }) => {
                 </div>
               </div>
 
+              {/* ✅ NEW: Service Type (Passenger vehicles only) */}
+              {isPassengerVehicle && (
+                <div className='form__control'>
+                  <label
+                    className='form__label d-block w-100 text-left'
+                    htmlFor='serviceType'
+                  >
+                    Service Type<sup>*</sup>
+                  </label>
+                  <select
+                    tabIndex='15'
+                    required
+                    disabled={isLoading}
+                    value={payLoad.serviceType}
+                    onChange={onChangeHandler}
+                    name='serviceType'
+                    id='serviceType'
+                  >
+                    <option value=''>--Select Service Type--</option>
+                    <option value='NOT APPLICABLE'>NOT APPLICABLE</option>
+                    <option value='ORDINARY'>ORDINARY</option>
+                    <option value='DELUX AIR CONDITIONED'>
+                      DELUX AIR CONDITIONED
+                    </option>
+                  </select>
+                </div>
+              )}
+
+              {/* ✅ NEW: Validity Dates */}
+              <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='fitnessValidity'
+                    >
+                      Fitness Validity
+                    </label>
+                    <input
+                      tabIndex='16'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      type='date'
+                      id='fitnessValidity'
+                      name='fitnessValidity'
+                      onChange={onChangeHandler}
+                      value={payLoad.fitnessValidity}
+                    />
+                  </div>
+                </div>
+
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='insuranceValidity'
+                    >
+                      Insurance Validity
+                    </label>
+                    <input
+                      tabIndex='17'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      type='date'
+                      id='insuranceValidity'
+                      name='insuranceValidity'
+                      onChange={onChangeHandler}
+                      value={payLoad.insuranceValidity}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='permitValidity'
+                >
+                  Permit Validity
+                </label>
+                <input
+                  tabIndex='18'
+                  disabled={isLoading}
+                  className='form__input w-100'
+                  type='date'
+                  id='permitValidity'
+                  name='permitValidity'
+                  onChange={onChangeHandler}
+                  value={payLoad.permitValidity}
+                />
+              </div>
+
+              {/* Existing Tax Dates (tabIndex shifted to avoid clashes) */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -630,7 +742,7 @@ const StateTaxForm = ({ stateKey }) => {
                     </label>
                     <input
                       required
-                      tabIndex='15'
+                      tabIndex='19'
                       disabled={isLoading}
                       className='form__input w-100'
                       type='datetime-local'
@@ -651,7 +763,7 @@ const StateTaxForm = ({ stateKey }) => {
                     </label>
                     <input
                       required
-                      tabIndex='16'
+                      tabIndex='20'
                       disabled={isLoading}
                       className='form__input w-100'
                       id='taxUptoDate'
@@ -665,6 +777,7 @@ const StateTaxForm = ({ stateKey }) => {
               </div>
             </div>
           </div>
+
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
@@ -687,6 +800,7 @@ const StateTaxForm = ({ stateKey }) => {
               </table>
             </div>
           </div>
+
           <br />
           <div className='row'>
             <div className='col-sm-6'>
@@ -699,7 +813,7 @@ const StateTaxForm = ({ stateKey }) => {
                 </label>
                 <input
                   required
-                  tabIndex='18'
+                  tabIndex='21'
                   min='0'
                   disabled={isLoading}
                   value={payLoad.totalAmount}
@@ -716,7 +830,7 @@ const StateTaxForm = ({ stateKey }) => {
                 &nbsp;
               </label>
               <ActionButtons
-                tabIndex='19'
+                tabIndex='22'
                 isDisabled={isLoading}
                 onReset={onResetHandler}
               />
