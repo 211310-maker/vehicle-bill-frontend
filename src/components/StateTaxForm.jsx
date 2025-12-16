@@ -41,6 +41,7 @@ const StateTaxForm = ({ stateKey }) => {
     chassisNo: '',
     mobileNo: '',
     vehiclePermitType: '',
+    vehicleCategory: '', // ✅ ADDED
     seatingCapacityExcludingDriver: '',
     sleeperCapacityExcludingDriver: '',
     borderBarrier: '', // still named borderBarrier for backend compatibility but label shown as District
@@ -297,6 +298,29 @@ const StateTaxForm = ({ stateKey }) => {
                   })}
                 </select>
               </div>
+
+              {/* ✅ ADDED: Vehicle Category */}
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='vehicleCategory'
+                >
+                  Vehicle Category<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='4.1'
+                  disabled={isLoading}
+                  value={payLoad.vehicleCategory}
+                  onChange={onChangeHandler}
+                  className='form__input w-100'
+                  type='text'
+                  id='vehicleCategory'
+                  name='vehicleCategory'
+                  placeholder='Enter Vehicle Category'
+                />
+              </div>
+
               {payLoad.vehiclePermitType !== 'GOODS VEHICLE' ? (
                 <div className='row'>
                   <div className='col-sm-6'>
