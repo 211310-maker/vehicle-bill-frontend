@@ -12,6 +12,17 @@ import ActionButtons from './ActionButtons';
 import Header from './Header';
 import Loader from './Loader';
 
+// Vehicle category dropdown options (common MV Act categories used in permits/transport context)
+const VEHICLE_CATEGORY_OPTIONS = [
+  { value: 'CONTRACT CARRIAGE', label: 'CONTRACT CARRIAGE' },
+  { value: 'STAGE CARRIAGE', label: 'STAGE CARRIAGE' },
+  { value: 'GOODS CARRIAGE', label: 'GOODS CARRIAGE' },
+  { value: 'PUBLIC SERVICE VEHICLE', label: 'PUBLIC SERVICE VEHICLE' },
+  { value: 'PRIVATE SERVICE VEHICLE', label: 'PRIVATE SERVICE VEHICLE' },
+  { value: 'EDUCATIONAL INSTITUTION BUS', label: 'EDUCATIONAL INSTITUTION BUS' },
+  { value: 'OMNIBUS', label: 'OMNIBUS' },
+];
+
 const StateTaxForm = ({ stateKey }) => {
   const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
@@ -44,7 +55,7 @@ const StateTaxForm = ({ stateKey }) => {
     vehicleCategory: '', // ✅ ADDED
     seatingCapacityExcludingDriver: '',
     sleeperCapacityExcludingDriver: '',
-    borderBarrier: '', // still named borderBarrier for backend compatibility but label shown as District
+    borderBarrier: '', // still named borderBarrier for compatibility but label shown as District
     totalAmount: '',
     mvTaxAmount: '',
     serviceUserChargeAmount: '',
@@ -307,18 +318,22 @@ const StateTaxForm = ({ stateKey }) => {
                 >
                   Vehicle Category<sup>*</sup>
                 </label>
-                <input
-                  required
+                <select
                   tabIndex='4.1'
-                  disabled={isLoading}
                   value={payLoad.vehicleCategory}
                   onChange={onChangeHandler}
-                  className='form__input w-100'
-                  type='text'
-                  id='vehicleCategory'
+                  required
                   name='vehicleCategory'
-                  placeholder='Enter Vehicle Category'
-                />
+                  id='vehicleCategory'
+                  disabled={isLoading}
+                >
+                  <option value=''>--Select Vehicle Category--</option>
+                  {VEHICLE_CATEGORY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {payLoad.vehiclePermitType !== 'GOODS VEHICLE' ? (
