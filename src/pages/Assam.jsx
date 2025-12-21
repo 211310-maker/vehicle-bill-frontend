@@ -1,8 +1,779 @@
-import React from 'react';
-import StateTaxForm from '../components/StateTaxForm';
+// src/pages/Assam.jsx
+import React, { useEffect, useRef, useState } from 'react';
+import { useHistory } from 'react-router';
+import {
+  borderBarriers,
+  checkposts,
+  fields,
+  LOCAL_STORAGE_KEY,
+} from '../constants';
+import { getDetailsApi } from '../utils/api';
+import ActionButtons from '../components/ActionButtons';
+import Header from '../components/Header';
+import Loader from '../components/Loader';
+
+// Vehicle category dropdown options (common MV Act categories used in permits/transport context)
+const VEHICLE_CATEGORY_OPTIONS = [
+  { value: 'CONTRACT CARRIAGE', label: 'CONTRACT CARRIAGE' },
+  { value: 'STAGE CARRIAGE', label: 'STAGE CARRIAGE' },
+  { value: 'GOODS CARRIAGE', label: 'GOODS CARRIAGE' },
+  { value: 'PUBLIC SERVICE VEHICLE', label: 'PUBLIC SERVICE VEHICLE' },
+  { value: 'PRIVATE SERVICE VEHICLE', label: 'PRIVATE SERVICE VEHICLE' },
+  { value: 'EDUCATIONAL INSTITUTION BUS', label: 'EDUCATIONAL INSTITUTION BUS' },
+  { value: 'OMNIBUS', label: 'OMNIBUS' },
+];
 
 const Assam = () => {
-  return <StateTaxForm stateKey='assam' />;
+  const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+  const history = useHistory();
+
+  const stateKey = 'assam';
+  const state = stateKey;
+
+  const resolvedStateFieldKey =
+    (fields.stateFieldsKeyMapping || {})[stateKey] || stateKey;
+  const stateFields = fields[resolvedStateFieldKey] || {};
+  const stateDisplayName = fields.stateName[stateKey] || stateKey;
+  const accessStateName = fields.stateName[stateKey] || stateDisplayName;
+
+  const borderOptions =
+    borderBarriers[stateKey] ||
+    borderBarriers[resolvedStateFieldKey] ||
+    stateFields.borderBarrier ||
+    [];
+
+  const rawCheckpostOptions =
+    checkposts[stateKey] ||
+    checkposts[resolvedStateFieldKey] ||
+    stateFields.checkpostName ||
+    stateFields.checkPostName ||
+    [];
+
+  const [payLoad, setPayLoad] = useState({
+    vehicleNo: '',
+    chassisNo: '',
+    mobileNo: '',
+    vehiclePermitType: '',
+    vehicleCategory: '',
+    seatingCapacityExcludingDriver: '',
+    sleeperCapacityExcludingDriver: '',
+    borderBarrier: '',
+    totalAmount: '',
+    mvTaxAmount: '', // used for “Passanger Tax” row
+    serviceUserChargeAmount: '', // kept for compatibility, but not shown/used in Assam
+    ownerName: '',
+    fromState: '',
+    vehicleClass: '',
+    taxMode: '',
+    taxFromDate: '',
+    taxUptoDate: '',
+    // paymentMode removed for Assam
+    checkpostName: '',
+    permitType: '',
+    grossVehicleWeight: '',
+    unladenWeight: '',
+    // fitnessValidity removed for Assam
+    // insuranceValidity removed for Assam
+    // permitValidity removed for Assam
+    serviceType: '',
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const form = useRef(null);
+
+  const isPassengerVehicle =
+    payLoad.vehiclePermitType && payLoad.vehiclePermitType !== 'GOODS VEHICLE';
+
+  useEffect(() => {
+    if (!isPassengerVehicle && payLoad.serviceType) {
+      setPayLoad((p) => ({ ...p, serviceType: '' }));
+    }
+  }, [isPassengerVehicle, payLoad.serviceType]);
+
+  // Assam: totalAmount = Passenger Tax only (mvTaxAmount)
+  useEffect(() => {
+    const passengerTax = Number(payLoad.mvTaxAmount || 0);
+    setPayLoad((p) => ({
+      ...p,
+      totalAmount: passengerTax ? String(passengerTax) : '',
+    }));
+  }, [payLoad.mvTaxAmount]);
+
+  const getDetailsHandler = async () => {
+    if (!payLoad.vehicleNo) {
+      alert('Please enter vehicle no.');
+      return;
+    }
+    setIsLoading(true);
+
+    const { data, error } = await getDetailsApi({
+      vehicleNo: payLoad.vehicleNo,
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      alert(error.message || 'Failed to fetch vehicle details');
+      return;
+    }
+
+    if (data && data.success) {
+      const preLoadedData = {};
+
+      Object.keys(payLoad).forEach((key) => {
+        if (key === 'borderBarrier') {
+          if (data.detail && data.detail.borderBarrier) {
+            preLoadedData.borderBarrier = data.detail.borderBarrier;
+          } else if (data.detail && data.detail.districtName) {
+            preLoadedData.borderBarrier = data.detail.districtName;
+          } else if (data.detail && data.detail.district) {
+            preLoadedData.borderBarrier = data.detail.district;
+          }
+          return;
+        }
+
+        if (
+          data.detail &&
+          data.detail[key] !== undefined &&
+          data.detail[key] !== null &&
+          data.detail[key] !== ''
+        ) {
+          preLoadedData[key] = data.detail[key];
+        }
+      });
+
+      setPayLoad((e) => ({
+        ...e,
+        ...preLoadedData,
+      }));
+    } else if (data && data.message) {
+      alert(data.message);
+    }
+  };
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    const payLoadWithDefaults = {
+      ...payLoad,
+      unladenWeight: payLoad.unladenWeight || 0,
+    };
+
+    history.push('/select-payment', {
+      formData: {
+        ...payLoadWithDefaults,
+        state,
+      },
+    });
+  };
+
+  const onChangeHandler = (e) => {
+    setPayLoad((old) => ({ ...old, [e.target.name]: e.target.value }));
+  };
+
+  const onResetHandler = () => {
+    const p = {};
+    Object.keys(payLoad).forEach((k) => {
+      p[k] = '';
+    });
+    setPayLoad({ ...p });
+  };
+
+  if (!isLoggedIn?.accessState?.includes(accessStateName)) {
+    return (
+      <>
+        <Header />
+        <div className='container text-center mt-4 '>
+          <h3>No Access of this state</h3>
+        </div>
+      </>
+    );
+  }
+
+  const filteredCheckposts = (rawCheckpostOptions || []).filter((cp) => {
+    if (!payLoad.borderBarrier) return true;
+    if (cp.district) return cp.district === payLoad.borderBarrier;
+    if (cp.borderBarrier) return cp.borderBarrier === payLoad.borderBarrier;
+    return true;
+  });
+
+  return (
+    <>
+      <Header />
+      <div className='text-center'>
+        <p className='login-heading mt-4'>
+          <b>TAX PAYMENT FOR VEHICLES HAVING TOURIST PERMIT</b>{' '}
+          <span>{stateDisplayName}</span>
+        </p>
+      </div>
+
+      <div className='box box--main'>
+        <div className='box__heading--blue'>Tax Payment Details</div>
+
+        <form
+          ref={form}
+          onSubmit={onSubmitHandler}
+          className='service-type tax-details mt-4'
+        >
+          <div className='row'>
+            <div className='col-6'>
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='vehicleNo'>
+                  Vehicle No.<sup>*</sup>
+                </label>
+                <input
+                  tabIndex='1'
+                  required
+                  maxLength='10'
+                  autoFocus
+                  inputMode='text'
+                  disabled={isLoading}
+                  value={payLoad.vehicleNo}
+                  onChange={onChangeHandler}
+                  className='form__input w-100'
+                  type='text'
+                  id='vehicleNo'
+                  name='vehicleNo'
+                />
+              </div>
+
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='chassisNo'>
+                  Chassis No.<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='2'
+                  maxLength='19'
+                  inputMode='text'
+                  disabled={isLoading}
+                  onChange={onChangeHandler}
+                  value={payLoad.chassisNo}
+                  className='form__input w-100'
+                  type='text'
+                  id='chassisNo'
+                  name='chassisNo'
+                />
+              </div>
+
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='mobileNo'>
+                  Mobile No.<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='3'
+                  disabled={isLoading}
+                  value={payLoad.mobileNo}
+                  onChange={onChangeHandler}
+                  placeholder='SMS about payment will be sent to this number '
+                  className='form__input w-100'
+                  type='text'
+                  id='mobileNo'
+                  inputMode='tel'
+                  maxLength='10'
+                  minLength='10'
+                  name='mobileNo'
+                />
+              </div>
+
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='vehiclePermitType'
+                >
+                  Vehicle Type<sup>*</sup>
+                </label>
+                <select
+                  tabIndex='4'
+                  value={payLoad.vehiclePermitType}
+                  onChange={onChangeHandler}
+                  required
+                  name='vehiclePermitType'
+                  id='vehiclePermitType'
+                >
+                  <option value=''>--Select Vehicle Type--</option>
+                  {(stateFields.vehiclePermitType || []).map((type) => (
+                    <option value={type.name} key={type.name}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='vehicleCategory'>
+                  Vehicle Category<sup>*</sup>
+                </label>
+                <select
+                  tabIndex='4.1'
+                  value={payLoad.vehicleCategory}
+                  onChange={onChangeHandler}
+                  required
+                  name='vehicleCategory'
+                  id='vehicleCategory'
+                  disabled={isLoading}
+                >
+                  <option value=''>--Select Vehicle Category--</option>
+                  {VEHICLE_CATEGORY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {payLoad.vehiclePermitType !== 'GOODS VEHICLE' ? (
+                <div className='row'>
+                  <div className='col-sm-6'>
+                    <div className='form__control'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='seatingCapacityExcludingDriver'
+                      >
+                        Seating Capacity(Ex. Driver)<sup>*</sup>
+                      </label>
+                      <input
+                        required
+                        tabIndex='5'
+                        min='0'
+                        disabled={isLoading}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        value={payLoad.seatingCapacityExcludingDriver}
+                        id='seatingCapacityExcludingDriver'
+                        name='seatingCapacityExcludingDriver'
+                      />
+                    </div>
+                  </div>
+
+                  <div className='col-sm-6'>
+                    <div className='form__control'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='sleeperCapacityExcludingDriver'
+                      >
+                        Sleeper Capacity<sup>*</sup>
+                      </label>
+                      <input
+                        tabIndex='6'
+                        required
+                        min='0'
+                        disabled={isLoading}
+                        onChange={onChangeHandler}
+                        value={payLoad.sleeperCapacityExcludingDriver}
+                        className='form__input w-100'
+                        type='number'
+                        id='sleeperCapacityExcludingDriver'
+                        name='sleeperCapacityExcludingDriver'
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className='row'>
+                  <div className='col-sm-6'>
+                    <div className='form__control'>
+                      <label className='form__label d-block w-100 text-left' htmlFor='grossVehicleWeight'>
+                        Gross Vehicle Wt.(in kg)<sup>*</sup>
+                      </label>
+                      <input
+                        required
+                        tabIndex='5'
+                        min='0'
+                        disabled={isLoading}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        value={payLoad.grossVehicleWeight}
+                        id='grossVehicleWeight'
+                        name='grossVehicleWeight'
+                      />
+                    </div>
+                  </div>
+
+                  <div className='col-sm-6'>
+                    <div className='form__control'>
+                      <label className='form__label d-block w-100 text-left' htmlFor='unladenWeight'>
+                        Unladen Wt.(in kg)<sup>*</sup>
+                      </label>
+                      <input
+                        required
+                        tabIndex='5'
+                        min='0'
+                        disabled={isLoading}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        value={payLoad.unladenWeight}
+                        id='unladenWeight'
+                        name='unladenWeight'
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='taxMode'>
+                  Tax Mode<sup>*</sup>
+                </label>
+                <select
+                  tabIndex='7'
+                  required
+                  disabled={isLoading}
+                  onChange={onChangeHandler}
+                  value={payLoad.taxMode}
+                  name='taxMode'
+                  id='taxMode'
+                >
+                  <option value=''>--Select Tax Mode--</option>
+                  {fields.taxMode.map((type) => (
+                    <option value={type.name} key={type.name}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* ✅ Payment Mode REMOVED for Assam */}
+            </div>
+
+            <div className='col-6'>
+              <div className='form__control text-left'>
+                <label className='form__label d-block w-100 text-left'>&nbsp;</label>
+                {isLoading && <Loader className='loader__get-details' />}
+                {!isLoading && (
+                  <button
+                    disabled={isLoading}
+                    type='button'
+                    onClick={getDetailsHandler}
+                    className='box__button get-details'
+                  >
+                    <span className='glyphicon glyphicon-arrow-down mr-3'></span>
+                    Get Details
+                  </button>
+                )}
+              </div>
+
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='ownerName'>
+                  Owner Name<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='9'
+                  disabled={isLoading}
+                  className='form__input w-100'
+                  type='text'
+                  id='ownerName'
+                  inputMode='text'
+                  name='ownerName'
+                  onChange={onChangeHandler}
+                  value={payLoad.ownerName}
+                />
+              </div>
+
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='fromState'>
+                  From State<sup>*</sup>
+                </label>
+                <select
+                  tabIndex='10'
+                  disabled={isLoading}
+                  required
+                  value={payLoad.fromState}
+                  onChange={onChangeHandler}
+                  name='fromState'
+                  id='fromState'
+                >
+                  <option value=''>--Select State--</option>
+                  {fields.fromState.map((type) => (
+                    <option key={type.name} value={type.name}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='vehicleClass'>
+                      Vehicle Class<sup>*</sup>
+                    </label>
+                    <select
+                      tabIndex='11'
+                      required
+                      disabled={isLoading}
+                      value={payLoad.vehicleClass}
+                      onChange={onChangeHandler}
+                      name='vehicleClass'
+                      id='vehicleClass'
+                    >
+                      <option value=''>--Select Vehicle Class--</option>
+
+                      {payLoad.vehiclePermitType ===
+                        'CONTRACT CARRIAGE/PASSANGER VEHICLES' && (
+                        <>
+                          <option value='THREE WHEELER(PASSENGER)'>THREE WHEELER(PASSENGER)</option>
+                          <option value='MOTOR CAB'>MOTOR CAB</option>
+                          <option value='MAXI CAB'>MAXI CAB</option>
+                          <option value='OMNI BUS'>OMNI BUS</option>
+                          <option value='BUS'>BUS</option>
+                        </>
+                      )}
+
+                      {payLoad.vehiclePermitType === 'GOODS VEHICLE' && (
+                        <>
+                          <option value='LIGHT GOODS VEHICLE'>LIGHT GOODS VEHICLE</option>
+                          <option value='MEDIUM GOODS VEHICLE'>MEDIUM GOODS VEHICLE</option>
+                          <option value='HEAVY GOODS VEHICLE'>HEAVY GOODS VEHICLE</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
+
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='permitType'>
+                      Permit Type<sup>*</sup>
+                    </label>
+                    <select
+                      required
+                      tabIndex='12'
+                      disabled={isLoading}
+                      value={payLoad.permitType}
+                      onChange={onChangeHandler}
+                      name='permitType'
+                      id='permitType'
+                    >
+                      <option value=''>--Select Permit Type--</option>
+                      {(stateFields.permitType || []).map((type) => (
+                        <option key={type.name} value={type.name}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='borderBarrier'>
+                      District<sup>*</sup>
+                    </label>
+                    <select
+                      tabIndex='13'
+                      required
+                      disabled={isLoading}
+                      value={payLoad.borderBarrier}
+                      onChange={onChangeHandler}
+                      name='borderBarrier'
+                      id='borderBarrier'
+                    >
+                      <option value=''>--Select District--</option>
+                      {borderOptions.map((type) => (
+                        <option key={type.name} value={type.name}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='checkpostName'>
+                      Checkpost Name<sup>*</sup>
+                    </label>
+                    <select
+                      tabIndex='14'
+                      required
+                      disabled={isLoading}
+                      value={payLoad.checkpostName}
+                      onChange={onChangeHandler}
+                      name='checkpostName'
+                      id='checkpostName'
+                    >
+                      <option value=''>--Select Checkpost Name--</option>
+                      {filteredCheckposts.map((type) => (
+                        <option key={type.name} value={type.name}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {isPassengerVehicle && (
+                <div className='form__control'>
+                  <label className='form__label d-block w-100 text-left' htmlFor='serviceType'>
+                    Service Type<sup>*</sup>
+                  </label>
+                  <select
+                    tabIndex='15'
+                    required
+                    disabled={isLoading}
+                    value={payLoad.serviceType}
+                    onChange={onChangeHandler}
+                    name='serviceType'
+                    id='serviceType'
+                  >
+                    <option value=''>--Select Service Type--</option>
+                    <option value='NOT APPLICABLE'>NOT APPLICABLE</option>
+                    <option value='ORDINARY'>ORDINARY</option>
+                    <option value='DELUX AIR CONDITIONED'>DELUX AIR CONDITIONED</option>
+                  </select>
+                </div>
+              )}
+
+              {/* ✅ Fitness Validity REMOVED */}
+              {/* ✅ Insurance Validity REMOVED */}
+              {/* ✅ Permit Validity REMOVED */}
+
+              <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='taxFromDate'>
+                      Tax From Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='19'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      type='datetime-local'
+                      id='taxFromDate'
+                      name='taxFromDate'
+                      onChange={onChangeHandler}
+                      value={payLoad.taxFromDate}
+                    />
+                  </div>
+                </div>
+
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='taxUptoDate'>
+                      Tax Upto Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='20'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      id='taxUptoDate'
+                      name='taxUptoDate'
+                      type='datetime-local'
+                      value={payLoad.taxUptoDate}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ✅ Assam table: ONLY ONE LINE = "Passanger Tax" (same font/classes) */}
+          <div className='row mt-3'>
+            <div className='col-12'>
+              <table className='hr-table'>
+                <thead>
+                  <tr>
+                    <th className='hr-table-1'>SI. No.</th>
+                    <th className='hr-table-2'>Particulars</th>
+                    <th>Tax From</th>
+                    <th>Tax Upto</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>1</span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>Passanger Tax</span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>{payLoad.taxFromDate || '-'}</span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <span className='hr-table-text'>{payLoad.taxUptoDate || '-'}</span>
+                    </td>
+                    <td className='hr-table-body'>
+                      <input
+                        min='0'
+                        disabled={isLoading}
+                        value={payLoad.mvTaxAmount}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        id='mvTaxAmount'
+                        name='mvTaxAmount'
+                        placeholder='0'
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <br />
+
+          <div className='row'>
+            <div className='col-sm-6'>
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='totalAmount'>
+                  Total amount<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='21'
+                  min='0'
+                  disabled={isLoading}
+                  readOnly
+                  value={payLoad.totalAmount}
+                  onChange={onChangeHandler}
+                  className='form__input w-100'
+                  type='number'
+                  id='totalAmount'
+                  name='totalAmount'
+                />
+              </div>
+            </div>
+
+            <div className='col-sm-6'>
+              <label className='form__label d-block w-100 text-left'>&nbsp;</label>
+              <ActionButtons
+                tabIndex='22'
+                isDisabled={isLoading}
+                onReset={onResetHandler}
+              />
+            </div>
+          </div>
+        </form>
+
+        <br />
+      </div>
+
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+    </>
+  );
 };
 
 export default Assam;
