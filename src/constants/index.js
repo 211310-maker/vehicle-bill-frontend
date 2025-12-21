@@ -1032,8 +1032,7 @@ export const fields = {
       },
     ],
     vehiclePermitType: [
-      { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-      { name: "GOODS VEHICLE" },
+      { name: "TRANSPORT" },
     ],
   },
   puducherry: {
