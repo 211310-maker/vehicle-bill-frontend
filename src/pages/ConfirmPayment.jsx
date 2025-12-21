@@ -21,74 +21,21 @@ const ConfirmPayment = () => {
       alert('Please enter username & password!');
       return;
     }
-
     setIsLoading(true);
-
-    try {
-      const { data, error } = await createBillApi({
-        ...location.state.formData,
-        username,
-        password,
-      });
-
-      if (!data) {
-        alert(error?.message || 'Failed to create bill');
-        return;
-      }
-
+    const { data, error } = await createBillApi({
+      ...location.state.formData,
+      username,
+      password,
+    });
+    if (data) {
       if (data.success) {
-        // Try to fetch the PDF and force a download (this prevents inline viewing).
-        // If fetch fails or server returns HTML, fall back to opening the PDF URL.
-        try {
-          const resp = await fetch(data.pdfUrl /* no credentials: public endpoint */);
-
-          if (!resp.ok) {
-            // fallback: open the URL in a new tab so the user can still access it
-            window.open(data.pdfUrl, '_blank');
-          } else {
-            const contentType = resp.headers.get('content-type') || '';
-            const blob = await resp.blob();
-
-            // If server returned HTML fallback (e.g., Puppeteer failed), open in a new tab
-            if (contentType.includes('text/html')) {
-              const htmlUrl = URL.createObjectURL(blob);
-              window.open(htmlUrl, '_blank');
-              setTimeout(() => URL.revokeObjectURL(htmlUrl), 10000);
-            } else {
-              // Normal case: download the PDF blob
-              const downloadUrl = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = downloadUrl;
-
-              // Try to use a nice filename (receiptNo or bill id)
-              const filename =
-                `receipt-${(data.bill && (data.bill.receiptNo || data.bill._id)) || ''}.pdf`;
-
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              // revoke after use
-              URL.revokeObjectURL(downloadUrl);
-            }
-          }
-        } catch (err) {
-          // If fetch throws (CORS, network, etc.), fallback to opening the URL
-          console.error('Download via fetch failed, falling back to opening URL:', err);
-          window.open(data.pdfUrl, '_blank');
-        } finally {
-          // After starting the download/opening the tab, navigate back to home
-          history.replace('/');
-        }
-      } else {
-        alert(error?.message || 'Failed to create bill');
+        history.replace('/');
+        window.open(`${data.pdfUrl}`, '_blank');
       }
-    } catch (err) {
-      console.error('Unexpected error while creating bill:', err);
-      alert('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
+    } else {
+      alert(error.message);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -96,7 +43,7 @@ const ConfirmPayment = () => {
       history.replace('/');
       return;
     }
-  }, [history, location?.state?.formData]);
+  }, []);
 
   return (
     <>
@@ -104,7 +51,7 @@ const ConfirmPayment = () => {
       <div className='payBox container'>
         <div className='row'>
           <div className='col-sm-6'>
-            <img src={SbiLogo} className='' alt='SBI' />
+            <img src={SbiLogo} className='' />
           </div>
           <div className='col-sm-6'></div>
         </div>
@@ -153,7 +100,7 @@ const ConfirmPayment = () => {
                   className='mr-3 btn-primary'
                   onClick={onSubmitHandler}
                 >
-                  {isLoading ? 'Processing...' : 'Submit'}
+                  Submit
                 </button>
                 <button
                   disabled={isLoading}
@@ -177,7 +124,7 @@ const ConfirmPayment = () => {
                 Limited site.
               </p>
               <div className='d-flex j-center a-center'>
-                <img src={veriSign} className='mr-2' height='35' alt='verisign' />
+                <img src={veriSign} className='mr-2' height='35' alt='' />
                 <p className='p-0 m-0 mt-2'>
                   This site uses highly secure 256-bit encryption certified by
                   verisign.
