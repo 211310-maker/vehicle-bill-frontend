@@ -1,106 +1,191 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const app = express();
-const morgan = require('morgan');
-const helmet = require('helmet');
-const cors = require('cors');
-const xssClean = require('xss-clean');
-const hpp = require('hpp');
-const path = require('path');
-const fs = require('fs');
-const pdf = require('express-pdf');
-const cookieParser = require('cookie-parser');
-const logger = require('./logger');
-const apiRouter = require('./routes/api');
-require('colors');
-// process.env.TZ = 'Asia/Kolkata';
-dotenv.config({
-  path: `${path.join(__dirname, 'config', process.env.NODE_ENV)}.env`,
-});
 
-// adjust buildDir if your build output is elsewhere
-const buildDir = path.join(__dirname, 'public', 'build');
+import "./index.css";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+  useHistory,
+} from "react-router-dom";
 
-// routes imports
-const authRoute = require('./routes/auth');
-const billRoute = require('./routes/bill');
-const { appView, statusView } = require('./routes/appView');
-const errorHandler = require('./middleware/error');
+import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
+import NotFound from "./pages/NotFound";
+import GetAccess from "./pages/GetAccess";
+import CreateUser from "./pages/CreateUser";
+import SelectPayment from "./pages/SelectPayment";
+import ConfirmPayment from "./pages/ConfirmPayment";
+import EditUser from "./pages/EditUser";
 
-// middleware
-app.use(
-  '/static',
-  express.static(path.join(__dirname, 'public', 'build', 'static'))
-);
-app.use(express.static(path.join(__dirname, 'public/'), { index: false }));
-app.use(pdf);
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+import Index from "./pages/Index";
+import Up from "./pages/Up";
+import Haryana from "./pages/Haryana";
+import Uttrakhand from "./pages/Uttrakhand";
+import Punjab from "./pages/Punjab";
+import Bihar from "./pages/Bihar";
+import Bills from "./pages/Bills";
+import Users from "./pages/Users";
+import Gujrat from "./pages/Gujrat";
+import Maharashtra from "./pages/Maharashtra";
+import Rajasthan from "./pages/Rajasthan";
+import MadhyaPardesh from "./pages/MadhyaPardesh";
+import Karnataka from "./pages/Karnataka";
+import HimachalPradesh from "./pages/HimachalPradesh";
+import Jharkhand from "./pages/Jharkhand";
+import Chhattisgarh from "./pages/Chhattisgarh";
+import Odisha from "./pages/Odisha";
+import Tamilnadu from "./pages/Tamilnadu";
+import Kerala from "./pages/Kerala";
+import Telangana from "./pages/Telangana";
+import Assam from "./pages/Assam";
+import Puducherry from "./pages/Puducherry";
+import DamanDiu from "./pages/DamanDiu";
+import Sikkim from "./pages/Sikkim";
+import Tripura from "./pages/Tripura";
+import AndhraPradesh from "./pages/AndhraPradesh";
+import ArunachalPradesh from "./pages/ArunachalPradesh";
+import Goa from "./pages/Goa";
+import Manipur from "./pages/Manipur";
+import Meghalaya from "./pages/Meghalaya";
+import Mizoram from "./pages/Mizoram";
+import Nagaland from "./pages/Nagaland";
+import WestBengal from "./pages/WestBengal";
 
-app.use('*', cors());
-app.use(helmet());
-app.use(xssClean());
-app.use(hpp());
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+import { LOCAL_STORAGE_KEY } from "./constants";
+import { useState } from "react";
+import { webIndexApi } from "./utils/api";
 
-// routes;
-app.use('/api', apiRouter);
-app.use('/auth', authRoute);
-app.use('/bill', billRoute);
-app.use('/app', appView);
-app.get('/check', statusView);
+function App() {
+  return (
+    <div className="App">
+      <Router basename="app">
+        <Switch>
+          <ProtectedRoute exact path="/" component={Index} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/admin/login" component={AdminLogin} />
+          <AdminRoute exact path="/admin/users" component={Users} />
+          <AdminRoute exact path="/admin/create-user" component={CreateUser} />
+          <AdminRoute exact path="/admin/edit-user/:id" component={EditUser} />
+          <ProtectedRoute exact path="/reports" component={Bills} />
+          <ProtectedRoute exact path="/andhra-pradesh" component={AndhraPradesh} />
+          <ProtectedRoute
+            exact
+            path="/arunachal-pradesh"
+            component={ArunachalPradesh}
+          />
+          <ProtectedRoute exact path="/assam" component={Assam} />
+          <ProtectedRoute exact path="/bihar" component={Bihar} />
+          <ProtectedRoute exact path="/chhattisgarh" component={Chhattisgarh} />
+          <ProtectedRoute exact path="/goa" component={Goa} />
+          <ProtectedRoute exact path="/gujrat" component={Gujrat} />
+          <ProtectedRoute exact path="/haryana" component={Haryana} />
+          <ProtectedRoute exact path="/gujarat" component={Gujrat} />
+          <ProtectedRoute
+            exact
+            path="/himachal-pradesh"
+            component={HimachalPradesh}
+          />
+          <ProtectedRoute exact path="/jharkhand" component={Jharkhand} />
+          <ProtectedRoute exact path="/karnataka" component={Karnataka} />
+          <ProtectedRoute exact path="/kerala" component={Kerala} />
+          <ProtectedRoute
+            exact
+            path="/madhya-pradesh"
+            component={MadhyaPardesh}
+          />
+          <ProtectedRoute exact path="/maharashtra" component={Maharashtra} />
+          <ProtectedRoute exact path="/manipur" component={Manipur} />
+          <ProtectedRoute exact path="/meghalaya" component={Meghalaya} />
+          <ProtectedRoute exact path="/mizoram" component={Mizoram} />
+          <ProtectedRoute exact path="/nagaland" component={Nagaland} />
+          <ProtectedRoute exact path="/odisha" component={Odisha} />
+          <ProtectedRoute exact path="/punjab" component={Punjab} />
+          <ProtectedRoute exact path="/rajasthan" component={Rajasthan} />
+          <ProtectedRoute exact path="/sikkim" component={Sikkim} />
+          <ProtectedRoute exact path="/tamil-nadu" component={Tamilnadu} />
+          <ProtectedRoute exact path="/telangana" component={Telangana} />
+          <ProtectedRoute exact path="/tripura" component={Tripura} />
+          <ProtectedRoute exact path="/uttar-pradesh" component={Up} />
+          <ProtectedRoute exact path="/uttarakhand" component={Uttrakhand} />
+          <ProtectedRoute exact path="/west-bengal" component={WestBengal} />
+          <ProtectedRoute exact path="/puducherry" component={Puducherry} />
+          <ProtectedRoute exact path="/daman-diu" component={DamanDiu} />
 
-// serve static files if present (non-destructive)
-if (fs.existsSync(buildDir)) {
-  app.use(express.static(buildDir));
-  console.info('[server] serving frontend static from', buildDir);
+          <ProtectedRoute
+            exact
+            path="/select-payment"
+            component={SelectPayment}
+          />
+          <ProtectedRoute
+            exact
+            path="/confirm-payment"
+            component={ConfirmPayment}
+          />
+          <Route exact path="/register/:id/get-access" component={GetAccess} />
+          <Route render={NotFound} />
+        </Switch>
+        <Check />
+      </Router>
+    </div>
+  );
 }
 
-// Redirect common typo for kerala -> kerala (do NOT add gujrat/jharkhand/bihar)
-app.get(['/app/kerela', '/kerela'], (req, res) => {
-  const original = req.originalUrl;
-  if (original.startsWith('/app/kerela')) {
-    return res.redirect(301, original.replace('/app/kerela', '/app/kerala'));
+export default App;
+
+const Check = () => {
+  const history = useHistory();
+  const init = async () => {
+    const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+    if (!userInfo) return;
+    const { data, error } = await webIndexApi({
+      authToken: userInfo.token,
+    });
+    if (data && data.success) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.user));
+    } else {
+      history.push("/login");
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      console.log("user not found");
+    }
+  };
+  useState(() => {
+    init();
+  }, []);
+  return <></>;
+};
+
+const ProtectedRoute = ({ component: Component, ...rest }) => {
+  // get from local storage
+  const userInfo = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (userInfo) {
+    return (
+      <Route {...rest} render={(props) => <Component {...rest} {...props} />} />
+    );
+  } else {
+    return (
+      <Redirect
+        to={{
+          pathname: "/login",
+        }}
+      />
+    );
   }
-  return res.redirect(301, original.replace('/kerela', '/kerala'));
-});
-
-// 1) redirect /app/gujarat -> /app/gujrat (and root /gujarat -> /gujrat)
-app.get(['/app/gujarat', '/gujarat'], (req, res) => {
-  const original = req.originalUrl;
-  if (original.startsWith('/app/gujarat')) {
-    return res.redirect(301, original.replace('/app/gujarat', '/app/gujrat'));
+};
+const AdminRoute = ({ component: Component, ...rest }) => {
+  // get from local storage
+  const userInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+  if (userInfo && userInfo.role === "admin") {
+    return (
+      <Route {...rest} render={(props) => <Component {...rest} {...props} />} />
+    );
+  } else {
+    return (
+      <Redirect
+        to={{
+          pathname: "/login",
+        }}
+      />
+    );
   }
-  return res.redirect(301, original.replace('/gujarat', '/gujrat'));
-});
-
-// 2) SPA fallback to serve index.html for client-side routes under /app/*
-app.get('/app/*', (req, res, next) => {
-  // skip API routes
-  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
-    return next();
-  }
-  const indexPath = path.join(buildDir, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
-  }
-  return next(); // let existing 404/handlers run if index.html missing
-});
-
-app.use(errorHandler);
-
-// euncaught exception handling
-process.on('uncaughtException', (err, promise) => {
-  logger.error(err.message);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (err, promise) => {
-  logger.error(err.message);
-  process.exit(1);
-});
-
-module.exports = app;
+};
