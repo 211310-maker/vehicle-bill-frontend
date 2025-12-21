@@ -12,16 +12,33 @@ import ActionButtons from '../components/ActionButtons';
 import Header from '../components/Header';
 import Loader from '../components/Loader';
 
-// Vehicle category dropdown options (common MV Act categories used in permits/transport context)
-const VEHICLE_CATEGORY_OPTIONS = [
-  { value: 'CONTRACT CARRIAGE', label: 'CONTRACT CARRIAGE' },
-  { value: 'STAGE CARRIAGE', label: 'STAGE CARRIAGE' },
-  { value: 'GOODS CARRIAGE', label: 'GOODS CARRIAGE' },
-  { value: 'PUBLIC SERVICE VEHICLE', label: 'PUBLIC SERVICE VEHICLE' },
-  { value: 'PRIVATE SERVICE VEHICLE', label: 'PRIVATE SERVICE VEHICLE' },
-  { value: 'EDUCATIONAL INSTITUTION BUS', label: 'EDUCATIONAL INSTITUTION BUS' },
-  { value: 'OMNIBUS', label: 'OMNIBUS' },
-];
+// ✅ Assam: Vehicle Category depends on Vehicle Class (from screenshots)
+const ASSAM_VEHICLE_CATEGORY_BY_CLASS = {
+  'GOODS CARRIER': [
+    { value: 'LIGHT GOODS VEHICLE', label: 'LIGHT GOODS VEHICLE' },
+    { value: 'MEDIUM GOODS VEHICLE', label: 'MEDIUM GOODS VEHICLE' },
+    { value: 'HEAVY GOODS VEHICLE', label: 'HEAVY GOODS VEHICLE' },
+  ],
+
+  'OMNI BUS': [
+    { value: 'HEAVY PASSENGER VEHICLE', label: 'HEAVY PASSENGER VEHICLE' },
+  ],
+  BUS: [{ value: 'HEAVY PASSENGER VEHICLE', label: 'HEAVY PASSENGER VEHICLE' }],
+
+  'THREE WHEELER (PASSENGER)': [
+    { value: 'THREE WHEELER(T)', label: 'THREE WHEELER(T)' },
+  ],
+
+  'MOTOR CAB': [
+    { value: 'LIGHT PASSENGER VEHICLE', label: 'LIGHT PASSENGER VEHICLE' },
+  ],
+  'MAXI CAB': [
+    { value: 'LIGHT PASSENGER VEHICLE', label: 'LIGHT PASSENGER VEHICLE' },
+  ],
+};
+
+const getAssamVehicleCategoryOptions = (vehicleClass) =>
+  ASSAM_VEHICLE_CATEGORY_BY_CLASS[vehicleClass] || [];
 
 const Assam = () => {
   const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
@@ -81,14 +98,25 @@ const Assam = () => {
   const [isLoading, setIsLoading] = useState(false);
   const form = useRef(null);
 
-  const isPassengerVehicle =
-    payLoad.vehiclePermitType && payLoad.vehiclePermitType !== 'GOODS VEHICLE';
+  // ✅ Assam: Goods vs Passenger should depend on Vehicle Class
+  const isGoodsClass = payLoad.vehicleClass === 'GOODS CARRIER';
 
+  // ✅ Auto-clear serviceType when Goods class selected
   useEffect(() => {
-    if (!isPassengerVehicle && payLoad.serviceType) {
+    if (isGoodsClass && payLoad.serviceType) {
       setPayLoad((p) => ({ ...p, serviceType: '' }));
     }
-  }, [isPassengerVehicle, payLoad.serviceType]);
+  }, [isGoodsClass, payLoad.serviceType]);
+
+  // ✅ Reset vehicleCategory if vehicleClass changes and existing value is invalid
+  useEffect(() => {
+    const options = getAssamVehicleCategoryOptions(payLoad.vehicleClass);
+    const isValid = options.some((o) => o.value === payLoad.vehicleCategory);
+
+    if (payLoad.vehicleCategory && !isValid) {
+      setPayLoad((p) => ({ ...p, vehicleCategory: '' }));
+    }
+  }, [payLoad.vehicleClass]); // intentionally only on class change
 
   // Assam: totalAmount = Passenger Tax only (mvTaxAmount)
   useEffect(() => {
@@ -217,7 +245,10 @@ const Assam = () => {
           <div className='row'>
             <div className='col-6'>
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='vehicleNo'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='vehicleNo'
+                >
                   Vehicle No.<sup>*</sup>
                 </label>
                 <input
@@ -237,7 +268,10 @@ const Assam = () => {
               </div>
 
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='chassisNo'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='chassisNo'
+                >
                   Chassis No.<sup>*</sup>
                 </label>
                 <input
@@ -256,7 +290,10 @@ const Assam = () => {
               </div>
 
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='mobileNo'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='mobileNo'
+                >
                   Mobile No.<sup>*</sup>
                 </label>
                 <input
@@ -300,8 +337,12 @@ const Assam = () => {
                 </select>
               </div>
 
+              {/* ✅ Vehicle Category depends on Vehicle Class */}
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='vehicleCategory'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='vehicleCategory'
+                >
                   Vehicle Category<sup>*</sup>
                 </label>
                 <select
@@ -311,18 +352,21 @@ const Assam = () => {
                   required
                   name='vehicleCategory'
                   id='vehicleCategory'
-                  disabled={isLoading}
+                  disabled={isLoading || !payLoad.vehicleClass}
                 >
-                  <option value=''>--Select Vehicle Category--</option>
-                  {VEHICLE_CATEGORY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
+                  <option value=''>Select Vehicle Category...</option>
+                  {getAssamVehicleCategoryOptions(payLoad.vehicleClass).map(
+                    (opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
 
-              {payLoad.vehiclePermitType !== 'GOODS VEHICLE' ? (
+              {/* ✅ Passenger vs Goods fields depend on Vehicle Class */}
+              {!isGoodsClass ? (
                 <div className='row'>
                   <div className='col-sm-6'>
                     <div className='form__control'>
@@ -374,7 +418,10 @@ const Assam = () => {
                 <div className='row'>
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label className='form__label d-block w-100 text-left' htmlFor='grossVehicleWeight'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='grossVehicleWeight'
+                      >
                         Gross Vehicle Wt.(in kg)<sup>*</sup>
                       </label>
                       <input
@@ -394,7 +441,10 @@ const Assam = () => {
 
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label className='form__label d-block w-100 text-left' htmlFor='unladenWeight'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='unladenWeight'
+                      >
                         Unladen Wt.(in kg)<sup>*</sup>
                       </label>
                       <input
@@ -415,7 +465,10 @@ const Assam = () => {
               )}
 
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='taxMode'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='taxMode'
+                >
                   Tax Mode<sup>*</sup>
                 </label>
                 <select
@@ -441,7 +494,9 @@ const Assam = () => {
 
             <div className='col-6'>
               <div className='form__control text-left'>
-                <label className='form__label d-block w-100 text-left'>&nbsp;</label>
+                <label className='form__label d-block w-100 text-left'>
+                  &nbsp;
+                </label>
                 {isLoading && <Loader className='loader__get-details' />}
                 {!isLoading && (
                   <button
@@ -457,7 +512,10 @@ const Assam = () => {
               </div>
 
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='ownerName'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='ownerName'
+                >
                   Owner Name<sup>*</sup>
                 </label>
                 <input
@@ -475,7 +533,10 @@ const Assam = () => {
               </div>
 
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='fromState'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='fromState'
+                >
                   From State<sup>*</sup>
                 </label>
                 <select
@@ -499,7 +560,10 @@ const Assam = () => {
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='vehicleClass'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='vehicleClass'
+                    >
                       Vehicle Class<sup>*</sup>
                     </label>
                     <select
@@ -513,22 +577,24 @@ const Assam = () => {
                     >
                       <option value=''>--Select Vehicle Class--</option>
 
+                      {/* Passenger classes (from screenshots) */}
                       {payLoad.vehiclePermitType ===
                         'CONTRACT CARRIAGE/PASSANGER VEHICLES' && (
                         <>
-                          <option value='THREE WHEELER(PASSENGER)'>THREE WHEELER(PASSENGER)</option>
-                          <option value='MOTOR CAB'>MOTOR CAB</option>
-                          <option value='MAXI CAB'>MAXI CAB</option>
                           <option value='OMNI BUS'>OMNI BUS</option>
+                          <option value='THREE WHEELER (PASSENGER)'>
+                            THREE WHEELER (PASSENGER)
+                          </option>
+                          <option value='MOTOR CAB'>MOTOR CAB</option>
                           <option value='BUS'>BUS</option>
+                          <option value='MAXI CAB'>MAXI CAB</option>
                         </>
                       )}
 
+                      {/* Goods class (from screenshots) */}
                       {payLoad.vehiclePermitType === 'GOODS VEHICLE' && (
                         <>
-                          <option value='LIGHT GOODS VEHICLE'>LIGHT GOODS VEHICLE</option>
-                          <option value='MEDIUM GOODS VEHICLE'>MEDIUM GOODS VEHICLE</option>
-                          <option value='HEAVY GOODS VEHICLE'>HEAVY GOODS VEHICLE</option>
+                          <option value='GOODS CARRIER'>GOODS CARRIER</option>
                         </>
                       )}
                     </select>
@@ -537,7 +603,10 @@ const Assam = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='permitType'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='permitType'
+                    >
                       Permit Type<sup>*</sup>
                     </label>
                     <select
@@ -563,7 +632,10 @@ const Assam = () => {
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='borderBarrier'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='borderBarrier'
+                    >
                       District<sup>*</sup>
                     </label>
                     <select
@@ -587,7 +659,10 @@ const Assam = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='checkpostName'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='checkpostName'
+                    >
                       Checkpost Name<sup>*</sup>
                     </label>
                     <select
@@ -610,9 +685,12 @@ const Assam = () => {
                 </div>
               </div>
 
-              {isPassengerVehicle && (
+              {!isGoodsClass && (
                 <div className='form__control'>
-                  <label className='form__label d-block w-100 text-left' htmlFor='serviceType'>
+                  <label
+                    className='form__label d-block w-100 text-left'
+                    htmlFor='serviceType'
+                  >
                     Service Type<sup>*</sup>
                   </label>
                   <select
@@ -627,7 +705,9 @@ const Assam = () => {
                     <option value=''>--Select Service Type--</option>
                     <option value='NOT APPLICABLE'>NOT APPLICABLE</option>
                     <option value='ORDINARY'>ORDINARY</option>
-                    <option value='DELUX AIR CONDITIONED'>DELUX AIR CONDITIONED</option>
+                    <option value='DELUX AIR CONDITIONED'>
+                      DELUX AIR CONDITIONED
+                    </option>
                   </select>
                 </div>
               )}
@@ -639,7 +719,10 @@ const Assam = () => {
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='taxFromDate'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='taxFromDate'
+                    >
                       Tax From Date<sup>*</sup>
                     </label>
                     <input
@@ -658,7 +741,10 @@ const Assam = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='taxUptoDate'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='taxUptoDate'
+                    >
                       Tax Upto Date<sup>*</sup>
                     </label>
                     <input
@@ -678,7 +764,7 @@ const Assam = () => {
             </div>
           </div>
 
-          {/* ✅ Assam table: ONLY ONE LINE = "Passanger Tax" (same font/classes) */}
+          {/* ✅ Assam table: ONLY ONE LINE = "Passanger Tax" */}
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
@@ -701,10 +787,14 @@ const Assam = () => {
                       <span className='hr-table-text'>Passanger Tax</span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>{payLoad.taxFromDate || '-'}</span>
+                      <span className='hr-table-text'>
+                        {payLoad.taxFromDate || '-'}
+                      </span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>{payLoad.taxUptoDate || '-'}</span>
+                      <span className='hr-table-text'>
+                        {payLoad.taxUptoDate || '-'}
+                      </span>
                     </td>
                     <td className='hr-table-body'>
                       <input
@@ -730,7 +820,10 @@ const Assam = () => {
           <div className='row'>
             <div className='col-sm-6'>
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='totalAmount'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='totalAmount'
+                >
                   Total amount<sup>*</sup>
                 </label>
                 <input
@@ -750,7 +843,9 @@ const Assam = () => {
             </div>
 
             <div className='col-sm-6'>
-              <label className='form__label d-block w-100 text-left'>&nbsp;</label>
+              <label className='form__label d-block w-100 text-left'>
+                &nbsp;
+              </label>
               <ActionButtons
                 tabIndex='22'
                 isDisabled={isLoading}
