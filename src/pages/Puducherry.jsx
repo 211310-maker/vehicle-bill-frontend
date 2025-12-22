@@ -1,5 +1,5 @@
 // src/pages/Puducherry.jsx
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
 import {
   borderBarriers,
@@ -13,7 +13,7 @@ import Header from '../components/Header';
 import Loader from '../components/Loader';
 
 /**
- * Puducherry Form (as per screenshots / requirements)
+ * Puducherry Form
  * - Vehicle Type dropdown: only "TRANSPORT"
  * - Vehicle Class dropdown: fixed list
  * - Permit Type dropdown: changes according to Vehicle Class
@@ -21,7 +21,6 @@ import Loader from '../components/Loader';
  * - Table: MV Tax + Service/User Charge, Total auto-calculated
  */
 
-// Vehicle Class options (based on your screenshot)
 const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
   'MOTOR CAB',
   'MOTOR CYCLE/SCOOTER-USED FOR HIRE',
@@ -33,7 +32,8 @@ const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
   'GOODS CARRIER',
 ];
 
-// ✅ Permit Type depends on Vehicle Class (adjust if business rules change)
+// Permit Type depends on Vehicle Class (as per your note)
+// If later you want different permit types per class, update here.
 const PUDUCHERRY_PERMITTYPE_BY_CLASS = {
   'MOTOR CAB': ['NOT APPLICABLE'],
   'MOTOR CYCLE/SCOOTER-USED FOR HIRE': ['NOT APPLICABLE'],
@@ -112,7 +112,7 @@ const Puducherry = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ Auto-calc Total Amount = MV Tax + Service/User Charge
+  // Auto-calc Total Amount = MV Tax + Service/User Charge
   useEffect(() => {
     const mv = Number(payLoad.mvTaxAmount || 0);
     const svc = Number(payLoad.serviceUserChargeAmount || 0);
@@ -124,7 +124,7 @@ const Puducherry = () => {
     }));
   }, [payLoad.mvTaxAmount, payLoad.serviceUserChargeAmount]);
 
-  // ✅ Permit Type should update when Vehicle Class changes
+  // Permit Type updates when Vehicle Class changes
   useEffect(() => {
     if (!payLoad.vehicleClass) {
       if (payLoad.permitType) setPayLoad((p) => ({ ...p, permitType: '' }));
@@ -230,11 +230,19 @@ const Puducherry = () => {
       formData: {
         ...payLoad,
         state,
-        // keep compatibility with other state payloads
+        // compatibility with backend/shared logic
         unladenWeight: 0,
       },
     });
   };
+
+  // ✅ compute filtered checkposts (NO HOOKS)
+  const filteredCheckposts = (rawCheckpostOptions || []).filter((cp) => {
+    if (!payLoad.borderBarrier) return true;
+    if (cp.district) return cp.district === payLoad.borderBarrier;
+    if (cp.borderBarrier) return cp.borderBarrier === payLoad.borderBarrier;
+    return true;
+  });
 
   if (!isLoggedIn?.accessState?.includes(accessStateName)) {
     return (
@@ -246,16 +254,6 @@ const Puducherry = () => {
       </>
     );
   }
-
-  // filter checkposts by selected district
-  const filteredCheckposts = useMemo(() => {
-    return (rawCheckpostOptions || []).filter((cp) => {
-      if (!payLoad.borderBarrier) return true;
-      if (cp.district) return cp.district === payLoad.borderBarrier;
-      if (cp.borderBarrier) return cp.borderBarrier === payLoad.borderBarrier;
-      return true;
-    });
-  }, [rawCheckpostOptions, payLoad.borderBarrier]);
 
   return (
     <>
@@ -347,7 +345,6 @@ const Puducherry = () => {
                 />
               </div>
 
-              {/* Vehicle Type fixed */}
               <div className='form__control'>
                 <label
                   className='form__label d-block w-100 text-left'
@@ -512,7 +509,6 @@ const Puducherry = () => {
                 </div>
               </div>
 
-              {/* Entry District + Checkpost */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -569,7 +565,6 @@ const Puducherry = () => {
                 </div>
               </div>
 
-              {/* Validities */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -684,7 +679,6 @@ const Puducherry = () => {
             </div>
           </div>
 
-          {/* Tax table */}
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
