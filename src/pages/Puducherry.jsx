@@ -13,15 +13,15 @@ import Header from '../components/Header';
 import Loader from '../components/Loader';
 
 /**
- * Puducherry Form (custom)
- * - Vehicle Type: fixed to TRANSPORT
- * - Permit Type: depends on Vehicle Class
- * - Passenger vs Goods fields:
- *    - Goods => Gross/Unladen
- *    - Passenger => Seating/Sleeper
- * - Includes: Permit Validity, Insurance Validity, Fitness Validity,
- *            Permit Authorization Validity, Road Tax Validity
- * - Table: MV Tax + Service/User Charge, Total auto-calculated
+ * Puducherry (custom page)
+ * - Vehicle Type fixed: TRANSPORT
+ * - Vehicle Class list as per screenshot
+ * - Permit Type depends on Vehicle Class
+ * - Goods vs Passenger fields:
+ *    - GOODS CARRIER => Gross + Unladen
+ *    - else => Seating + Sleeper
+ * - Includes missing fields: Permit Auth Validity, Road Tax Validity
+ * - Total = MV Tax + Service/User Charge
  */
 
 const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
@@ -35,7 +35,7 @@ const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
   'GOODS CARRIER',
 ];
 
-// ✅ Permit Type changes by Vehicle Class (edit values here if needed)
+// ✅ Permit Type changes by Vehicle Class (update if you need more options later)
 const PUDUCHERRY_PERMITTYPE_BY_CLASS = {
   'MOTOR CAB': ['NOT APPLICABLE'],
   'MOTOR CYCLE/SCOOTER-USED FOR HIRE': ['NOT APPLICABLE'],
@@ -122,13 +122,15 @@ const Puducherry = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ Treat GOODS CARRIER as Goods. Add more goods classes here later if needed.
   const isGoodsClass = payLoad.vehicleClass === 'GOODS CARRIER';
 
-  // ✅ Clear passenger/goods fields when switching types
+  // ✅ Clear opposite fields when switching passenger/goods
   useEffect(() => {
     if (isGoodsClass) {
-      if (payLoad.seatingCapacityExcludingDriver || payLoad.sleeperCapacityExcludingDriver) {
+      if (
+        payLoad.seatingCapacityExcludingDriver ||
+        payLoad.sleeperCapacityExcludingDriver
+      ) {
         setPayLoad((p) => ({
           ...p,
           seatingCapacityExcludingDriver: '',
@@ -147,7 +149,7 @@ const Puducherry = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGoodsClass]);
 
-  // ✅ Auto-calc Total Amount = MV Tax + Service/User Charge
+  // ✅ Total = MV + Service
   useEffect(() => {
     const mv = Number(payLoad.mvTaxAmount || 0);
     const svc = Number(payLoad.serviceUserChargeAmount || 0);
@@ -159,7 +161,7 @@ const Puducherry = () => {
     }));
   }, [payLoad.mvTaxAmount, payLoad.serviceUserChargeAmount]);
 
-  // ✅ Permit Type updates when Vehicle Class changes
+  // ✅ Permit Type reset when Vehicle Class changes
   useEffect(() => {
     if (!payLoad.vehicleClass) {
       if (payLoad.permitType) setPayLoad((p) => ({ ...p, permitType: '' }));
@@ -167,9 +169,9 @@ const Puducherry = () => {
     }
 
     const options = getPermitTypeOptions(payLoad.vehicleClass);
-    const isValid = options.some((o) => o.value === payLoad.permitType);
+    const valid = options.some((o) => o.value === payLoad.permitType);
 
-    if (!isValid) {
+    if (!valid) {
       setPayLoad((p) => ({
         ...p,
         permitType: options[0]?.value || '',
@@ -219,9 +221,7 @@ const Puducherry = () => {
     }
 
     setIsLoading(true);
-    const { data, error } = await getDetailsApi({
-      vehicleNo: payLoad.vehicleNo,
-    });
+    const { data, error } = await getDetailsApi({ vehicleNo: payLoad.vehicleNo });
     setIsLoading(false);
 
     if (error) {
@@ -264,7 +264,6 @@ const Puducherry = () => {
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
-
     history.push('/select-payment', {
       formData: {
         ...payLoad,
@@ -273,7 +272,6 @@ const Puducherry = () => {
     });
   };
 
-  // ✅ filter checkposts by selected district
   const filteredCheckposts = (rawCheckpostOptions || []).filter((cp) => {
     if (!payLoad.borderBarrier) return true;
     if (cp.district) return cp.district === payLoad.borderBarrier;
@@ -312,6 +310,7 @@ const Puducherry = () => {
           className='service-type tax-details mt-4'
         >
           <div className='row'>
+            {/* ✅ LEFT COLUMN (like screenshot) */}
             <div className='col-6'>
               <div className='form__control'>
                 <label className='form__label d-block w-100 text-left' htmlFor='vehicleNo'>
@@ -403,8 +402,50 @@ const Puducherry = () => {
                   ))}
                 </select>
               </div>
+
+              {/* ✅ Put tax dates in LEFT to balance layout (fixes formatting) */}
+              <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='taxFromDate'>
+                      Tax From Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='19'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      type='datetime-local'
+                      id='taxFromDate'
+                      name='taxFromDate'
+                      onChange={onChangeHandler}
+                      value={payLoad.taxFromDate}
+                    />
+                  </div>
+                </div>
+
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='taxUptoDate'>
+                      Tax Upto Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='20'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      id='taxUptoDate'
+                      name='taxUptoDate'
+                      type='datetime-local'
+                      value={payLoad.taxUptoDate}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
+            {/* ✅ RIGHT COLUMN (like screenshot) */}
             <div className='col-6'>
               <div className='form__control text-left'>
                 <label className='form__label d-block w-100 text-left'>&nbsp;</label>
@@ -511,7 +552,7 @@ const Puducherry = () => {
                 </div>
               </div>
 
-              {/* ✅ Passenger vs Goods fields */}
+              {/* ✅ Passenger vs Goods (kept in RIGHT like screenshot) */}
               {!isGoodsClass ? (
                 <div className='row'>
                   <div className='col-sm-6'>
@@ -660,7 +701,7 @@ const Puducherry = () => {
                 </div>
               </div>
 
-              {/* ✅ Validities */}
+              {/* ✅ Validities (RIGHT like screenshot) */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -762,47 +803,6 @@ const Puducherry = () => {
                   onChange={onChangeHandler}
                   value={payLoad.roadTaxValidity}
                 />
-              </div>
-
-              {/* ✅ Tax Dates */}
-              <div className='row'>
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='taxFromDate'>
-                      Tax From Date<sup>*</sup>
-                    </label>
-                    <input
-                      required
-                      tabIndex='19'
-                      disabled={isLoading}
-                      className='form__input w-100'
-                      type='datetime-local'
-                      id='taxFromDate'
-                      name='taxFromDate'
-                      onChange={onChangeHandler}
-                      value={payLoad.taxFromDate}
-                    />
-                  </div>
-                </div>
-
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='taxUptoDate'>
-                      Tax Upto Date<sup>*</sup>
-                    </label>
-                    <input
-                      required
-                      tabIndex='20'
-                      disabled={isLoading}
-                      className='form__input w-100'
-                      id='taxUptoDate'
-                      name='taxUptoDate'
-                      type='datetime-local'
-                      value={payLoad.taxUptoDate}
-                      onChange={onChangeHandler}
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
