@@ -12,20 +12,7 @@ import ActionButtons from '../components/ActionButtons';
 import Header from '../components/Header';
 import Loader from '../components/Loader';
 
-/**
- * Puducherry (custom form like eVahan screenshot)
- * - Vehicle Type fixed: TRANSPORT
- * - Vehicle Class list as per screenshot
- * - Permit Type depends on Vehicle Class
- * - Goods vs Passenger:
- *    - GOODS CARRIER => Gross + Unladen
- *    - else => Seating + Sleeper
- * - Missing fields included:
- *    - Permit Authorization Validity
- *    - Road Tax Validity
- * - Total = MV Tax + Service/User Charge
- */
-
+// Puducherry vehicle class list (as per screenshot)
 const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
   'MOTOR CAB',
   'MOTOR CYCLE/SCOOTER-USED FOR HIRE',
@@ -37,30 +24,22 @@ const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
   'GOODS CARRIER',
 ];
 
-const PUDUCHERRY_PERMITTYPE_BY_CLASS = {
-  'MOTOR CAB': ['NOT APPLICABLE'],
-  'MOTOR CYCLE/SCOOTER-USED FOR HIRE': ['NOT APPLICABLE'],
-  'OMNI BUS': ['NOT APPLICABLE'],
-  'CAMPER VAN / TRAILER': ['NOT APPLICABLE'],
-  'MAXI CAB': ['NOT APPLICABLE'],
-  'THREE WHEELER (PASSENGER)': ['NOT APPLICABLE'],
-  BUS: ['NOT APPLICABLE'],
-  'GOODS CARRIER': ['NOT APPLICABLE'],
+// Permit Type depends on Vehicle Class
+// GOODS CARRIER => GOODS VEHICLE only
+// Others => NOT APPLICABLE only
+const getPermitTypeOptionsByClass = (vehicleClass) => {
+  if (!vehicleClass) return [];
+  if (vehicleClass === 'GOODS CARRIER') return ['GOODS VEHICLE'];
+  return ['NOT APPLICABLE'];
 };
-
-const getPermitTypeOptions = (vehicleClass) =>
-  (PUDUCHERRY_PERMITTYPE_BY_CLASS[vehicleClass] || []).map((x) => ({
-    value: x,
-    label: x,
-  }));
 
 const Puducherry = () => {
   const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
-  const history = useHistory();
-  const form = useRef(null);
 
   const stateKey = 'puducherry';
   const state = stateKey;
+  const history = useHistory();
+  const form = useRef(null);
 
   const resolvedStateFieldKey =
     (fields.stateFieldsKeyMapping || {})[stateKey] || stateKey;
@@ -85,67 +64,48 @@ const Puducherry = () => {
     vehicleNo: '',
     chassisNo: '',
     mobileNo: '',
-    ownerName: '',
-    fromState: '',
 
-    borderBarrier: '',
-    checkpostName: '',
-
+    // fixed dropdown (single option)
     vehiclePermitType: 'TRANSPORT',
-    vehicleClass: '',
-    permitType: '',
 
+    // passenger/goods dependent
     seatingCapacityExcludingDriver: '',
     sleeperCapacityExcludingDriver: '',
-
     grossVehicleWeight: '',
     unladenWeight: '',
 
-    permitValidity: '',
-    insuranceValidity: '',
-    fitnessValidity: '',
-    permitAuthorizationValidity: '',
-    roadTaxValidity: '',
-
+    borderBarrier: '',
+    totalAmount: '',
+    mvTaxAmount: '',
+    serviceUserChargeAmount: '',
+    ownerName: '',
+    fromState: '',
+    vehicleClass: '',
     taxMode: '',
     taxFromDate: '',
     taxUptoDate: '',
+    paymentMode: '',
+    checkpostName: '',
+    permitType: '',
 
-    mvTaxAmount: '',
-    serviceUserChargeAmount: '',
-    totalAmount: '',
+    fitnessValidity: '',
+    insuranceValidity: '',
+    permitValidity: '',
+
+    // added missing fields
+    permitAuthorizationValidity: '',
+    roadTaxValidity: '',
+
+    // keep for compatibility, but Puducherry doesn't need it
+    serviceType: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const isGoodsClass = payLoad.vehicleClass === 'GOODS CARRIER';
+  // Passenger vs Goods by vehicleClass (Puducherry rule)
+  const isGoodsVehicle = payLoad.vehicleClass === 'GOODS CARRIER';
 
-  // Clear opposite fields when switching class type
-  useEffect(() => {
-    if (isGoodsClass) {
-      if (
-        payLoad.seatingCapacityExcludingDriver ||
-        payLoad.sleeperCapacityExcludingDriver
-      ) {
-        setPayLoad((p) => ({
-          ...p,
-          seatingCapacityExcludingDriver: '',
-          sleeperCapacityExcludingDriver: '',
-        }));
-      }
-    } else {
-      if (payLoad.grossVehicleWeight || payLoad.unladenWeight) {
-        setPayLoad((p) => ({
-          ...p,
-          grossVehicleWeight: '',
-          unladenWeight: '',
-        }));
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGoodsClass]);
-
-  // Total = MV + Service
+  // Auto-calc Total Amount = MV Tax + Service/User Charge
   useEffect(() => {
     const mv = Number(payLoad.mvTaxAmount || 0);
     const svc = Number(payLoad.serviceUserChargeAmount || 0);
@@ -157,73 +117,35 @@ const Puducherry = () => {
     }));
   }, [payLoad.mvTaxAmount, payLoad.serviceUserChargeAmount]);
 
-  // Permit Type depends on Vehicle Class
+  // When Vehicle Class changes:
+  // - set Permit Type according to mapping
+  // - clear opposite fields to avoid mixed validation problems
   useEffect(() => {
-    if (!payLoad.vehicleClass) {
-      if (payLoad.permitType) setPayLoad((p) => ({ ...p, permitType: '' }));
-      return;
-    }
+    const opts = getPermitTypeOptionsByClass(payLoad.vehicleClass);
 
-    const options = getPermitTypeOptions(payLoad.vehicleClass);
-    const valid = options.some((o) => o.value === payLoad.permitType);
-    if (!valid) {
-      setPayLoad((p) => ({
-        ...p,
-        permitType: options[0]?.value || '',
-      }));
-    }
+    setPayLoad((p) => ({
+      ...p,
+      permitType: opts[0] || '',
+      // Clear opposite set
+      ...(payLoad.vehicleClass === 'GOODS CARRIER'
+        ? {
+            seatingCapacityExcludingDriver: '',
+            sleeperCapacityExcludingDriver: '',
+          }
+        : { grossVehicleWeight: '', unladenWeight: '' }),
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payLoad.vehicleClass]);
-
-  const onChangeHandler = (e) => {
-    setPayLoad((old) => ({ ...old, [e.target.name]: e.target.value }));
-  };
-
-  const onResetHandler = () => {
-    setPayLoad({
-      vehicleNo: '',
-      chassisNo: '',
-      mobileNo: '',
-      ownerName: '',
-      fromState: '',
-
-      borderBarrier: '',
-      checkpostName: '',
-
-      vehiclePermitType: 'TRANSPORT',
-      vehicleClass: '',
-      permitType: '',
-
-      seatingCapacityExcludingDriver: '',
-      sleeperCapacityExcludingDriver: '',
-
-      grossVehicleWeight: '',
-      unladenWeight: '',
-
-      permitValidity: '',
-      insuranceValidity: '',
-      fitnessValidity: '',
-      permitAuthorizationValidity: '',
-      roadTaxValidity: '',
-
-      taxMode: '',
-      taxFromDate: '',
-      taxUptoDate: '',
-
-      mvTaxAmount: '',
-      serviceUserChargeAmount: '',
-      totalAmount: '',
-    });
-  };
 
   const getDetailsHandler = async () => {
     if (!payLoad.vehicleNo) {
       alert('Please enter vehicle no.');
       return;
     }
-
     setIsLoading(true);
-    const { data, error } = await getDetailsApi({ vehicleNo: payLoad.vehicleNo });
+    const { data, error } = await getDetailsApi({
+      vehicleNo: payLoad.vehicleNo,
+    });
     setIsLoading(false);
 
     if (error) {
@@ -236,9 +158,13 @@ const Puducherry = () => {
 
       Object.keys(payLoad).forEach((key) => {
         if (key === 'borderBarrier') {
-          if (data.detail?.borderBarrier) preLoadedData.borderBarrier = data.detail.borderBarrier;
-          else if (data.detail?.districtName) preLoadedData.borderBarrier = data.detail.districtName;
-          else if (data.detail?.district) preLoadedData.borderBarrier = data.detail.district;
+          if (data.detail && data.detail.borderBarrier) {
+            preLoadedData.borderBarrier = data.detail.borderBarrier;
+          } else if (data.detail && data.detail.districtName) {
+            preLoadedData.borderBarrier = data.detail.districtName;
+          } else if (data.detail && data.detail.district) {
+            preLoadedData.borderBarrier = data.detail.district;
+          }
           return;
         }
 
@@ -252,10 +178,11 @@ const Puducherry = () => {
         }
       });
 
+      // enforce fixed vehicle type
       preLoadedData.vehiclePermitType = 'TRANSPORT';
 
-      setPayLoad((p) => ({
-        ...p,
+      setPayLoad((e) => ({
+        ...e,
         ...preLoadedData,
       }));
     } else if (data && data.message) {
@@ -263,22 +190,31 @@ const Puducherry = () => {
     }
   };
 
-  const onSubmitHandler = (e) => {
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
+    const payLoadWithDefaults = {
+      ...payLoad,
+      unladenWeight: payLoad.unladenWeight || 0,
+    };
     history.push('/select-payment', {
       formData: {
-        ...payLoad,
+        ...payLoadWithDefaults,
         state,
       },
     });
   };
 
-  const filteredCheckposts = (rawCheckpostOptions || []).filter((cp) => {
-    if (!payLoad.borderBarrier) return true;
-    if (cp.district) return cp.district === payLoad.borderBarrier;
-    if (cp.borderBarrier) return cp.borderBarrier === payLoad.borderBarrier;
-    return true;
-  });
+  const onChangeHandler = (e) => {
+    setPayLoad((old) => ({ ...old, [e.target.name]: e.target.value }));
+  };
+
+  const onResetHandler = () => {
+    const x = { ...payLoad };
+    const p = {};
+    Object.keys(x).forEach((k) => (p[k] = ''));
+    p.vehiclePermitType = 'TRANSPORT';
+    setPayLoad({ ...p });
+  };
 
   if (!isLoggedIn?.accessState?.includes(accessStateName)) {
     return (
@@ -291,10 +227,18 @@ const Puducherry = () => {
     );
   }
 
+  const filteredCheckposts = (rawCheckpostOptions || []).filter((cp) => {
+    if (!payLoad.borderBarrier) return true;
+    if (cp.district) return cp.district === payLoad.borderBarrier;
+    if (cp.borderBarrier) return cp.borderBarrier === payLoad.borderBarrier;
+    return true;
+  });
+
+  const permitTypeOptions = getPermitTypeOptionsByClass(payLoad.vehicleClass);
+
   return (
     <>
       <Header />
-
       <div className='text-center'>
         <p className='login-heading mt-4'>
           <b>Border Tax Payment for Entry Into</b> <span>{stateDisplayName}</span>
@@ -304,12 +248,18 @@ const Puducherry = () => {
       <div className='box box--main'>
         <div className='box__heading--blue'>Tax Payment Details</div>
 
-        <form ref={form} onSubmit={onSubmitHandler} className='service-type tax-details mt-4'>
-          {/* TOP: vehicle + owner side-by-side */}
+        <form
+          ref={form}
+          onSubmit={onSubmitHandler}
+          className='service-type tax-details mt-4'
+        >
           <div className='row'>
             <div className='col-6'>
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='vehicleNo'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='vehicleNo'
+                >
                   Vehicle No.<sup>*</sup>
                 </label>
                 <input
@@ -329,7 +279,10 @@ const Puducherry = () => {
               </div>
 
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='chassisNo'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='chassisNo'
+                >
                   Chassis No.<sup>*</sup>
                 </label>
                 <input
@@ -348,7 +301,10 @@ const Puducherry = () => {
               </div>
 
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='mobileNo'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='mobileNo'
+                >
                   Mobile No.<sup>*</sup>
                 </label>
                 <input
@@ -357,7 +313,7 @@ const Puducherry = () => {
                   disabled={isLoading}
                   value={payLoad.mobileNo}
                   onChange={onChangeHandler}
-                  placeholder='SMS ABOUT PAYMENT WILL BE SENT TO THIS NUMBER'
+                  placeholder='SMS about payment will be sent to this number '
                   className='form__input w-100'
                   type='text'
                   id='mobileNo'
@@ -368,156 +324,41 @@ const Puducherry = () => {
                 />
               </div>
 
+              {/* Vehicle Type (single option, same markup like StateTaxForm) */}
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='vehiclePermitType'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='vehiclePermitType'
+                >
                   Vehicle Type<sup>*</sup>
                 </label>
-                <select disabled value='TRANSPORT' name='vehiclePermitType' id='vehiclePermitType'>
+                <select
+                  tabIndex='4'
+                  value={payLoad.vehiclePermitType}
+                  onChange={onChangeHandler}
+                  required
+                  name='vehiclePermitType'
+                  id='vehiclePermitType'
+                  disabled
+                >
                   <option value='TRANSPORT'>TRANSPORT</option>
                 </select>
               </div>
 
-              <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='taxMode'>
-                  Tax Mode<sup>*</sup>
-                </label>
-                <select
-                  tabIndex='7'
-                  required
-                  disabled={isLoading}
-                  onChange={onChangeHandler}
-                  value={payLoad.taxMode}
-                  name='taxMode'
-                  id='taxMode'
-                >
-                  <option value=''>--SELECT TAX MODE--</option>
-                  {fields.taxMode.map((type) => (
-                    <option value={type.name} key={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className='col-6'>
-              <div className='form__control text-left'>
-                <label className='form__label d-block w-100 text-left'>&nbsp;</label>
-                {isLoading && <Loader className='loader__get-details' />}
-                {!isLoading && (
-                  <button
-                    disabled={isLoading}
-                    type='button'
-                    onClick={getDetailsHandler}
-                    className='box__button get-details'
-                  >
-                    <span className='glyphicon glyphicon-arrow-down mr-3'></span>
-                    Get Details
-                  </button>
-                )}
-              </div>
-
-              <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='ownerName'>
-                  Owner Name<sup>*</sup>
-                </label>
-                <input
-                  required
-                  tabIndex='9'
-                  disabled={isLoading}
-                  className='form__input w-100'
-                  type='text'
-                  id='ownerName'
-                  name='ownerName'
-                  onChange={onChangeHandler}
-                  value={payLoad.ownerName}
-                />
-              </div>
-
-              <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='fromState'>
-                  From State<sup>*</sup>
-                </label>
-                <select
-                  tabIndex='10'
-                  disabled={isLoading}
-                  required
-                  value={payLoad.fromState}
-                  onChange={onChangeHandler}
-                  name='fromState'
-                  id='fromState'
-                >
-                  <option value=''>--SELECT STATE--</option>
-                  {fields.fromState.map((type) => (
-                    <option key={type.name} value={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Vehicle class + permit type on same row */}
-              <div className='row'>
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='vehicleClass'>
-                      Vehicle Class<sup>*</sup>
-                    </label>
-                    <select
-                      tabIndex='11'
-                      required
-                      disabled={isLoading}
-                      value={payLoad.vehicleClass}
-                      onChange={onChangeHandler}
-                      name='vehicleClass'
-                      id='vehicleClass'
-                    >
-                      <option value=''>--SELECT VEHICLE CLASS--</option>
-                      {PUDUCHERRY_VEHICLE_CLASS_OPTIONS.map((v) => (
-                        <option key={v} value={v}>
-                          {v}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='permitType'>
-                      Permit Type<sup>*</sup>
-                    </label>
-                    <select
-                      required
-                      tabIndex='12'
-                      disabled={isLoading || !payLoad.vehicleClass}
-                      value={payLoad.permitType}
-                      onChange={onChangeHandler}
-                      name='permitType'
-                      id='permitType'
-                    >
-                      <option value=''>--SELECT PERMIT TYPE--</option>
-                      {getPermitTypeOptions(payLoad.vehicleClass).map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Passenger or Goods row (same row layout) */}
-              {!isGoodsClass ? (
+              {/* Passenger vs Goods fields */}
+              {!isGoodsVehicle ? (
                 <div className='row'>
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label className='form__label d-block w-100 text-left' htmlFor='seatingCapacityExcludingDriver'>
-                        Seating Capacity<sup>*</sup>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='seatingCapacityExcludingDriver'
+                      >
+                        Seating Capacity(Ex. Driver)<sup>*</sup>
                       </label>
                       <input
                         required
-                        tabIndex='13.1'
+                        tabIndex='5'
                         min='0'
                         disabled={isLoading}
                         onChange={onChangeHandler}
@@ -532,11 +373,14 @@ const Puducherry = () => {
 
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label className='form__label d-block w-100 text-left' htmlFor='sleeperCapacityExcludingDriver'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='sleeperCapacityExcludingDriver'
+                      >
                         Sleeper Capacity<sup>*</sup>
                       </label>
                       <input
-                        tabIndex='13.2'
+                        tabIndex='6'
                         required
                         min='0'
                         disabled={isLoading}
@@ -554,12 +398,15 @@ const Puducherry = () => {
                 <div className='row'>
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label className='form__label d-block w-100 text-left' htmlFor='grossVehicleWeight'>
-                        Gross Vehicle Weight(In Kg.)<sup>*</sup>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='grossVehicleWeight'
+                      >
+                        Gross Vehicle Wt.(in kg)<sup>*</sup>
                       </label>
                       <input
                         required
-                        tabIndex='13.1'
+                        tabIndex='5'
                         min='0'
                         disabled={isLoading}
                         onChange={onChangeHandler}
@@ -571,15 +418,17 @@ const Puducherry = () => {
                       />
                     </div>
                   </div>
-
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label className='form__label d-block w-100 text-left' htmlFor='unladenWeight'>
-                        Unladen Weight(In Kg.)<sup>*</sup>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='unladenWeight'
+                      >
+                        Unladen Wt.(in kg)<sup>*</sup>
                       </label>
                       <input
                         required
-                        tabIndex='13.2'
+                        tabIndex='6'
                         min='0'
                         disabled={isLoading}
                         onChange={onChangeHandler}
@@ -594,26 +443,145 @@ const Puducherry = () => {
                 </div>
               )}
 
-              {/* District + Checkpost same row */}
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='taxMode'
+                >
+                  Tax Mode<sup>*</sup>
+                </label>
+                <select
+                  tabIndex='7'
+                  required
+                  disabled={isLoading}
+                  onChange={onChangeHandler}
+                  value={payLoad.taxMode}
+                  name='taxMode'
+                  id='taxMode'
+                >
+                  <option value=''>--Select Tax Mode--</option>
+                  {fields.taxMode.map((type) => (
+                    <option value={type.name} key={type.name}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='paymentMode'
+                >
+                  Payment Mode<sup>*</sup>
+                </label>
+                <select
+                  tabIndex='8'
+                  required
+                  disabled={isLoading}
+                  value={payLoad.paymentMode}
+                  onChange={onChangeHandler}
+                  name='paymentMode'
+                  id='paymentMode'
+                >
+                  <option value=''>--Select Payment Mode--</option>
+                  {(stateFields.paymentMode || []).map((pay) => (
+                    <option key={pay.name} value={pay.name}>
+                      {pay.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className='col-6'>
+              <div className='form__control text-left'>
+                <label className='form__label d-block w-100 text-left'>
+                  &nbsp;
+                </label>
+                {isLoading && <Loader className='loader__get-details' />}
+                {!isLoading && (
+                  <button
+                    disabled={isLoading}
+                    type='button'
+                    onClick={getDetailsHandler}
+                    className='box__button get-details'
+                  >
+                    <span className='glyphicon glyphicon-arrow-down mr-3'></span>
+                    Get Details
+                  </button>
+                )}
+              </div>
+
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='ownerName'
+                >
+                  Owner Name<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='9'
+                  disabled={isLoading}
+                  className='form__input w-100'
+                  type='text'
+                  id='ownerName'
+                  inputMode='text'
+                  name='ownerName'
+                  onChange={onChangeHandler}
+                  value={payLoad.ownerName}
+                />
+              </div>
+
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='fromState'
+                >
+                  From State<sup>*</sup>
+                </label>
+                <select
+                  tabIndex='10'
+                  disabled={isLoading}
+                  required
+                  value={payLoad.fromState}
+                  onChange={onChangeHandler}
+                  name='fromState'
+                  id='fromState'
+                >
+                  <option value=''>--Select State--</option>
+                  {fields.fromState.map((type) => (
+                    <option key={type.name} value={type.name}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Vehicle Class + Permit Type (dependent) */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='borderBarrier'>
-                      Entry District Name<sup>*</sup>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='vehicleClass'
+                    >
+                      Vehicle Class<sup>*</sup>
                     </label>
                     <select
-                      tabIndex='14'
+                      tabIndex='11'
                       required
                       disabled={isLoading}
-                      value={payLoad.borderBarrier}
+                      value={payLoad.vehicleClass}
                       onChange={onChangeHandler}
-                      name='borderBarrier'
-                      id='borderBarrier'
+                      name='vehicleClass'
+                      id='vehicleClass'
                     >
-                      <option value=''>SELECT DISTRICT NAME...</option>
-                      {borderOptions.map((d) => (
-                        <option key={d.name} value={d.name}>
-                          {d.name}
+                      <option value=''>--Select Vehicle Class--</option>
+                      {PUDUCHERRY_VEHICLE_CLASS_OPTIONS.map((v) => (
+                        <option key={v} value={v}>
+                          {v}
                         </option>
                       ))}
                     </select>
@@ -622,22 +590,25 @@ const Puducherry = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='checkpostName'>
-                      Entry CheckPost Name<sup>*</sup>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='permitType'
+                    >
+                      Permit Type<sup>*</sup>
                     </label>
                     <select
-                      tabIndex='15'
                       required
-                      disabled={isLoading}
-                      value={payLoad.checkpostName}
+                      tabIndex='12'
+                      disabled={isLoading || !payLoad.vehicleClass}
+                      value={payLoad.permitType}
                       onChange={onChangeHandler}
-                      name='checkpostName'
-                      id='checkpostName'
+                      name='permitType'
+                      id='permitType'
                     >
-                      <option value=''>SELECT CHECKPOST NAME...</option>
-                      {filteredCheckposts.map((cp) => (
-                        <option key={cp.name} value={cp.name}>
-                          {cp.name}
+                      <option value=''>--Select Permit Type--</option>
+                      {permitTypeOptions.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
                         </option>
                       ))}
                     </select>
@@ -645,12 +616,71 @@ const Puducherry = () => {
                 </div>
               </div>
 
-              {/* Validities */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='permitValidity'>
-                      Permit Validity<sup>*</sup>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='borderBarrier'
+                    >
+                      District<sup>*</sup>
+                    </label>
+                    <select
+                      tabIndex='13'
+                      required
+                      disabled={isLoading}
+                      value={payLoad.borderBarrier}
+                      onChange={onChangeHandler}
+                      name='borderBarrier'
+                      id='borderBarrier'
+                    >
+                      <option value=''>--Select District--</option>
+                      {borderOptions.map((type) => (
+                        <option key={type.name} value={type.name}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='checkpostName'
+                    >
+                      Checkpost Name<sup>*</sup>
+                    </label>
+                    <select
+                      tabIndex='14'
+                      required
+                      disabled={isLoading}
+                      value={payLoad.checkpostName}
+                      onChange={onChangeHandler}
+                      name='checkpostName'
+                      id='checkpostName'
+                    >
+                      <option value=''>--Select Checkpost Name--</option>
+                      {filteredCheckposts.map((type) => (
+                        <option key={type.name} value={type.name}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Validity fields (include missing ones) */}
+              <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='fitnessValidity'
+                    >
+                      Fitness Validity<sup>*</sup>
                     </label>
                     <input
                       required
@@ -658,17 +688,20 @@ const Puducherry = () => {
                       disabled={isLoading}
                       className='form__input w-100'
                       type='date'
-                      id='permitValidity'
-                      name='permitValidity'
+                      id='fitnessValidity'
+                      name='fitnessValidity'
                       onChange={onChangeHandler}
-                      value={payLoad.permitValidity}
+                      value={payLoad.fitnessValidity}
                     />
                   </div>
                 </div>
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='insuranceValidity'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='insuranceValidity'
+                    >
                       Insurance Validity<sup>*</sup>
                     </label>
                     <input
@@ -686,29 +719,33 @@ const Puducherry = () => {
                 </div>
               </div>
 
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='permitValidity'
+                >
+                  Permit Validity<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='18'
+                  disabled={isLoading}
+                  className='form__input w-100'
+                  type='date'
+                  id='permitValidity'
+                  name='permitValidity'
+                  onChange={onChangeHandler}
+                  value={payLoad.permitValidity}
+                />
+              </div>
+
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='fitnessValidity'>
-                      Fitness Validity<sup>*</sup>
-                    </label>
-                    <input
-                      required
-                      tabIndex='18'
-                      disabled={isLoading}
-                      className='form__input w-100'
-                      type='date'
-                      id='fitnessValidity'
-                      name='fitnessValidity'
-                      onChange={onChangeHandler}
-                      value={payLoad.fitnessValidity}
-                    />
-                  </div>
-                </div>
-
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='permitAuthorizationValidity'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='permitAuthorizationValidity'
+                    >
                       Permit Authorization Validity<sup>*</sup>
                     </label>
                     <input
@@ -724,69 +761,79 @@ const Puducherry = () => {
                     />
                   </div>
                 </div>
+
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='roadTaxValidity'
+                    >
+                      Road Tax Validity<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='18.2'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      type='date'
+                      id='roadTaxValidity'
+                      name='roadTaxValidity'
+                      onChange={onChangeHandler}
+                      value={payLoad.roadTaxValidity}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='roadTaxValidity'>
-                  Road Tax Validity<sup>*</sup>
-                </label>
-                <input
-                  required
-                  tabIndex='18.2'
-                  disabled={isLoading}
-                  className='form__input w-100'
-                  type='date'
-                  id='roadTaxValidity'
-                  name='roadTaxValidity'
-                  onChange={onChangeHandler}
-                  value={payLoad.roadTaxValidity}
-                />
+              {/* Tax date fields (same placement like StateTaxForm = correct formatting) */}
+              <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='taxFromDate'
+                    >
+                      Tax From Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='19'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      type='datetime-local'
+                      id='taxFromDate'
+                      name='taxFromDate'
+                      onChange={onChangeHandler}
+                      value={payLoad.taxFromDate}
+                    />
+                  </div>
+                </div>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label
+                      className='form__label d-block w-100 text-left'
+                      htmlFor='taxUptoDate'
+                    >
+                      Tax Upto Date<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='20'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      id='taxUptoDate'
+                      name='taxUptoDate'
+                      type='datetime-local'
+                      value={payLoad.taxUptoDate}
+                      onChange={onChangeHandler}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Tax From/To (placed just before table like screenshot flow) */}
-          <div className='row'>
-            <div className='col-sm-6'>
-              <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='taxFromDate'>
-                  Tax From Date<sup>*</sup>
-                </label>
-                <input
-                  required
-                  tabIndex='19'
-                  disabled={isLoading}
-                  className='form__input w-100'
-                  type='datetime-local'
-                  id='taxFromDate'
-                  name='taxFromDate'
-                  onChange={onChangeHandler}
-                  value={payLoad.taxFromDate}
-                />
-              </div>
-            </div>
-
-            <div className='col-sm-6'>
-              <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='taxUptoDate'>
-                  Tax Upto Date<sup>*</sup>
-                </label>
-                <input
-                  required
-                  tabIndex='20'
-                  disabled={isLoading}
-                  className='form__input w-100'
-                  id='taxUptoDate'
-                  name='taxUptoDate'
-                  type='datetime-local'
-                  value={payLoad.taxUptoDate}
-                  onChange={onChangeHandler}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Table */}
+          {/* TABLE (same as StateTaxForm) */}
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
@@ -809,10 +856,14 @@ const Puducherry = () => {
                       <span className='hr-table-text'>MV Tax</span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>{payLoad.taxFromDate || '-'}</span>
+                      <span className='hr-table-text'>
+                        {payLoad.taxFromDate || '-'}
+                      </span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>{payLoad.taxUptoDate || '-'}</span>
+                      <span className='hr-table-text'>
+                        {payLoad.taxUptoDate || '-'}
+                      </span>
                     </td>
                     <td className='hr-table-body'>
                       <input
@@ -837,10 +888,14 @@ const Puducherry = () => {
                       <span className='hr-table-text'>Service/User Charge</span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>{payLoad.taxFromDate || '-'}</span>
+                      <span className='hr-table-text'>
+                        {payLoad.taxFromDate || '-'}
+                      </span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>{payLoad.taxUptoDate || '-'}</span>
+                      <span className='hr-table-text'>
+                        {payLoad.taxUptoDate || '-'}
+                      </span>
                     </td>
                     <td className='hr-table-body'>
                       <input
@@ -862,11 +917,13 @@ const Puducherry = () => {
           </div>
 
           <br />
-
           <div className='row'>
             <div className='col-sm-6'>
               <div className='form__control'>
-                <label className='form__label d-block w-100 text-left' htmlFor='totalAmount'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='totalAmount'
+                >
                   Total amount<sup>*</sup>
                 </label>
                 <input
@@ -883,10 +940,15 @@ const Puducherry = () => {
                 />
               </div>
             </div>
-
             <div className='col-sm-6'>
-              <label className='form__label d-block w-100 text-left'>&nbsp;</label>
-              <ActionButtons tabIndex='22' isDisabled={isLoading} onReset={onResetHandler} />
+              <label className='form__label d-block w-100 text-left'>
+                &nbsp;
+              </label>
+              <ActionButtons
+                tabIndex='22'
+                isDisabled={isLoading}
+                onReset={onResetHandler}
+              />
             </div>
           </div>
         </form>
