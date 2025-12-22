@@ -13,11 +13,14 @@ import Header from '../components/Header';
 import Loader from '../components/Loader';
 
 /**
- * Puducherry Form
- * - Vehicle Type dropdown: only "TRANSPORT"
- * - Vehicle Class dropdown: fixed list
- * - Permit Type dropdown: changes according to Vehicle Class
- * - District + Checkpost filtered like StateTaxForm
+ * Puducherry Form (custom)
+ * - Vehicle Type: fixed to TRANSPORT
+ * - Permit Type: depends on Vehicle Class
+ * - Passenger vs Goods fields:
+ *    - Goods => Gross/Unladen
+ *    - Passenger => Seating/Sleeper
+ * - Includes: Permit Validity, Insurance Validity, Fitness Validity,
+ *            Permit Authorization Validity, Road Tax Validity
  * - Table: MV Tax + Service/User Charge, Total auto-calculated
  */
 
@@ -32,8 +35,7 @@ const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
   'GOODS CARRIER',
 ];
 
-// Permit Type depends on Vehicle Class (as per your note)
-// If later you want different permit types per class, update here.
+// ✅ Permit Type changes by Vehicle Class (edit values here if needed)
 const PUDUCHERRY_PERMITTYPE_BY_CLASS = {
   'MOTOR CAB': ['NOT APPLICABLE'],
   'MOTOR CYCLE/SCOOTER-USED FOR HIRE': ['NOT APPLICABLE'],
@@ -94,6 +96,14 @@ const Puducherry = () => {
     vehicleClass: '',
     permitType: '',
 
+    // Passenger fields
+    seatingCapacityExcludingDriver: '',
+    sleeperCapacityExcludingDriver: '',
+
+    // Goods fields
+    grossVehicleWeight: '',
+    unladenWeight: '',
+
     // Validities
     permitValidity: '',
     insuranceValidity: '',
@@ -112,7 +122,32 @@ const Puducherry = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Auto-calc Total Amount = MV Tax + Service/User Charge
+  // ✅ Treat GOODS CARRIER as Goods. Add more goods classes here later if needed.
+  const isGoodsClass = payLoad.vehicleClass === 'GOODS CARRIER';
+
+  // ✅ Clear passenger/goods fields when switching types
+  useEffect(() => {
+    if (isGoodsClass) {
+      if (payLoad.seatingCapacityExcludingDriver || payLoad.sleeperCapacityExcludingDriver) {
+        setPayLoad((p) => ({
+          ...p,
+          seatingCapacityExcludingDriver: '',
+          sleeperCapacityExcludingDriver: '',
+        }));
+      }
+    } else {
+      if (payLoad.grossVehicleWeight || payLoad.unladenWeight) {
+        setPayLoad((p) => ({
+          ...p,
+          grossVehicleWeight: '',
+          unladenWeight: '',
+        }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGoodsClass]);
+
+  // ✅ Auto-calc Total Amount = MV Tax + Service/User Charge
   useEffect(() => {
     const mv = Number(payLoad.mvTaxAmount || 0);
     const svc = Number(payLoad.serviceUserChargeAmount || 0);
@@ -124,7 +159,7 @@ const Puducherry = () => {
     }));
   }, [payLoad.mvTaxAmount, payLoad.serviceUserChargeAmount]);
 
-  // Permit Type updates when Vehicle Class changes
+  // ✅ Permit Type updates when Vehicle Class changes
   useEffect(() => {
     if (!payLoad.vehicleClass) {
       if (payLoad.permitType) setPayLoad((p) => ({ ...p, permitType: '' }));
@@ -159,6 +194,10 @@ const Puducherry = () => {
       vehiclePermitType: 'TRANSPORT',
       vehicleClass: '',
       permitType: '',
+      seatingCapacityExcludingDriver: '',
+      sleeperCapacityExcludingDriver: '',
+      grossVehicleWeight: '',
+      unladenWeight: '',
       permitValidity: '',
       insuranceValidity: '',
       fitnessValidity: '',
@@ -230,13 +269,11 @@ const Puducherry = () => {
       formData: {
         ...payLoad,
         state,
-        // compatibility with backend/shared logic
-        unladenWeight: 0,
       },
     });
   };
 
-  // ✅ compute filtered checkposts (NO HOOKS)
+  // ✅ filter checkposts by selected district
   const filteredCheckposts = (rawCheckpostOptions || []).filter((cp) => {
     if (!payLoad.borderBarrier) return true;
     if (cp.district) return cp.district === payLoad.borderBarrier;
@@ -277,10 +314,7 @@ const Puducherry = () => {
           <div className='row'>
             <div className='col-6'>
               <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='vehicleNo'
-                >
+                <label className='form__label d-block w-100 text-left' htmlFor='vehicleNo'>
                   Vehicle No.<sup>*</sup>
                 </label>
                 <input
@@ -300,10 +334,7 @@ const Puducherry = () => {
               </div>
 
               <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='chassisNo'
-                >
+                <label className='form__label d-block w-100 text-left' htmlFor='chassisNo'>
                   Chassis No.<sup>*</sup>
                 </label>
                 <input
@@ -322,10 +353,7 @@ const Puducherry = () => {
               </div>
 
               <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='mobileNo'
-                >
+                <label className='form__label d-block w-100 text-left' htmlFor='mobileNo'>
                   Mobile No.<sup>*</sup>
                 </label>
                 <input
@@ -334,7 +362,7 @@ const Puducherry = () => {
                   disabled={isLoading}
                   value={payLoad.mobileNo}
                   onChange={onChangeHandler}
-                  placeholder='SMS about payment will be sent to this number'
+                  placeholder='SMS ABOUT PAYMENT WILL BE SENT TO THIS NUMBER'
                   className='form__input w-100'
                   type='text'
                   id='mobileNo'
@@ -346,27 +374,16 @@ const Puducherry = () => {
               </div>
 
               <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='vehiclePermitType'
-                >
+                <label className='form__label d-block w-100 text-left' htmlFor='vehiclePermitType'>
                   Vehicle Type<sup>*</sup>
                 </label>
-                <select
-                  disabled
-                  value='TRANSPORT'
-                  name='vehiclePermitType'
-                  id='vehiclePermitType'
-                >
+                <select disabled value='TRANSPORT' name='vehiclePermitType' id='vehiclePermitType'>
                   <option value='TRANSPORT'>TRANSPORT</option>
                 </select>
               </div>
 
               <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='taxMode'
-                >
+                <label className='form__label d-block w-100 text-left' htmlFor='taxMode'>
                   Tax Mode<sup>*</sup>
                 </label>
                 <select
@@ -378,7 +395,7 @@ const Puducherry = () => {
                   name='taxMode'
                   id='taxMode'
                 >
-                  <option value=''>--Select Tax Mode--</option>
+                  <option value=''>--SELECT TAX MODE--</option>
                   {fields.taxMode.map((type) => (
                     <option value={type.name} key={type.name}>
                       {type.name}
@@ -390,9 +407,7 @@ const Puducherry = () => {
 
             <div className='col-6'>
               <div className='form__control text-left'>
-                <label className='form__label d-block w-100 text-left'>
-                  &nbsp;
-                </label>
+                <label className='form__label d-block w-100 text-left'>&nbsp;</label>
                 {isLoading && <Loader className='loader__get-details' />}
                 {!isLoading && (
                   <button
@@ -408,10 +423,7 @@ const Puducherry = () => {
               </div>
 
               <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='ownerName'
-                >
+                <label className='form__label d-block w-100 text-left' htmlFor='ownerName'>
                   Owner Name<sup>*</sup>
                 </label>
                 <input
@@ -421,7 +433,6 @@ const Puducherry = () => {
                   className='form__input w-100'
                   type='text'
                   id='ownerName'
-                  inputMode='text'
                   name='ownerName'
                   onChange={onChangeHandler}
                   value={payLoad.ownerName}
@@ -429,10 +440,7 @@ const Puducherry = () => {
               </div>
 
               <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='fromState'
-                >
+                <label className='form__label d-block w-100 text-left' htmlFor='fromState'>
                   From State<sup>*</sup>
                 </label>
                 <select
@@ -444,7 +452,7 @@ const Puducherry = () => {
                   name='fromState'
                   id='fromState'
                 >
-                  <option value=''>--Select State--</option>
+                  <option value=''>--SELECT STATE--</option>
                   {fields.fromState.map((type) => (
                     <option key={type.name} value={type.name}>
                       {type.name}
@@ -456,10 +464,7 @@ const Puducherry = () => {
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='vehicleClass'
-                    >
+                    <label className='form__label d-block w-100 text-left' htmlFor='vehicleClass'>
                       Vehicle Class<sup>*</sup>
                     </label>
                     <select
@@ -471,7 +476,7 @@ const Puducherry = () => {
                       name='vehicleClass'
                       id='vehicleClass'
                     >
-                      <option value=''>--Select Vehicle Class--</option>
+                      <option value=''>--SELECT VEHICLE CLASS--</option>
                       {PUDUCHERRY_VEHICLE_CLASS_OPTIONS.map((v) => (
                         <option key={v} value={v}>
                           {v}
@@ -483,10 +488,7 @@ const Puducherry = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='permitType'
-                    >
+                    <label className='form__label d-block w-100 text-left' htmlFor='permitType'>
                       Permit Type<sup>*</sup>
                     </label>
                     <select
@@ -498,7 +500,7 @@ const Puducherry = () => {
                       name='permitType'
                       id='permitType'
                     >
-                      <option value=''>--Select Permit Type--</option>
+                      <option value=''>--SELECT PERMIT TYPE--</option>
                       {getPermitTypeOptions(payLoad.vehicleClass).map((o) => (
                         <option key={o.value} value={o.value}>
                           {o.label}
@@ -509,17 +511,113 @@ const Puducherry = () => {
                 </div>
               </div>
 
+              {/* ✅ Passenger vs Goods fields */}
+              {!isGoodsClass ? (
+                <div className='row'>
+                  <div className='col-sm-6'>
+                    <div className='form__control'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='seatingCapacityExcludingDriver'
+                      >
+                        Seating Capacity<sup>*</sup>
+                      </label>
+                      <input
+                        required
+                        tabIndex='13.1'
+                        min='0'
+                        disabled={isLoading}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        value={payLoad.seatingCapacityExcludingDriver}
+                        id='seatingCapacityExcludingDriver'
+                        name='seatingCapacityExcludingDriver'
+                      />
+                    </div>
+                  </div>
+
+                  <div className='col-sm-6'>
+                    <div className='form__control'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='sleeperCapacityExcludingDriver'
+                      >
+                        Sleeper Capacity<sup>*</sup>
+                      </label>
+                      <input
+                        tabIndex='13.2'
+                        required
+                        min='0'
+                        disabled={isLoading}
+                        onChange={onChangeHandler}
+                        value={payLoad.sleeperCapacityExcludingDriver}
+                        className='form__input w-100'
+                        type='number'
+                        id='sleeperCapacityExcludingDriver'
+                        name='sleeperCapacityExcludingDriver'
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className='row'>
+                  <div className='col-sm-6'>
+                    <div className='form__control'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='grossVehicleWeight'
+                      >
+                        Gross Vehicle Weight(In Kg.)<sup>*</sup>
+                      </label>
+                      <input
+                        required
+                        tabIndex='13.1'
+                        min='0'
+                        disabled={isLoading}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        value={payLoad.grossVehicleWeight}
+                        id='grossVehicleWeight'
+                        name='grossVehicleWeight'
+                      />
+                    </div>
+                  </div>
+
+                  <div className='col-sm-6'>
+                    <div className='form__control'>
+                      <label
+                        className='form__label d-block w-100 text-left'
+                        htmlFor='unladenWeight'
+                      >
+                        Unladen Weight(In Kg.)<sup>*</sup>
+                      </label>
+                      <input
+                        required
+                        tabIndex='13.2'
+                        min='0'
+                        disabled={isLoading}
+                        onChange={onChangeHandler}
+                        className='form__input w-100'
+                        type='number'
+                        value={payLoad.unladenWeight}
+                        id='unladenWeight'
+                        name='unladenWeight'
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='borderBarrier'
-                    >
+                    <label className='form__label d-block w-100 text-left' htmlFor='borderBarrier'>
                       Entry District Name<sup>*</sup>
                     </label>
                     <select
-                      tabIndex='13'
+                      tabIndex='14'
                       required
                       disabled={isLoading}
                       value={payLoad.borderBarrier}
@@ -527,7 +625,7 @@ const Puducherry = () => {
                       name='borderBarrier'
                       id='borderBarrier'
                     >
-                      <option value=''>Select District Name...</option>
+                      <option value=''>SELECT DISTRICT NAME...</option>
                       {borderOptions.map((d) => (
                         <option key={d.name} value={d.name}>
                           {d.name}
@@ -539,14 +637,11 @@ const Puducherry = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='checkpostName'
-                    >
+                    <label className='form__label d-block w-100 text-left' htmlFor='checkpostName'>
                       Entry CheckPost Name<sup>*</sup>
                     </label>
                     <select
-                      tabIndex='14'
+                      tabIndex='15'
                       required
                       disabled={isLoading}
                       value={payLoad.checkpostName}
@@ -554,7 +649,7 @@ const Puducherry = () => {
                       name='checkpostName'
                       id='checkpostName'
                     >
-                      <option value=''>Select CheckPost Name...</option>
+                      <option value=''>SELECT CHECKPOST NAME...</option>
                       {filteredCheckposts.map((cp) => (
                         <option key={cp.name} value={cp.name}>
                           {cp.name}
@@ -565,13 +660,11 @@ const Puducherry = () => {
                 </div>
               </div>
 
+              {/* ✅ Validities */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='permitValidity'
-                    >
+                    <label className='form__label d-block w-100 text-left' htmlFor='permitValidity'>
                       Permit Validity<sup>*</sup>
                     </label>
                     <input
@@ -611,33 +704,71 @@ const Puducherry = () => {
                 </div>
               </div>
 
-              <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='fitnessValidity'
-                >
-                  Fitness Validity<sup>*</sup>
-                </label>
-                <input
-                  required
-                  tabIndex='18'
-                  disabled={isLoading}
-                  className='form__input w-100'
-                  type='date'
-                  id='fitnessValidity'
-                  name='fitnessValidity'
-                  onChange={onChangeHandler}
-                  value={payLoad.fitnessValidity}
-                />
-              </div>
-
               <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='fitnessValidity'>
+                      Fitness Validity<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='18'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      type='date'
+                      id='fitnessValidity'
+                      name='fitnessValidity'
+                      onChange={onChangeHandler}
+                      value={payLoad.fitnessValidity}
+                    />
+                  </div>
+                </div>
+
                 <div className='col-sm-6'>
                   <div className='form__control'>
                     <label
                       className='form__label d-block w-100 text-left'
-                      htmlFor='taxFromDate'
+                      htmlFor='permitAuthorizationValidity'
                     >
+                      Permit Authorization Validity<sup>*</sup>
+                    </label>
+                    <input
+                      required
+                      tabIndex='18.1'
+                      disabled={isLoading}
+                      className='form__input w-100'
+                      type='date'
+                      id='permitAuthorizationValidity'
+                      name='permitAuthorizationValidity'
+                      onChange={onChangeHandler}
+                      value={payLoad.permitAuthorizationValidity}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='roadTaxValidity'>
+                  Road Tax Validity<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='18.2'
+                  disabled={isLoading}
+                  className='form__input w-100'
+                  type='date'
+                  id='roadTaxValidity'
+                  name='roadTaxValidity'
+                  onChange={onChangeHandler}
+                  value={payLoad.roadTaxValidity}
+                />
+              </div>
+
+              {/* ✅ Tax Dates */}
+              <div className='row'>
+                <div className='col-sm-6'>
+                  <div className='form__control'>
+                    <label className='form__label d-block w-100 text-left' htmlFor='taxFromDate'>
                       Tax From Date<sup>*</sup>
                     </label>
                     <input
@@ -656,10 +787,7 @@ const Puducherry = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='taxUptoDate'
-                    >
+                    <label className='form__label d-block w-100 text-left' htmlFor='taxUptoDate'>
                       Tax Upto Date<sup>*</sup>
                     </label>
                     <input
@@ -679,6 +807,7 @@ const Puducherry = () => {
             </div>
           </div>
 
+          {/* ✅ Table */}
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
@@ -701,14 +830,10 @@ const Puducherry = () => {
                       <span className='hr-table-text'>MV Tax</span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>
-                        {payLoad.taxFromDate || '-'}
-                      </span>
+                      <span className='hr-table-text'>{payLoad.taxFromDate || '-'}</span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>
-                        {payLoad.taxUptoDate || '-'}
-                      </span>
+                      <span className='hr-table-text'>{payLoad.taxUptoDate || '-'}</span>
                     </td>
                     <td className='hr-table-body'>
                       <input
@@ -733,14 +858,10 @@ const Puducherry = () => {
                       <span className='hr-table-text'>Service/User Charge</span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>
-                        {payLoad.taxFromDate || '-'}
-                      </span>
+                      <span className='hr-table-text'>{payLoad.taxFromDate || '-'}</span>
                     </td>
                     <td className='hr-table-body'>
-                      <span className='hr-table-text'>
-                        {payLoad.taxUptoDate || '-'}
-                      </span>
+                      <span className='hr-table-text'>{payLoad.taxUptoDate || '-'}</span>
                     </td>
                     <td className='hr-table-body'>
                       <input
@@ -766,10 +887,7 @@ const Puducherry = () => {
           <div className='row'>
             <div className='col-sm-6'>
               <div className='form__control'>
-                <label
-                  className='form__label d-block w-100 text-left'
-                  htmlFor='totalAmount'
-                >
+                <label className='form__label d-block w-100 text-left' htmlFor='totalAmount'>
                   Total amount<sup>*</sup>
                 </label>
                 <input
@@ -788,14 +906,8 @@ const Puducherry = () => {
             </div>
 
             <div className='col-sm-6'>
-              <label className='form__label d-block w-100 text-left'>
-                &nbsp;
-              </label>
-              <ActionButtons
-                tabIndex='22'
-                isDisabled={isLoading}
-                onReset={onResetHandler}
-              />
+              <label className='form__label d-block w-100 text-left'>&nbsp;</label>
+              <ActionButtons tabIndex='22' isDisabled={isLoading} onReset={onResetHandler} />
             </div>
           </div>
         </form>
