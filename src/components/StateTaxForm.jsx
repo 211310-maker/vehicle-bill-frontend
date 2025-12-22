@@ -1,5 +1,3 @@
-do one thing refer src/components/StateTaxForm.jsx
-
 
 // src/components/StateTaxForm.jsx
 import React, { useEffect, useRef, useState } from 'react';
