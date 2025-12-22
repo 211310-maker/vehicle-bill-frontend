@@ -1,4 +1,7 @@
-// src/pages/Puducherry.jsx
+do one thing refer src/components/StateTaxForm.jsx
+
+
+// src/components/StateTaxForm.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
 import {
@@ -8,39 +11,26 @@ import {
   LOCAL_STORAGE_KEY,
 } from '../constants';
 import { getDetailsApi } from '../utils/api';
-import ActionButtons from '../components/ActionButtons';
-import Header from '../components/Header';
-import Loader from '../components/Loader';
+import ActionButtons from './ActionButtons';
+import Header from './Header';
+import Loader from './Loader';
 
-// Puducherry vehicle class list (as per screenshot)
-const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
-  'MOTOR CAB',
-  'MOTOR CYCLE/SCOOTER-USED FOR HIRE',
-  'OMNI BUS',
-  'CAMPER VAN / TRAILER',
-  'MAXI CAB',
-  'THREE WHEELER (PASSENGER)',
-  'BUS',
-  'GOODS CARRIER',
+// Vehicle category dropdown options (common MV Act categories used in permits/transport context)
+const VEHICLE_CATEGORY_OPTIONS = [
+  { value: 'CONTRACT CARRIAGE', label: 'CONTRACT CARRIAGE' },
+  { value: 'STAGE CARRIAGE', label: 'STAGE CARRIAGE' },
+  { value: 'GOODS CARRIAGE', label: 'GOODS CARRIAGE' },
+  { value: 'PUBLIC SERVICE VEHICLE', label: 'PUBLIC SERVICE VEHICLE' },
+  { value: 'PRIVATE SERVICE VEHICLE', label: 'PRIVATE SERVICE VEHICLE' },
+  { value: 'EDUCATIONAL INSTITUTION BUS', label: 'EDUCATIONAL INSTITUTION BUS' },
+  { value: 'OMNIBUS', label: 'OMNIBUS' },
 ];
 
-// Permit Type depends on Vehicle Class
-// GOODS CARRIER => GOODS VEHICLE only
-// Others => NOT APPLICABLE only
-const getPermitTypeOptionsByClass = (vehicleClass) => {
-  if (!vehicleClass) return [];
-  if (vehicleClass === 'GOODS CARRIER') return ['GOODS VEHICLE'];
-  return ['NOT APPLICABLE'];
-};
-
-const Puducherry = () => {
+const StateTaxForm = ({ stateKey }) => {
   const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
-  const stateKey = 'puducherry';
   const state = stateKey;
   const history = useHistory();
-  const form = useRef(null);
-
   const resolvedStateFieldKey =
     (fields.stateFieldsKeyMapping || {})[stateKey] || stateKey;
   const stateFields = fields[resolvedStateFieldKey] || {};
@@ -52,7 +42,7 @@ const Puducherry = () => {
     borderBarriers[resolvedStateFieldKey] ||
     stateFields.borderBarrier ||
     [];
-
+  // raw checkpost options (may include `district` or `borderBarrier` as the district key)
   const rawCheckpostOptions =
     checkposts[stateKey] ||
     checkposts[resolvedStateFieldKey] ||
@@ -64,17 +54,11 @@ const Puducherry = () => {
     vehicleNo: '',
     chassisNo: '',
     mobileNo: '',
-
-    // fixed dropdown (single option)
-    vehiclePermitType: 'TRANSPORT',
-
-    // passenger/goods dependent
+    vehiclePermitType: '',
+    vehicleCategory: '', // ✅ ADDED
     seatingCapacityExcludingDriver: '',
     sleeperCapacityExcludingDriver: '',
-    grossVehicleWeight: '',
-    unladenWeight: '',
-
-    borderBarrier: '',
+    borderBarrier: '', // still named borderBarrier for compatibility but label shown as District
     totalAmount: '',
     mvTaxAmount: '',
     serviceUserChargeAmount: '',
@@ -87,25 +71,30 @@ const Puducherry = () => {
     paymentMode: '',
     checkpostName: '',
     permitType: '',
-
+    grossVehicleWeight: '',
+    unladenWeight: '',
     fitnessValidity: '',
     insuranceValidity: '',
     permitValidity: '',
-
-    // added missing fields
-    permitAuthorizationValidity: '',
-    roadTaxValidity: '',
-
-    // keep for compatibility, but Puducherry doesn't need it
     serviceType: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Passenger vs Goods by vehicleClass (Puducherry rule)
-  const isGoodsVehicle = payLoad.vehicleClass === 'GOODS CARRIER';
+  const form = useRef(null);
 
-  // Auto-calc Total Amount = MV Tax + Service/User Charge
+  // ✅ Passenger vs Goods
+  const isPassengerVehicle =
+    payLoad.vehiclePermitType && payLoad.vehiclePermitType !== 'GOODS VEHICLE';
+
+  // ✅ Auto-clear serviceType when GOODS VEHICLE selected
+  useEffect(() => {
+    if (!isPassengerVehicle && payLoad.serviceType) {
+      setPayLoad((p) => ({ ...p, serviceType: '' }));
+    }
+  }, [isPassengerVehicle]);
+
+  // ✅ Auto-calc Total Amount = MV Tax + Service/User Charge
   useEffect(() => {
     const mv = Number(payLoad.mvTaxAmount || 0);
     const svc = Number(payLoad.serviceUserChargeAmount || 0);
@@ -117,26 +106,6 @@ const Puducherry = () => {
     }));
   }, [payLoad.mvTaxAmount, payLoad.serviceUserChargeAmount]);
 
-  // When Vehicle Class changes:
-  // - set Permit Type according to mapping
-  // - clear opposite fields to avoid mixed validation problems
-  useEffect(() => {
-    const opts = getPermitTypeOptionsByClass(payLoad.vehicleClass);
-
-    setPayLoad((p) => ({
-      ...p,
-      permitType: opts[0] || '',
-      // Clear opposite set
-      ...(payLoad.vehicleClass === 'GOODS CARRIER'
-        ? {
-            seatingCapacityExcludingDriver: '',
-            sleeperCapacityExcludingDriver: '',
-          }
-        : { grossVehicleWeight: '', unladenWeight: '' }),
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payLoad.vehicleClass]);
-
   const getDetailsHandler = async () => {
     if (!payLoad.vehicleNo) {
       alert('Please enter vehicle no.');
@@ -147,16 +116,15 @@ const Puducherry = () => {
       vehicleNo: payLoad.vehicleNo,
     });
     setIsLoading(false);
-
     if (error) {
       alert(error.message || 'Failed to fetch vehicle details');
       return;
     }
-
     if (data && data.success) {
       const preLoadedData = {};
-
+      // Populate known keys. For borderBarrier we accept alternative names returned by backend.
       Object.keys(payLoad).forEach((key) => {
+        // handle borderBarrier specially so we accept different shapes returned by backend
         if (key === 'borderBarrier') {
           if (data.detail && data.detail.borderBarrier) {
             preLoadedData.borderBarrier = data.detail.borderBarrier;
@@ -177,9 +145,6 @@ const Puducherry = () => {
           preLoadedData[key] = data.detail[key];
         }
       });
-
-      // enforce fixed vehicle type
-      preLoadedData.vehiclePermitType = 'TRANSPORT';
 
       setPayLoad((e) => ({
         ...e,
@@ -209,14 +174,15 @@ const Puducherry = () => {
   };
 
   const onResetHandler = () => {
-    const x = { ...payLoad };
-    const p = {};
-    Object.keys(x).forEach((k) => (p[k] = ''));
-    p.vehiclePermitType = 'TRANSPORT';
+    let x = { ...payLoad };
+    let p = {};
+    Object.keys(x).forEach((e) => {
+      p[e] = '';
+    });
     setPayLoad({ ...p });
   };
 
-  if (!isLoggedIn?.accessState?.includes(accessStateName)) {
+  if (!isLoggedIn.accessState.includes(accessStateName)) {
     return (
       <>
         <Header />
@@ -227,27 +193,27 @@ const Puducherry = () => {
     );
   }
 
+  // filter checkposts by selected district (which is stored in `borderBarrier` for compatibility).
+  // Accept either `cp.district` or `cp.borderBarrier` as metadata on the checkpost.
   const filteredCheckposts = (rawCheckpostOptions || []).filter((cp) => {
-    if (!payLoad.borderBarrier) return true;
+    if (!payLoad.borderBarrier) return true; // show all when no district selected
     if (cp.district) return cp.district === payLoad.borderBarrier;
     if (cp.borderBarrier) return cp.borderBarrier === payLoad.borderBarrier;
+    // if checkpost has no district metadata, keep it (backwards compatibility)
     return true;
   });
-
-  const permitTypeOptions = getPermitTypeOptionsByClass(payLoad.vehicleClass);
 
   return (
     <>
       <Header />
       <div className='text-center'>
         <p className='login-heading mt-4'>
-          <b>Border Tax Payment for Entry Into</b> <span>{stateDisplayName}</span>
+          <b>TAX PAYMENT FOR VEHICLES HAVING TOURIST PERMIT</b>{' '}
+          <span>{stateDisplayName}</span>
         </p>
       </div>
-
       <div className='box box--main'>
         <div className='box__heading--blue'>Tax Payment Details</div>
-
         <form
           ref={form}
           onSubmit={onSubmitHandler}
@@ -277,7 +243,6 @@ const Puducherry = () => {
                   name='vehicleNo'
                 />
               </div>
-
               <div className='form__control'>
                 <label
                   className='form__label d-block w-100 text-left'
@@ -299,7 +264,6 @@ const Puducherry = () => {
                   name='chassisNo'
                 />
               </div>
-
               <div className='form__control'>
                 <label
                   className='form__label d-block w-100 text-left'
@@ -323,8 +287,6 @@ const Puducherry = () => {
                   name='mobileNo'
                 />
               </div>
-
-              {/* Vehicle Type (single option, same markup like StateTaxForm) */}
               <div className='form__control'>
                 <label
                   className='form__label d-block w-100 text-left'
@@ -339,14 +301,45 @@ const Puducherry = () => {
                   required
                   name='vehiclePermitType'
                   id='vehiclePermitType'
-                  disabled
                 >
-                  <option value='TRANSPORT'>TRANSPORT</option>
+                  <option value=''>--Select Vehicle Type--</option>
+                  {(stateFields.vehiclePermitType || []).map((type) => {
+                    return (
+                      <option value={type.name} key={type.name}>
+                        {type.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
-              {/* Passenger vs Goods fields */}
-              {!isGoodsVehicle ? (
+              {/* ✅ ADDED: Vehicle Category */}
+              <div className='form__control'>
+                <label
+                  className='form__label d-block w-100 text-left'
+                  htmlFor='vehicleCategory'
+                >
+                  Vehicle Category<sup>*</sup>
+                </label>
+                <select
+                  tabIndex='4.1'
+                  value={payLoad.vehicleCategory}
+                  onChange={onChangeHandler}
+                  required
+                  name='vehicleCategory'
+                  id='vehicleCategory'
+                  disabled={isLoading}
+                >
+                  <option value=''>--Select Vehicle Category--</option>
+                  {VEHICLE_CATEGORY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {payLoad.vehiclePermitType !== 'GOODS VEHICLE' ? (
                 <div className='row'>
                   <div className='col-sm-6'>
                     <div className='form__control'>
@@ -428,7 +421,7 @@ const Puducherry = () => {
                       </label>
                       <input
                         required
-                        tabIndex='6'
+                        tabIndex='5'
                         min='0'
                         disabled={isLoading}
                         onChange={onChangeHandler}
@@ -442,7 +435,6 @@ const Puducherry = () => {
                   </div>
                 </div>
               )}
-
               <div className='form__control'>
                 <label
                   className='form__label d-block w-100 text-left'
@@ -460,14 +452,15 @@ const Puducherry = () => {
                   id='taxMode'
                 >
                   <option value=''>--Select Tax Mode--</option>
-                  {fields.taxMode.map((type) => (
-                    <option value={type.name} key={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
+                  {fields.taxMode.map((type) => {
+                    return (
+                      <option value={type.name} key={type.name}>
+                        {type.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
-
               <div className='form__control'>
                 <label
                   className='form__label d-block w-100 text-left'
@@ -485,11 +478,13 @@ const Puducherry = () => {
                   id='paymentMode'
                 >
                   <option value=''>--Select Payment Mode--</option>
-                  {(stateFields.paymentMode || []).map((pay) => (
-                    <option key={pay.name} value={pay.name}>
-                      {pay.name}
-                    </option>
-                  ))}
+                  {(stateFields.paymentMode || []).map((pay) => {
+                    return (
+                      <option key={pay.name} value={pay.name}>
+                        {pay.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -551,15 +546,16 @@ const Puducherry = () => {
                   id='fromState'
                 >
                   <option value=''>--Select State--</option>
-                  {fields.fromState.map((type) => (
-                    <option key={type.name} value={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
+                  {fields.fromState.map((type) => {
+                    return (
+                      <option key={type.name} value={type.name}>
+                        {type.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
-              {/* Vehicle Class + Permit Type (dependent) */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -579,11 +575,31 @@ const Puducherry = () => {
                       id='vehicleClass'
                     >
                       <option value=''>--Select Vehicle Class--</option>
-                      {PUDUCHERRY_VEHICLE_CLASS_OPTIONS.map((v) => (
-                        <option key={v} value={v}>
-                          {v}
-                        </option>
-                      ))}
+                      {payLoad.vehiclePermitType ===
+                        'CONTRACT CARRIAGE/PASSANGER VEHICLES' && (
+                        <>
+                          <option value='THREE WHEELER(PASSENGER)'>
+                            THREE WHEELER(PASSENGER)
+                          </option>
+                          <option value='MOTOR CAB'>MOTOR CAB</option>
+                          <option value='MAXI CAB'>MAXI CAB</option>
+                          <option value='OMNI BUS'>OMNI BUS</option>
+                          <option value='BUS'>BUS</option>
+                        </>
+                      )}
+                      {payLoad.vehiclePermitType === 'GOODS VEHICLE' && (
+                        <>
+                          <option value='LIGHT GOODS VEHICLE'>
+                            LIGHT GOODS VEHICLE
+                          </option>
+                          <option value='MEDIUM GOODS VEHICLE'>
+                            MEDIUM GOODS VEHICLE
+                          </option>
+                          <option value='HEAVY GOODS VEHICLE'>
+                            HEAVY GOODS VEHICLE
+                          </option>
+                        </>
+                      )}
                     </select>
                   </div>
                 </div>
@@ -599,18 +615,20 @@ const Puducherry = () => {
                     <select
                       required
                       tabIndex='12'
-                      disabled={isLoading || !payLoad.vehicleClass}
+                      disabled={isLoading}
                       value={payLoad.permitType}
                       onChange={onChangeHandler}
                       name='permitType'
                       id='permitType'
                     >
                       <option value=''>--Select Permit Type--</option>
-                      {permitTypeOptions.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
+                      {(stateFields.permitType || []).map((type) => {
+                        return (
+                          <option key={type.name} value={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
@@ -635,11 +653,13 @@ const Puducherry = () => {
                       id='borderBarrier'
                     >
                       <option value=''>--Select District--</option>
-                      {borderOptions.map((type) => (
-                        <option key={type.name} value={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
+                      {borderOptions.map((type) => {
+                        return (
+                          <option key={type.name} value={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
@@ -662,17 +682,45 @@ const Puducherry = () => {
                       id='checkpostName'
                     >
                       <option value=''>--Select Checkpost Name--</option>
-                      {filteredCheckposts.map((type) => (
-                        <option key={type.name} value={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
+                      {filteredCheckposts.map((type) => {
+                        return (
+                          <option key={type.name} value={type.name}>
+                            {type.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
               </div>
 
-              {/* Validity fields (include missing ones) */}
+              {isPassengerVehicle && (
+                <div className='form__control'>
+                  <label
+                    className='form__label d-block w-100 text-left'
+                    htmlFor='serviceType'
+                  >
+                    Service Type<sup>*</sup>
+                  </label>
+                  <select
+                    tabIndex='15'
+                    required
+                    disabled={isLoading}
+                    value={payLoad.serviceType}
+                    onChange={onChangeHandler}
+                    name='serviceType'
+                    id='serviceType'
+                  >
+                    <option value=''>--Select Service Type--</option>
+                    <option value='NOT APPLICABLE'>NOT APPLICABLE</option>
+                    <option value='ORDINARY'>ORDINARY</option>
+                    <option value='DELUX AIR CONDITIONED'>
+                      DELUX AIR CONDITIONED
+                    </option>
+                  </select>
+                </div>
+              )}
+
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -680,10 +728,9 @@ const Puducherry = () => {
                       className='form__label d-block w-100 text-left'
                       htmlFor='fitnessValidity'
                     >
-                      Fitness Validity<sup>*</sup>
+                      Fitness Validity
                     </label>
                     <input
-                      required
                       tabIndex='16'
                       disabled={isLoading}
                       className='form__input w-100'
@@ -702,10 +749,9 @@ const Puducherry = () => {
                       className='form__label d-block w-100 text-left'
                       htmlFor='insuranceValidity'
                     >
-                      Insurance Validity<sup>*</sup>
+                      Insurance Validity
                     </label>
                     <input
-                      required
                       tabIndex='17'
                       disabled={isLoading}
                       className='form__input w-100'
@@ -724,10 +770,9 @@ const Puducherry = () => {
                   className='form__label d-block w-100 text-left'
                   htmlFor='permitValidity'
                 >
-                  Permit Validity<sup>*</sup>
+                  Permit Validity
                 </label>
                 <input
-                  required
                   tabIndex='18'
                   disabled={isLoading}
                   className='form__input w-100'
@@ -739,53 +784,6 @@ const Puducherry = () => {
                 />
               </div>
 
-              <div className='row'>
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='permitAuthorizationValidity'
-                    >
-                      Permit Authorization Validity<sup>*</sup>
-                    </label>
-                    <input
-                      required
-                      tabIndex='18.1'
-                      disabled={isLoading}
-                      className='form__input w-100'
-                      type='date'
-                      id='permitAuthorizationValidity'
-                      name='permitAuthorizationValidity'
-                      onChange={onChangeHandler}
-                      value={payLoad.permitAuthorizationValidity}
-                    />
-                  </div>
-                </div>
-
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='roadTaxValidity'
-                    >
-                      Road Tax Validity<sup>*</sup>
-                    </label>
-                    <input
-                      required
-                      tabIndex='18.2'
-                      disabled={isLoading}
-                      className='form__input w-100'
-                      type='date'
-                      id='roadTaxValidity'
-                      name='roadTaxValidity'
-                      onChange={onChangeHandler}
-                      value={payLoad.roadTaxValidity}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Tax date fields (same placement like StateTaxForm = correct formatting) */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -833,7 +831,7 @@ const Puducherry = () => {
             </div>
           </div>
 
-          {/* TABLE (same as StateTaxForm) */}
+          {/* ✅ FIXED TABLE: valid HTML + two rows + normal text */}
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
@@ -933,6 +931,7 @@ const Puducherry = () => {
                   disabled={isLoading}
                   readOnly
                   value={payLoad.totalAmount}
+                  onChange={onChangeHandler}
                   className='form__input w-100'
                   type='number'
                   id='totalAmount'
@@ -952,10 +951,8 @@ const Puducherry = () => {
             </div>
           </div>
         </form>
-
         <br />
       </div>
-
       <br />
       <br />
       <br />
@@ -969,4 +966,4 @@ const Puducherry = () => {
   );
 };
 
-export default Puducherry;
+export default StateTaxForm;
