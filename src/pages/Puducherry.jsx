@@ -13,14 +13,16 @@ import Header from '../components/Header';
 import Loader from '../components/Loader';
 
 /**
- * Puducherry (custom page)
+ * Puducherry (custom form like eVahan screenshot)
  * - Vehicle Type fixed: TRANSPORT
  * - Vehicle Class list as per screenshot
  * - Permit Type depends on Vehicle Class
- * - Goods vs Passenger fields:
+ * - Goods vs Passenger:
  *    - GOODS CARRIER => Gross + Unladen
  *    - else => Seating + Sleeper
- * - Includes missing fields: Permit Auth Validity, Road Tax Validity
+ * - Missing fields included:
+ *    - Permit Authorization Validity
+ *    - Road Tax Validity
  * - Total = MV Tax + Service/User Charge
  */
 
@@ -35,7 +37,6 @@ const PUDUCHERRY_VEHICLE_CLASS_OPTIONS = [
   'GOODS CARRIER',
 ];
 
-// ✅ Permit Type changes by Vehicle Class (update if you need more options later)
 const PUDUCHERRY_PERMITTYPE_BY_CLASS = {
   'MOTOR CAB': ['NOT APPLICABLE'],
   'MOTOR CYCLE/SCOOTER-USED FOR HIRE': ['NOT APPLICABLE'],
@@ -87,34 +88,29 @@ const Puducherry = () => {
     ownerName: '',
     fromState: '',
 
-    // Entry fields
-    borderBarrier: '', // Entry District Name
-    checkpostName: '', // Entry CheckPost Name
+    borderBarrier: '',
+    checkpostName: '',
 
-    // Vehicle info
-    vehiclePermitType: 'TRANSPORT', // fixed
+    vehiclePermitType: 'TRANSPORT',
     vehicleClass: '',
     permitType: '',
 
-    // Passenger fields
     seatingCapacityExcludingDriver: '',
     sleeperCapacityExcludingDriver: '',
 
-    // Goods fields
     grossVehicleWeight: '',
     unladenWeight: '',
 
-    // Validities
     permitValidity: '',
     insuranceValidity: '',
     fitnessValidity: '',
     permitAuthorizationValidity: '',
     roadTaxValidity: '',
 
-    // Tax section
     taxMode: '',
     taxFromDate: '',
     taxUptoDate: '',
+
     mvTaxAmount: '',
     serviceUserChargeAmount: '',
     totalAmount: '',
@@ -124,7 +120,7 @@ const Puducherry = () => {
 
   const isGoodsClass = payLoad.vehicleClass === 'GOODS CARRIER';
 
-  // ✅ Clear opposite fields when switching passenger/goods
+  // Clear opposite fields when switching class type
   useEffect(() => {
     if (isGoodsClass) {
       if (
@@ -149,7 +145,7 @@ const Puducherry = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGoodsClass]);
 
-  // ✅ Total = MV + Service
+  // Total = MV + Service
   useEffect(() => {
     const mv = Number(payLoad.mvTaxAmount || 0);
     const svc = Number(payLoad.serviceUserChargeAmount || 0);
@@ -161,7 +157,7 @@ const Puducherry = () => {
     }));
   }, [payLoad.mvTaxAmount, payLoad.serviceUserChargeAmount]);
 
-  // ✅ Permit Type reset when Vehicle Class changes
+  // Permit Type depends on Vehicle Class
   useEffect(() => {
     if (!payLoad.vehicleClass) {
       if (payLoad.permitType) setPayLoad((p) => ({ ...p, permitType: '' }));
@@ -170,7 +166,6 @@ const Puducherry = () => {
 
     const options = getPermitTypeOptions(payLoad.vehicleClass);
     const valid = options.some((o) => o.value === payLoad.permitType);
-
     if (!valid) {
       setPayLoad((p) => ({
         ...p,
@@ -191,23 +186,30 @@ const Puducherry = () => {
       mobileNo: '',
       ownerName: '',
       fromState: '',
+
       borderBarrier: '',
       checkpostName: '',
+
       vehiclePermitType: 'TRANSPORT',
       vehicleClass: '',
       permitType: '',
+
       seatingCapacityExcludingDriver: '',
       sleeperCapacityExcludingDriver: '',
+
       grossVehicleWeight: '',
       unladenWeight: '',
+
       permitValidity: '',
       insuranceValidity: '',
       fitnessValidity: '',
       permitAuthorizationValidity: '',
       roadTaxValidity: '',
+
       taxMode: '',
       taxFromDate: '',
       taxUptoDate: '',
+
       mvTaxAmount: '',
       serviceUserChargeAmount: '',
       totalAmount: '',
@@ -250,7 +252,6 @@ const Puducherry = () => {
         }
       });
 
-      // enforce fixed vehicle type
       preLoadedData.vehiclePermitType = 'TRANSPORT';
 
       setPayLoad((p) => ({
@@ -296,21 +297,16 @@ const Puducherry = () => {
 
       <div className='text-center'>
         <p className='login-heading mt-4'>
-          <b>Border Tax Payment for Entry Into</b>{' '}
-          <span>{stateDisplayName}</span>
+          <b>Border Tax Payment for Entry Into</b> <span>{stateDisplayName}</span>
         </p>
       </div>
 
       <div className='box box--main'>
         <div className='box__heading--blue'>Tax Payment Details</div>
 
-        <form
-          ref={form}
-          onSubmit={onSubmitHandler}
-          className='service-type tax-details mt-4'
-        >
+        <form ref={form} onSubmit={onSubmitHandler} className='service-type tax-details mt-4'>
+          {/* TOP: vehicle + owner side-by-side */}
           <div className='row'>
-            {/* ✅ LEFT COLUMN (like screenshot) */}
             <div className='col-6'>
               <div className='form__control'>
                 <label className='form__label d-block w-100 text-left' htmlFor='vehicleNo'>
@@ -402,50 +398,8 @@ const Puducherry = () => {
                   ))}
                 </select>
               </div>
-
-              {/* ✅ Put tax dates in LEFT to balance layout (fixes formatting) */}
-              <div className='row'>
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='taxFromDate'>
-                      Tax From Date<sup>*</sup>
-                    </label>
-                    <input
-                      required
-                      tabIndex='19'
-                      disabled={isLoading}
-                      className='form__input w-100'
-                      type='datetime-local'
-                      id='taxFromDate'
-                      name='taxFromDate'
-                      onChange={onChangeHandler}
-                      value={payLoad.taxFromDate}
-                    />
-                  </div>
-                </div>
-
-                <div className='col-sm-6'>
-                  <div className='form__control'>
-                    <label className='form__label d-block w-100 text-left' htmlFor='taxUptoDate'>
-                      Tax Upto Date<sup>*</sup>
-                    </label>
-                    <input
-                      required
-                      tabIndex='20'
-                      disabled={isLoading}
-                      className='form__input w-100'
-                      id='taxUptoDate'
-                      name='taxUptoDate'
-                      type='datetime-local'
-                      value={payLoad.taxUptoDate}
-                      onChange={onChangeHandler}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* ✅ RIGHT COLUMN (like screenshot) */}
             <div className='col-6'>
               <div className='form__control text-left'>
                 <label className='form__label d-block w-100 text-left'>&nbsp;</label>
@@ -502,6 +456,7 @@ const Puducherry = () => {
                 </select>
               </div>
 
+              {/* Vehicle class + permit type on same row */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -552,15 +507,12 @@ const Puducherry = () => {
                 </div>
               </div>
 
-              {/* ✅ Passenger vs Goods (kept in RIGHT like screenshot) */}
+              {/* Passenger or Goods row (same row layout) */}
               {!isGoodsClass ? (
                 <div className='row'>
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label
-                        className='form__label d-block w-100 text-left'
-                        htmlFor='seatingCapacityExcludingDriver'
-                      >
+                      <label className='form__label d-block w-100 text-left' htmlFor='seatingCapacityExcludingDriver'>
                         Seating Capacity<sup>*</sup>
                       </label>
                       <input
@@ -580,10 +532,7 @@ const Puducherry = () => {
 
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label
-                        className='form__label d-block w-100 text-left'
-                        htmlFor='sleeperCapacityExcludingDriver'
-                      >
+                      <label className='form__label d-block w-100 text-left' htmlFor='sleeperCapacityExcludingDriver'>
                         Sleeper Capacity<sup>*</sup>
                       </label>
                       <input
@@ -605,10 +554,7 @@ const Puducherry = () => {
                 <div className='row'>
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label
-                        className='form__label d-block w-100 text-left'
-                        htmlFor='grossVehicleWeight'
-                      >
+                      <label className='form__label d-block w-100 text-left' htmlFor='grossVehicleWeight'>
                         Gross Vehicle Weight(In Kg.)<sup>*</sup>
                       </label>
                       <input
@@ -628,10 +574,7 @@ const Puducherry = () => {
 
                   <div className='col-sm-6'>
                     <div className='form__control'>
-                      <label
-                        className='form__label d-block w-100 text-left'
-                        htmlFor='unladenWeight'
-                      >
+                      <label className='form__label d-block w-100 text-left' htmlFor='unladenWeight'>
                         Unladen Weight(In Kg.)<sup>*</sup>
                       </label>
                       <input
@@ -651,6 +594,7 @@ const Puducherry = () => {
                 </div>
               )}
 
+              {/* District + Checkpost same row */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -701,7 +645,7 @@ const Puducherry = () => {
                 </div>
               </div>
 
-              {/* ✅ Validities (RIGHT like screenshot) */}
+              {/* Validities */}
               <div className='row'>
                 <div className='col-sm-6'>
                   <div className='form__control'>
@@ -724,10 +668,7 @@ const Puducherry = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='insuranceValidity'
-                    >
+                    <label className='form__label d-block w-100 text-left' htmlFor='insuranceValidity'>
                       Insurance Validity<sup>*</sup>
                     </label>
                     <input
@@ -767,10 +708,7 @@ const Puducherry = () => {
 
                 <div className='col-sm-6'>
                   <div className='form__control'>
-                    <label
-                      className='form__label d-block w-100 text-left'
-                      htmlFor='permitAuthorizationValidity'
-                    >
+                    <label className='form__label d-block w-100 text-left' htmlFor='permitAuthorizationValidity'>
                       Permit Authorization Validity<sup>*</sup>
                     </label>
                     <input
@@ -807,7 +745,48 @@ const Puducherry = () => {
             </div>
           </div>
 
-          {/* ✅ Table */}
+          {/* Tax From/To (placed just before table like screenshot flow) */}
+          <div className='row'>
+            <div className='col-sm-6'>
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='taxFromDate'>
+                  Tax From Date<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='19'
+                  disabled={isLoading}
+                  className='form__input w-100'
+                  type='datetime-local'
+                  id='taxFromDate'
+                  name='taxFromDate'
+                  onChange={onChangeHandler}
+                  value={payLoad.taxFromDate}
+                />
+              </div>
+            </div>
+
+            <div className='col-sm-6'>
+              <div className='form__control'>
+                <label className='form__label d-block w-100 text-left' htmlFor='taxUptoDate'>
+                  Tax Upto Date<sup>*</sup>
+                </label>
+                <input
+                  required
+                  tabIndex='20'
+                  disabled={isLoading}
+                  className='form__input w-100'
+                  id='taxUptoDate'
+                  name='taxUptoDate'
+                  type='datetime-local'
+                  value={payLoad.taxUptoDate}
+                  onChange={onChangeHandler}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Table */}
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
