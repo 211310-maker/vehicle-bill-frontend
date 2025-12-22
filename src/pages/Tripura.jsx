@@ -7,6 +7,15 @@ import Header from '../components/Header';
 import Loader from '../components/Loader';
 import ActionButtons from '../components/ActionButtons';
 
+const TRIPURA_VEHICLE_PERMIT_TYPE = 'GOODS VEHICLE';
+
+const TRIPURA_VEHICLE_CLASS_OPTIONS = [
+  'LIGHT GOODS VEHICLE',
+  'MEDIUM GOODS VEHICLE',
+  'HEAVY GOODS VEHICLE',
+  'TRAILER',
+];
+
 const Tripura = () => {
   const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
   const history = useHistory();
@@ -42,14 +51,15 @@ const Tripura = () => {
     chassisNo: '',
     mobileNo: '',
 
-    vehiclePermitType: '',
+    // ✅ fixed single option
+    vehiclePermitType: TRIPURA_VEHICLE_PERMIT_TYPE,
+
     vehicleClass: '',
     fromState: '',
     ownerName: '',
 
     grossVehicleWeight: '',
 
-    // screenshot shows these 2
     aitpPermitValidity: '',
     aitpPermitAuthValidity: '',
 
@@ -57,14 +67,20 @@ const Tripura = () => {
     taxFromDate: '',
     taxUptoDate: '',
 
-    // screenshot labels
-    borderBarrier: '',    // District
-    checkpostName: '',    // Barrier Name
+    borderBarrier: '', // District
+    checkpostName: '', // Barrier Name
 
-    // table + total
     mvTaxAmount: '',
     totalAmount: '',
   });
+
+  // ✅ keep permit type always fixed (even after reset/getDetails)
+  useEffect(() => {
+    if (payLoad.vehiclePermitType !== TRIPURA_VEHICLE_PERMIT_TYPE) {
+      setPayLoad((p) => ({ ...p, vehiclePermitType: TRIPURA_VEHICLE_PERMIT_TYPE }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const mv = Number(payLoad.mvTaxAmount || 0);
@@ -81,7 +97,10 @@ const Tripura = () => {
   const onResetHandler = () => {
     const p = {};
     Object.keys(payLoad).forEach((k) => (p[k] = ''));
-    setPayLoad({ ...p });
+    setPayLoad({
+      ...p,
+      vehiclePermitType: TRIPURA_VEHICLE_PERMIT_TYPE,
+    });
   };
 
   const getDetailsHandler = async () => {
@@ -121,6 +140,9 @@ const Tripura = () => {
         }
       });
 
+      // ✅ force fixed permit type
+      preLoadedData.vehiclePermitType = TRIPURA_VEHICLE_PERMIT_TYPE;
+
       setPayLoad((p) => ({ ...p, ...preLoadedData }));
     } else if (data && data.message) {
       alert(data.message);
@@ -129,16 +151,15 @@ const Tripura = () => {
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
-
     history.push('/select-payment', {
       formData: {
         ...payLoad,
+        vehiclePermitType: TRIPURA_VEHICLE_PERMIT_TYPE,
         state,
       },
     });
   };
 
-  // filter barrier list by selected district if mapping exists
   const filteredBarriers = (rawBarrierOptions || []).filter((cp) => {
     if (!payLoad.borderBarrier) return true;
     if (cp.district) return cp.district === payLoad.borderBarrier;
@@ -231,6 +252,7 @@ const Tripura = () => {
                 />
               </div>
 
+              {/* ✅ Vehicle Permit Type fixed */}
               <div className='form__control'>
                 <label className='form__label d-block w-100 text-left' htmlFor='vehiclePermitType'>
                   Vehicle Permit Type<sup>*</sup>
@@ -238,18 +260,15 @@ const Tripura = () => {
                 <select
                   tabIndex='4'
                   required
-                  disabled={isLoading}
+                  disabled
                   value={payLoad.vehiclePermitType}
                   onChange={onChangeHandler}
                   name='vehiclePermitType'
                   id='vehiclePermitType'
                 >
-                  <option value=''>--Select Vehicle Permit Type--</option>
-                  {(stateFields.vehiclePermitType || []).map((t) => (
-                    <option key={t.name} value={t.name}>
-                      {t.name}
-                    </option>
-                  ))}
+                  <option value={TRIPURA_VEHICLE_PERMIT_TYPE}>
+                    {TRIPURA_VEHICLE_PERMIT_TYPE}
+                  </option>
                 </select>
               </div>
 
@@ -368,6 +387,7 @@ const Tripura = () => {
                 </select>
               </div>
 
+              {/* ✅ Vehicle Class options exactly like screenshot */}
               <div className='form__control'>
                 <label className='form__label d-block w-100 text-left' htmlFor='vehicleClass'>
                   Vehicle Class<sup>*</sup>
@@ -381,10 +401,10 @@ const Tripura = () => {
                   name='vehicleClass'
                   id='vehicleClass'
                 >
-                  <option value=''>--Select Vehicle Class--</option>
-                  {(stateFields.vehicleClass || []).map((t) => (
-                    <option key={t.name} value={t.name}>
-                      {t.name}
+                  <option value=''>---Select Vehicle Class---</option>
+                  {TRIPURA_VEHICLE_CLASS_OPTIONS.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
                     </option>
                   ))}
                 </select>
@@ -499,7 +519,7 @@ const Tripura = () => {
             </div>
           </div>
 
-          {/* ✅ MV Tax table like screenshot */}
+          {/* ✅ MV Tax table */}
           <div className='row mt-3'>
             <div className='col-12'>
               <table className='hr-table'>
