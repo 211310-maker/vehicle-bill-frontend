@@ -423,18 +423,23 @@ export const checkposts = {
     { name: "LUHURACHATI BARRIER" },
   ],
   puducherry: [
-    { name: "Gorimedu Checkpost", borderBarrier: "Puducherry" },
-    { name: "Kottakuppam Checkpost", borderBarrier: "Puducherry" }, // TN border
-    { name: "Thavalakuppam Checkpost", borderBarrier: "Puducherry" },
+   { name: 'GORIMEDU', borderBarrier: 'Puducherry' },
+    { name: 'KALAPET', borderBarrier: 'Puducherry' },
+    { name: 'KANNIYAKOIL', borderBarrier: 'Puducherry' },
+    { name: 'MADAGAIPET', borderBarrier: 'Puducherry' },
+    { name: 'THIRUKANNUR', borderBarrier: 'Puducherry' },
 
-    { name: "Thirunallar Checkpost", borderBarrier: "Karaikal" },
-    { name: "Neravy Checkpost", borderBarrier: "Karaikal" },
+    // Karaikal
+    { name: 'AMBAGARATHUR', borderBarrier: 'Karaikal' },
+    { name: 'NANDALAR', borderBarrier: 'Karaikal' },
+    { name: 'VANJURE', borderBarrier: 'Karaikal' },
 
-    { name: "Chokli/Chalassery Checkpost", borderBarrier: "Mahe" },
+    // Mahe
+    { name: 'MAHE', borderBarrier: 'Mahe' },
 
-    { name: "Yedurlanka Checkpost", borderBarrier: "Yanam" },
+    // Yanam
+    { name: 'YANAM', borderBarrier: 'Yanam' },
   ],
-
   punjab: [
     { name: "ATTARI ICP" },
     { name: "SHAMBHU BARRIER" },
