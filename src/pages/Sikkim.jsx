@@ -78,7 +78,7 @@ const Sikkim = () => {
     vehiclePermitType: true,
     vehicleClass: true,
     permitType: true,
-    noOfWheelers: true,
+    noOfWheelers: false,
 
     seatingCapacityExcludingDriver: true,
     sleeperCapacityExcludingDriver: true,
@@ -86,11 +86,11 @@ const Sikkim = () => {
     borderBarrier: true,
     checkpostName: true,
 
-    aitpPermitValidity: true,
-    aitpPermitAuthValidity: true,
+    aitpPermitValidity: false,
+    aitpPermitAuthValidity: false,
 
     taxMode: true,
-    numberOfPeriod: true,
+    numberOfPeriod: false,
     taxFromDate: true,
     taxUptoDate: true,
 
