@@ -15,12 +15,14 @@ const Sikkim = () => {
   const stateDisplayName = (fields.stateName && fields.stateName[stateKey]) || "SIKKIM";
   const accessStateName = stateDisplayName;
 
+  // normalize strings for comparisons/dedup
   const norm = (s) =>
     String(s || "")
       .toUpperCase()
       .replace(/\s+/g, " ")
       .trim();
 
+  // ✅ safe parse
   const isLoggedIn = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
@@ -87,7 +89,7 @@ const Sikkim = () => {
     [normalizedPermitType]
   );
 
-  // ⭐ Mandatory like screenshot (all starred in screenshot)
+  // ⭐ Mandatory like screenshot (kept as you had)
   const required = useMemo(() => {
     return {
       vehicleNo: true,
@@ -127,35 +129,48 @@ const Sikkim = () => {
 
   const star = (field) => (required[field] ? <sup>*</sup> : null);
 
+  /**
+   * ✅ Vehicle Permit Type dropdown:
+   * - Remove duplicate
+   * - Remove PASSANGER variant
+   * - Keep only PASSENGER variant for Contract Carriage
+   */
   const vehiclePermitTypeOptions = useMemo(() => {
     const fromConstants = (fields[stateKey]?.vehiclePermitType || [])
       .map((x) => x?.name)
       .filter(Boolean);
 
-    // ensure portal options exist even if constants missing
     const fallback = [
       "CONTRACT CARRIAGE/PASSENGER VEHICLES",
       "GOODS VEHICLE",
       "STAGE CARRIAGE",
     ];
 
+    const combined = [...fromConstants, ...fallback];
+
     const seen = new Set();
-    return [...fromConstants, ...fallback].filter((v) => {
-      const k = norm(v);
-      if (!k || seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
+    return combined
+      .map((v) => String(v || "").trim())
+      .filter(Boolean)
+      .filter((v) => {
+        // ❌ drop PASSANGER variant explicitly
+        if (norm(v) === "CONTRACT CARRIAGE/PASSANGER VEHICLES") return false;
+
+        const k = norm(v);
+        if (!k || seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
   }, [stateKey]);
 
+  /**
+   * ✅ Vehicle Class options:
+   * Only bind to PASSENGER variant (since we removed PASSANGER option)
+   */
   const vehicleClassOptions = useMemo(() => {
     const t = normalizedPermitType;
 
-    const isContract =
-      t === "CONTRACT CARRIAGE/PASSENGER VEHICLES" ||
-      t === "CONTRACT CARRIAGE/PASSANGER VEHICLES";
-
-    if (isContract) {
+    if (t === "CONTRACT CARRIAGE/PASSENGER VEHICLES") {
       return ["MOTOR CAB", "LUXURY CAB", "MAXI CAB"].map((x) => ({
         value: x,
         label: x,
@@ -248,7 +263,8 @@ const Sikkim = () => {
         grossVehicleWeight: detail.grossVehicleWeight || p.grossVehicleWeight,
         unladenWeight: detail.unladenWeight || p.unladenWeight,
 
-        borderBarrier: detail.borderBarrier || detail.districtName || detail.district || p.borderBarrier,
+        borderBarrier:
+          detail.borderBarrier || detail.districtName || detail.district || p.borderBarrier,
         checkpostName: detail.checkpostName || detail.checkPostName || p.checkpostName,
       }));
     } else if (data?.message) {
@@ -379,11 +395,14 @@ const Sikkim = () => {
                     />
                   </div>
 
-                  {/* Vehicle Permit Type + Vehicle Class (same row like screenshot) */}
+                  {/* Vehicle Permit Type + Vehicle Class */}
                   <div className="row">
                     <div className="col-sm-6">
                       <div className="form__control">
-                        <label className="form__label d-block w-100 text-left" htmlFor="vehiclePermitType">
+                        <label
+                          className="form__label d-block w-100 text-left"
+                          htmlFor="vehiclePermitType"
+                        >
                           Vehicle Permit Type{star("vehiclePermitType")}
                         </label>
                         <select
@@ -428,12 +447,15 @@ const Sikkim = () => {
                     </div>
                   </div>
 
-                  {/* Passenger/Goods row (same row like screenshot) */}
+                  {/* Passenger/Goods swap */}
                   {!isGoodsVehicle ? (
                     <div className="row">
                       <div className="col-sm-6">
                         <div className="form__control">
-                          <label className="form__label d-block w-100 text-left" htmlFor="seatingCapacityExcludingDriver">
+                          <label
+                            className="form__label d-block w-100 text-left"
+                            htmlFor="seatingCapacityExcludingDriver"
+                          >
                             Seating Cap{star("seatingCapacityExcludingDriver")}
                           </label>
                           <input
@@ -452,7 +474,10 @@ const Sikkim = () => {
 
                       <div className="col-sm-6">
                         <div className="form__control">
-                          <label className="form__label d-block w-100 text-left" htmlFor="sleeperCapacityExcludingDriver">
+                          <label
+                            className="form__label d-block w-100 text-left"
+                            htmlFor="sleeperCapacityExcludingDriver"
+                          >
                             Sleeper Capacity{star("sleeperCapacityExcludingDriver")}
                           </label>
                           <input
@@ -473,7 +498,10 @@ const Sikkim = () => {
                     <div className="row">
                       <div className="col-sm-6">
                         <div className="form__control">
-                          <label className="form__label d-block w-100 text-left" htmlFor="grossVehicleWeight">
+                          <label
+                            className="form__label d-block w-100 text-left"
+                            htmlFor="grossVehicleWeight"
+                          >
                             Gross Vehicle Weight(In Kg.){star("grossVehicleWeight")}
                           </label>
                           <input
@@ -543,7 +571,6 @@ const Sikkim = () => {
                     />
                   </div>
 
-                  {/* Tax Mode + No of Period (same row like screenshot) */}
                   <div className="row">
                     <div className="col-sm-6">
                       <div className="form__control">
@@ -591,7 +618,6 @@ const Sikkim = () => {
 
                 {/* RIGHT COLUMN */}
                 <div className="col-6">
-                  {/* Button (top aligned like screenshot) */}
                   <div className="form__control text-left">
                     <label className="form__label d-block w-100 text-left">&nbsp;</label>
                     {isLoading && <Loader className="loader__get-details" />}
@@ -645,7 +671,6 @@ const Sikkim = () => {
                     </select>
                   </div>
 
-                  {/* Permit Type + No of Wheelers (same row like screenshot) */}
                   <div className="row">
                     <div className="col-sm-6">
                       <div className="form__control">
@@ -690,7 +715,6 @@ const Sikkim = () => {
                     </div>
                   </div>
 
-                  {/* District + Checkpost (same row like screenshot) */}
                   <div className="row">
                     <div className="col-sm-6">
                       <div className="form__control">
@@ -740,7 +764,10 @@ const Sikkim = () => {
                   </div>
 
                   <div className="form__control">
-                    <label className="form__label d-block w-100 text-left" htmlFor="aitpPermitAuthValidity">
+                    <label
+                      className="form__label d-block w-100 text-left"
+                      htmlFor="aitpPermitAuthValidity"
+                    >
                       AITP Permit Auth Validity{star("aitpPermitAuthValidity")}
                     </label>
                     <input
@@ -771,7 +798,6 @@ const Sikkim = () => {
                     />
                   </div>
 
-                  {/* Tax From + Tax Upto (same row like screenshot) */}
                   <div className="row">
                     <div className="col-sm-6">
                       <div className="form__control">
@@ -812,7 +838,7 @@ const Sikkim = () => {
                 </div>
               </div>
 
-              {/* TABLE like screenshot */}
+              {/* TABLE */}
               <div className="row mt-3">
                 <div className="col-12">
                   <table className="hr-table">
@@ -835,10 +861,14 @@ const Sikkim = () => {
                           <span className="hr-table-text">Permit Fee</span>
                         </td>
                         <td className="hr-table-body">
-                          <span className="hr-table-text">{payLoad.taxFromDate ? payLoad.taxFromDate : "-"}</span>
+                          <span className="hr-table-text">
+                            {payLoad.taxFromDate ? payLoad.taxFromDate : "-"}
+                          </span>
                         </td>
                         <td className="hr-table-body">
-                          <span className="hr-table-text">{payLoad.taxUptoDate ? payLoad.taxUptoDate : "-"}</span>
+                          <span className="hr-table-text">
+                            {payLoad.taxUptoDate ? payLoad.taxUptoDate : "-"}
+                          </span>
                         </td>
                         <td className="hr-table-body">
                           <input
@@ -862,7 +892,6 @@ const Sikkim = () => {
 
               <br />
 
-              {/* Total + buttons row like screenshot */}
               <div className="row">
                 <div className="col-sm-6">
                   <div className="form__control">
