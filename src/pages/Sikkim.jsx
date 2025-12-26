@@ -29,7 +29,7 @@ const Sikkim = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ payload (now includes GOODS fields too)
+  // ✅ payload
   const [payLoad, setPayLoad] = useState({
     vehicleNo: "",
     chassisNo: "",
@@ -42,11 +42,11 @@ const Sikkim = () => {
     permitType: "",
     noOfWheelers: "",
 
-    // passenger fields
+    // Passenger fields
     seatingCapacityExcludingDriver: "",
     sleeperCapacityExcludingDriver: "",
 
-    // ✅ goods fields (new)
+    // Goods fields
     grossVehicleWeight: "",
     unladenWeight: "",
 
@@ -69,89 +69,110 @@ const Sikkim = () => {
     totalAmount: "",
   });
 
-  // Required fields (your current setup)
-  const required = {
-    vehicleNo: true,
-    chassisNo: true,
-    mobileNo: true,
-    ownerName: true,
-    fromState: true,
+  // ✅ Required base flags (stars like your UI)
+  const requiredBase = useMemo(
+    () => ({
+      vehicleNo: true,
+      chassisNo: true,
+      mobileNo: true,
+      ownerName: true,
+      fromState: true,
 
-    vehiclePermitType: true,
-    vehicleClass: true,
-    permitType: true,
-    noOfWheelers: false,
+      vehiclePermitType: true,
+      vehicleClass: true,
+      permitType: true,
+      noOfWheelers: false,
 
-    seatingCapacityExcludingDriver: true,
-    sleeperCapacityExcludingDriver: true,
+      // passenger required by default; will swap when GOODS selected
+      seatingCapacityExcludingDriver: true,
+      sleeperCapacityExcludingDriver: true,
 
-    // ✅ goods inputs will be required only when goods selected
-    grossVehicleWeight: true,
-    unladenWeight: true,
+      // goods required only when GOODS selected
+      grossVehicleWeight: false,
+      unladenWeight: false,
 
-    borderBarrier: true,
-    checkpostName: true,
+      borderBarrier: true,
+      checkpostName: true,
 
-    aitpPermitValidity: false,
-    aitpPermitAuthValidity: false,
+      aitpPermitValidity: false,
+      aitpPermitAuthValidity: false,
 
-    taxMode: true,
-    numberOfPeriod: false,
-    taxFromDate: true,
-    taxUptoDate: true,
+      taxMode: true,
+      numberOfPeriod: false,
+      taxFromDate: true,
+      taxUptoDate: true,
 
-    permitFee: true,
-    totalAmount: true,
-  };
+      permitFee: true,
+      totalAmount: true,
+    }),
+    []
+  );
 
-  // ✅ normalize permit type (fixes dropdown mismatch issue)
-  const permitTypeKey = useMemo(() => {
-    return String(payLoad.vehiclePermitType || "").trim().toUpperCase();
-  }, [payLoad.vehiclePermitType]);
+  // ---- Normalizers (fixes PASSANGER vs PASSENGER, case, spacing) ----
+  const norm = (s) =>
+    String(s || "")
+      .toUpperCase()
+      .replace(/\s+/g, " ")
+      .trim();
 
-  const isGoodsVehicle = permitTypeKey === "GOODS VEHICLE";
+  const normalizedPermitType = useMemo(() => norm(payLoad.vehiclePermitType), [payLoad.vehiclePermitType]);
+  const isGoodsVehicle = normalizedPermitType === "GOODS VEHICLE";
 
-  const onChangeHandler = (e) => {
-    const { name, value } = e.target;
+  // ✅ Make required dynamic based on vehicle type
+  const required = useMemo(() => {
+    const r = { ...requiredBase };
 
-    setPayLoad((old) => {
-      // ✅ if vehiclePermitType changes => clear dependent fields
-      if (name === "vehiclePermitType") {
-        const nextKey = String(value || "").trim().toUpperCase();
-        const nextIsGoods = nextKey === "GOODS VEHICLE";
+    if (isGoodsVehicle) {
+      r.seatingCapacityExcludingDriver = false;
+      r.sleeperCapacityExcludingDriver = false;
+      r.grossVehicleWeight = true;
+      r.unladenWeight = true;
+    } else {
+      r.seatingCapacityExcludingDriver = true;
+      r.sleeperCapacityExcludingDriver = true;
+      r.grossVehicleWeight = false;
+      r.unladenWeight = false;
+    }
 
-        return {
-          ...old,
-          vehiclePermitType: value,
-          vehicleClass: "",
+    return r;
+  }, [requiredBase, isGoodsVehicle]);
 
-          // clear passenger fields when switching to goods
-          seatingCapacityExcludingDriver: nextIsGoods ? "" : old.seatingCapacityExcludingDriver,
-          sleeperCapacityExcludingDriver: nextIsGoods ? "" : old.sleeperCapacityExcludingDriver,
+  const star = (field) => (required[field] ? <sup>*</sup> : null);
 
-          // clear goods fields when switching away from goods
-          grossVehicleWeight: nextIsGoods ? old.grossVehicleWeight : "",
-          unladenWeight: nextIsGoods ? old.unladenWeight : "",
-        };
-      }
+  // ✅ Access check AFTER hooks (prevents hooks error)
+  if (!isLoggedIn?.accessState?.includes(accessStateName)) {
+    return (
+      <>
+        <Header />
+        <div className="container text-center mt-4 ">
+          <h3>No Access of this state</h3>
+        </div>
+      </>
+    );
+  }
 
-      // ✅ if district changes => reset checkpost
-      if (name === "borderBarrier") {
-        return { ...old, borderBarrier: value, checkpostName: "" };
-      }
+  // ✅ Permit type dropdown options (fallback ensures missing option never happens)
+  const vehiclePermitTypeOptions = useMemo(() => {
+    const fromConstants = (fields[stateKey]?.vehiclePermitType || []).map((x) => x?.name).filter(Boolean);
 
-      return { ...old, [name]: value };
+    // fallback list (your screenshot)
+    const fallback = [
+      "CONTRACT CARRIAGE/PASSENGER VEHICLES",
+      "GOODS VEHICLE",
+      "STAGE CARRIAGE",
+    ];
+
+    // merge unique (keep constants order first)
+    const seen = new Set();
+    const merged = [...fromConstants, ...fallback].filter((v) => {
+      const k = norm(v);
+      if (!k || seen.has(k)) return false;
+      seen.add(k);
+      return true;
     });
-  };
 
-  // Total Amount = Permit Fee
-  useEffect(() => {
-    const amt = Number(payLoad.permitFee || 0);
-    setPayLoad((p) => ({
-      ...p,
-      totalAmount: amt ? String(amt) : "",
-    }));
-  }, [payLoad.permitFee]);
+    return merged;
+  }, [stateKey]);
 
   // Filter checkposts by selected district
   const filteredCheckposts = useMemo(() => {
@@ -163,9 +184,15 @@ const Sikkim = () => {
     });
   }, [rawCheckpostOptions, payLoad.borderBarrier]);
 
-  // ✅ Vehicle class options EXACTLY like your screenshots
+  // ✅ Vehicle class options (supports PASSANGER spelling too)
   const vehicleClassOptions = useMemo(() => {
-    if (permitTypeKey === "CONTRACT CARRIAGE/PASSENGER VEHICLES") {
+    const t = normalizedPermitType;
+
+    const isContract =
+      t === "CONTRACT CARRIAGE/PASSENGER VEHICLES" ||
+      t === "CONTRACT CARRIAGE/PASSANGER VEHICLES"; // ✅ spelling variant
+
+    if (isContract) {
       return [
         { value: "MOTOR CAB", label: "MOTOR CAB" },
         { value: "LUXURY CAB", label: "LUXURY CAB" },
@@ -173,7 +200,7 @@ const Sikkim = () => {
       ];
     }
 
-    if (permitTypeKey === "GOODS VEHICLE") {
+    if (t === "GOODS VEHICLE") {
       return [
         { value: "LIGHT GOODS VEHICLE", label: "LIGHT GOODS VEHICLE" },
         { value: "MEDIUM GOODS VEHICLE", label: "MEDIUM GOODS VEHICLE" },
@@ -182,22 +209,61 @@ const Sikkim = () => {
       ];
     }
 
-    if (permitTypeKey === "STAGE CARRIAGE") {
+    if (t === "STAGE CARRIAGE") {
       return [{ value: "BUS", label: "BUS" }];
     }
 
     return [];
-  }, [permitTypeKey]);
+  }, [normalizedPermitType]);
+
+  const onChangeHandler = (e) => {
+    const { name, value } = e.target;
+
+    setPayLoad((old) => {
+      if (name === "vehiclePermitType") {
+        const nextType = value;
+
+        // ✅ if switching to goods, clear passenger fields; if switching to passenger, clear goods fields
+        const nextIsGoods = norm(nextType) === "GOODS VEHICLE";
+
+        return {
+          ...old,
+          vehiclePermitType: nextType,
+          vehicleClass: "",
+
+          ...(nextIsGoods
+            ? {
+                seatingCapacityExcludingDriver: "",
+                sleeperCapacityExcludingDriver: "",
+              }
+            : {
+                grossVehicleWeight: "",
+                unladenWeight: "",
+              }),
+        };
+      }
+
+      return { ...old, [name]: value };
+    });
+  };
+
+  // Total Amount = Permit Fee (single-row table)
+  useEffect(() => {
+    const amt = Number(payLoad.permitFee || 0);
+    setPayLoad((p) => ({
+      ...p,
+      totalAmount: amt ? String(amt) : "",
+    }));
+  }, [payLoad.permitFee]);
 
   const getDetailsHandler = async () => {
     if (!payLoad.vehicleNo) {
       alert("Please enter vehicle no.");
       return;
     }
+
     setIsLoading(true);
-
     const { data, error } = await getDetailsApi({ vehicleNo: payLoad.vehicleNo });
-
     setIsLoading(false);
 
     if (error) {
@@ -207,21 +273,23 @@ const Sikkim = () => {
 
     if (data?.success) {
       const detail = data.detail || {};
+
       setPayLoad((p) => ({
         ...p,
         chassisNo: detail.chassisNo || p.chassisNo,
         mobileNo: detail.mobileNo || p.mobileNo,
         ownerName: detail.ownerName || p.ownerName,
         fromState: detail.fromState || p.fromState,
+
         vehiclePermitType: detail.vehiclePermitType || p.vehiclePermitType,
         vehicleClass: detail.vehicleClass || p.vehicleClass,
         permitType: detail.permitType || p.permitType,
+
         seatingCapacityExcludingDriver:
           detail.seatingCapacityExcludingDriver || p.seatingCapacityExcludingDriver,
         sleeperCapacityExcludingDriver:
           detail.sleeperCapacityExcludingDriver || p.sleeperCapacityExcludingDriver,
 
-        // ✅ goods values if backend provides later
         grossVehicleWeight: detail.grossVehicleWeight || p.grossVehicleWeight,
         unladenWeight: detail.unladenWeight || p.unladenWeight,
 
@@ -254,14 +322,19 @@ const Sikkim = () => {
 
       borderBarrier: "",
       checkpostName: "",
+
       aitpPermitValidity: "",
       aitpPermitAuthValidity: "",
+
       projectName: "",
       projectAddress: "",
+
       taxMode: "",
       numberOfPeriod: "",
+
       taxFromDate: "",
       taxUptoDate: "",
+
       permitFee: "",
       totalAmount: "",
     });
@@ -269,20 +342,6 @@ const Sikkim = () => {
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
-
-    // ✅ enforce goods/passenger required UI properly
-    if (isGoodsVehicle) {
-      if (!payLoad.grossVehicleWeight || !payLoad.unladenWeight) {
-        alert("Please enter Gross Vehicle Weight and Unladen Weight.");
-        return;
-      }
-    } else {
-      if (!payLoad.seatingCapacityExcludingDriver || payLoad.sleeperCapacityExcludingDriver === "") {
-        alert("Please enter Seating Cap and Sleeper Capacity.");
-        return;
-      }
-    }
-
     history.push("/select-payment", {
       formData: {
         ...payLoad,
@@ -290,20 +349,6 @@ const Sikkim = () => {
       },
     });
   };
-
-  const star = (field) => (required[field] ? <sup>*</sup> : null);
-
-  // ✅ Access check moved here (AFTER hooks)
-  if (!isLoggedIn?.accessState?.includes(accessStateName)) {
-    return (
-      <>
-        <Header />
-        <div className="container text-center mt-4 ">
-          <h3>No Access of this state</h3>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -323,7 +368,7 @@ const Sikkim = () => {
 
         <form ref={formRef} onSubmit={onSubmitHandler} className="service-type tax-details mt-4">
           <div className="row">
-            {/* LEFT COLUMN */}
+            {/* LEFT */}
             <div className="col-6">
               <div className="form__control">
                 <label className="form__label d-block w-100 text-left" htmlFor="vehicleNo">
@@ -391,15 +436,15 @@ const Sikkim = () => {
                   id="vehiclePermitType"
                 >
                   <option value="">--Select Vehicle Type--</option>
-                  {(fields[stateKey]?.vehiclePermitType || []).map((t) => (
-                    <option key={t.name} value={t.name}>
-                      {t.name}
+                  {vehiclePermitTypeOptions.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* ✅ passenger fields OR goods fields */}
+              {/* ✅ Passenger vs Goods fields */}
               {!isGoodsVehicle ? (
                 <div className="row">
                   <div className="col-sm-6">
@@ -445,10 +490,10 @@ const Sikkim = () => {
                   <div className="col-sm-6">
                     <div className="form__control">
                       <label className="form__label d-block w-100 text-left" htmlFor="grossVehicleWeight">
-                        Gross Vehicle Weight(In Kg.)<sup>*</sup>
+                        Gross Vehicle Weight(In Kg.){star("grossVehicleWeight")}
                       </label>
                       <input
-                        required
+                        required={required.grossVehicleWeight}
                         min="0"
                         disabled={isLoading}
                         onChange={onChangeHandler}
@@ -464,10 +509,10 @@ const Sikkim = () => {
                   <div className="col-sm-6">
                     <div className="form__control">
                       <label className="form__label d-block w-100 text-left" htmlFor="unladenWeight">
-                        Unladen Wt(In Kg.)<sup>*</sup>
+                        Unladen Wt(In Kg.){star("unladenWeight")}
                       </label>
                       <input
-                        required
+                        required={required.unladenWeight}
                         min="0"
                         disabled={isLoading}
                         onChange={onChangeHandler}
@@ -558,7 +603,7 @@ const Sikkim = () => {
               </div>
             </div>
 
-            {/* RIGHT COLUMN */}
+            {/* RIGHT */}
             <div className="col-6">
               <div className="form__control text-left">
                 <label className="form__label d-block w-100 text-left">&nbsp;</label>
@@ -797,7 +842,7 @@ const Sikkim = () => {
             </div>
           </div>
 
-          {/* TABLE (Permit Fee only) */}
+          {/* TABLE */}
           <div className="row mt-3">
             <div className="col-12">
               <table className="hr-table">
