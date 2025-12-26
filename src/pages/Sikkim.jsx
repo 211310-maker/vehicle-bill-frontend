@@ -11,22 +11,18 @@ const Sikkim = () => {
   const history = useHistory();
   const formRef = useRef(null);
 
-  const isLoggedIn = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+  // ✅ safe parse (prevents crash if localStorage is empty/corrupt)
+  const isLoggedIn = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+    } catch (e) {
+      return null;
+    }
+  }, []);
+
   const stateKey = "sikkim";
   const stateDisplayName = (fields.stateName && fields.stateName[stateKey]) || "SIKKIM";
   const accessStateName = stateDisplayName;
-
-  // Access check (same behavior as StateTaxForm)
-  if (!isLoggedIn?.accessState?.includes(accessStateName)) {
-    return (
-      <>
-        <Header />
-        <div className="container text-center mt-4 ">
-          <h3>No Access of this state</h3>
-        </div>
-      </>
-    );
-  }
 
   const borderOptions = borderBarriers[stateKey] || [];
   const rawCheckpostOptions = checkposts[stateKey] || [];
@@ -241,6 +237,18 @@ const Sikkim = () => {
   };
 
   const star = (field) => (required[field] ? <sup>*</sup> : null);
+
+  // ✅ Access check moved here (AFTER hooks) => fixes deploy error
+  if (!isLoggedIn?.accessState?.includes(accessStateName)) {
+    return (
+      <>
+        <Header />
+        <div className="container text-center mt-4 ">
+          <h3>No Access of this state</h3>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
