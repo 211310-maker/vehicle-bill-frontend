@@ -184,13 +184,8 @@ export const borderBarriers = {
     { name: "JHALAWAR" },
   ],
   sikkim: [
-    // replaced border/barrier entries with actual districts for Sikkim
-    { name: "Gangtok" },
-    { name: "Pakyong" },
-    { name: "Namchi" },
-    { name: "Gyalshing" },
-    { name: "Soreng" },
-    { name: "Mangan (North)" },
+    { name: "GANGTOK" },
+    { name: "NAMCHI" },
   ],
   tamilNadu: [
     { name: "HOSUR" },
@@ -455,37 +450,13 @@ export const checkposts = {
     { name: "TEENDHAR JHALAWAR" },
   ],
   sikkim: [
-    // Gangtok district
-    { name: "Rangpo Checkpost", borderBarrier: "Gangtok" },
-    { name: "Singtam Checkpost", borderBarrier: "Gangtok" },
-    { name: "32 Mile Checkpost", borderBarrier: "Gangtok" },
-    { name: "Rorathang Checkpost", borderBarrier: "Gangtok" },
+    // For District: GANGTOK
+    { name: "RANGPO, EAST SIKKIM", district: "GANGTOK" },
 
-    // Pakyong district
-    { name: "Pakyong Checkpost", borderBarrier: "Pakyong" },
-    // Rorathang is already listed under Gangtok but also used for Pakyong routes; include a separate entry if needed:
-    { name: "Rorathang Checkpost (Pakyong)", borderBarrier: "Pakyong" },
-
-    // Namchi district
-    { name: "Melli Checkpost", borderBarrier: "Namchi" },
-    { name: "Jorethang Checkpost", borderBarrier: "Namchi" },
-    { name: "Namchi Checkpost", borderBarrier: "Namchi" },
-
-    // Gyalshing district
-    { name: "Dentam Checkpost", borderBarrier: "Gyalshing" },
-    { name: "Gyalshing Checkpost", borderBarrier: "Gyalshing" },
-
-    // Soreng district
-    { name: "Sombaria Checkpost", borderBarrier: "Soreng" },
-    { name: "Soreng Checkpost", borderBarrier: "Soreng" },
-
-    // Mangan (North)
-    { name: "Mangan Checkpost", borderBarrier: "Mangan (North)" },
-    { name: "Chungthang Checkpost", borderBarrier: "Mangan (North)" },
-    { name: "Toong Checkpost", borderBarrier: "Mangan (North)" },
-    { name: "Lachen Checkpost", borderBarrier: "Mangan (North)" },
-    { name: "Lachung Checkpost", borderBarrier: "Mangan (North)" },
+    // For District: NAMCHI
+    { name: "KELLI, SOUTH SIKKIM", district: "NAMCHI" },
   ],
+
   tamilNadu: [
     { name: "HOSUR CHECKPOST" },
     { name: "WALAYAR CHECKPOST" },
