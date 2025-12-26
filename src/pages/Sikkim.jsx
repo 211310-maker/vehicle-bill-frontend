@@ -118,7 +118,7 @@ const Sikkim = () => {
       projectAddress: false,
 
       taxMode: true,
-      numberOfPeriod: true,
+      numberOfPeriod: false,
       taxFromDate: true,
       taxUptoDate: true,
 
