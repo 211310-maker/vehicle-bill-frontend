@@ -64,6 +64,45 @@ const Bills = () => {
     }
   };
 
+  async function downloadReceiptPdf(id, receiptNo) {
+    try {
+      const resp = await fetch(`${BASE_URL}/bill/${id}/pdf`, {
+        method: 'GET',
+        credentials: 'include' // include cookies if auth is required
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Download failed: ${resp.status} ${resp.statusText}`);
+      }
+
+      const contentType = resp.headers.get('content-type') || '';
+      const blob = await resp.blob();
+
+      // If server returned HTML fallback (Puppeteer failed), open it in a new tab for debugging
+      if (contentType.includes('text/html')) {
+        const htmlUrl = URL.createObjectURL(blob);
+        window.open(htmlUrl, '_blank');
+        setTimeout(() => URL.revokeObjectURL(htmlUrl), 10000);
+        return;
+      }
+
+      // Trigger a download for PDF or other binary content
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      // Use receiptNo for filename if present
+      a.download = `receipt-${receiptNo || id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      // Handle errors & show a helpful message
+      console.error('Receipt download error', err);
+      alert('Failed to download receipt. See console for details.');
+    }
+  }
+
   useEffect(() => {
     loadData(`createdBy=${isLoggedIn._id}`);
     if (isLoggedIn.role === 'admin') {
@@ -166,8 +205,8 @@ const Bills = () => {
                     <tr key={bill._id}>
                       <td>
                         <a
-                          target='_blank'
-                          href={`${BASE_URL}/bill/${bill._id}/pdf`}
+                          href="#"
+                          onClick={(e) => { e.preventDefault(); downloadReceiptPdf(bill._id, bill.receiptNo); }}
                         >
                           {bill.receiptNo}
                         </a>
