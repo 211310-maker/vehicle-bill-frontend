@@ -2725,79 +2725,66 @@ fields.mp.serviceType = fields.mp.serviceType || [
 ];
 
 // Vehicle / permit options
+// ✅ MP: Vehicle Type (as per portal dropdown)
 fields.mp.vehiclePermitType = fields.mp.vehiclePermitType || [
-  { name: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  { name: "CONTRACT CARRIAGE/PASSENGER VEHICLES" },
   { name: "GOODS VEHICLE" },
   { name: "CONSTRUCTION EQUIPMENT VEHICLE" },
-  { name: "PRIVATE VEHICLE" },
+  { name: "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER" },
 ];
 
-fields.mp.permitType = fields.mp.permitType || [
-  { name: "NOT APPLICABLE" },
-  { name: "TEMPORARY PERMIT" },
-  { name: "TOURIST PERMIT" },
-  { name: "NATIONAL PERMIT" },
-  { name: "HOME STATE PERMIT" },
-  { name: "CONTRACT CARRIAGE PERMIT" },
-];
-
-fields.mp.permit = fields.mp.permit || [
-  { name: "NOT APPLICABLE", category: "" },
-  { name: "TEMPORARY Permit", category: "" },
-  { name: "ANNUAL Permit", category: "" },
-];
-
-// vehicleCategory (optional classification used by some pages)
-fields.mp.vehicleCategory = fields.mp.vehicleCategory || [
-  { name: "NOT APPLICABLE", category: "" },
-  { name: "LIGHT PASSANGER VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "MEDIUM PASSANGER VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "HEAVY PASSANGER VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "LIGHT Goods vehicle", category: "GOODS VEHICLE" },
-  { name: "MEDIUM Goods vehicle", category: "GOODS VEHICLE" },
-  { name: "HEAVY Goods vehicle", category: "GOODS VEHICLE" },
-];
-
-// vehicleClass: include common classes grouped by vehiclePermitType (UI can filter by category)
+// ✅ MP: Vehicle Class (as per portal dropdown lists shown in your screenshots)
+// Note: keep `category` exactly matching `vehiclePermitType` values above.
 fields.mp.vehicleClass = fields.mp.vehicleClass || [
-  // CONTRACT CARRIAGE/PASSANGER VEHICLES
-  { name: "THREE WHEELER(PASSENGER)", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "MOTOR CAB", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "MAXI CAB", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "OMNI BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "EDUCATIONAL BUS", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
-  { name: "PRIVATE SERVICE VEHICLE", category: "CONTRACT CARRIAGE/PASSANGER VEHICLES" },
+  // ================= CONTRACT CARRIAGE/PASSENGER VEHICLES =================
+  { name: "THREE WHEELER(PASSENGER)", category: "CONTRACT CARRIAGE/PASSENGER VEHICLES" },
+  { name: "MOTOR CAB", category: "CONTRACT CARRIAGE/PASSENGER VEHICLES" },
+  { name: "LUXURY CAB", category: "CONTRACT CARRIAGE/PASSENGER VEHICLES" },
+  { name: "MAXI CAB", category: "CONTRACT CARRIAGE/PASSENGER VEHICLES" },
+  { name: "OMNI BUS", category: "CONTRACT CARRIAGE/PASSENGER VEHICLES" },
+  { name: "BUS", category: "CONTRACT CARRIAGE/PASSENGER VEHICLES" },
 
-  // GOODS VEHICLE
+  // ================= GOODS VEHICLE =================
+  { name: "THREE WHEELER(GOODS)", category: "GOODS VEHICLE" },
   { name: "LIGHT GOODS VEHICLE", category: "GOODS VEHICLE" },
   { name: "MEDIUM GOODS VEHICLE", category: "GOODS VEHICLE" },
   { name: "HEAVY GOODS VEHICLE", category: "GOODS VEHICLE" },
+  { name: "TRAILER", category: "GOODS VEHICLE" },
+  { name: "MOBILE CANTEEN", category: "GOODS VEHICLE" },
   { name: "LIBRARY VAN", category: "GOODS VEHICLE" },
   { name: "MOBILE WORKSHOP", category: "GOODS VEHICLE" },
   { name: "MOBILE CLINIC", category: "GOODS VEHICLE" },
   { name: "X-RAY VAN", category: "GOODS VEHICLE" },
   { name: "CASH VAN", category: "GOODS VEHICLE" },
-  { name: "ARTICULATED VAN", category: "GOODS VEHICLE" },
+  { name: "ARTICULATED VEHICLE", category: "GOODS VEHICLE" },
+  { name: "CAMPER VAN / TRAILER", category: "GOODS VEHICLE" },
   { name: "MULTI-AXLED GOODS", category: "GOODS VEHICLE" },
+  { name: "GOODS CARRIERS", category: "GOODS VEHICLE" },
+  { name: "DUMPER", category: "GOODS VEHICLE" },
 
-  // CONSTRUCTION EQUIPMENT VEHICLE
+  // ================= CONSTRUCTION EQUIPMENT VEHICLE =================
+  // (your screenshot shows these under vehicle class list)
+  { name: "CONSTRUCTION EQUIPMENT VEHICLE", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
   { name: "CHASSIS OF VEHICLES", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
   { name: "VEHICLE FITTED WITH RIG", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
   { name: "VEHICLE FITTED WITH COMPRESSOR", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "CRANE MOUNTED VEHICLE", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
   { name: "TOWER WAGONS", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "TREE TRIMMING VEHICLE", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
   { name: "FORK LIFT", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
+  { name: "VEHICLE FITTED WITH AIR GENERATOR", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
   { name: "EXCAVATOR", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
-];
+  { name: "EARTH MOVING EQUIPMENT", category: "CONSTRUCTION EQUIPMENT VEHICLE" },
 
-// permitCategory
-fields.mp.permitCategory = fields.mp.permitCategory || [
-  { name: "NOT APPLICABLE" },
-  { name: "REGULAR" },
-  { name: "TEMPORARY" },
-  { name: "SPECIAL" },
-  { name: "TIPPER" },
-  { name: "GOODS CARRIERS" },
+  // ================= TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER =================
+  // (these appeared in your class dropdown panel screenshot)
+  { name: "BUS", category: "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER" },
+  { name: "CONSTRUCTION EQUIPMENT VEHICLE", category: "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER" },
+  { name: "AGRICULTURAL TRACTOR", category: "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER" },
+  { name: "HARVESTER", category: "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER" },
+  { name: "AMBULANCE", category: "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER" },
+  { name: "GOODS CARRIERS", category: "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER" },
+  { name: "DUMPER", category: "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER" },
 ];
 
 // common goods/fuel/registration lists (small sets; expand as needed)
