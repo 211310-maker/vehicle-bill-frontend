@@ -29,7 +29,7 @@ import Users from "./pages/Users";
 import Gujrat from "./pages/Gujrat";
 import Maharashtra from "./pages/Maharashtra";
 import Rajasthan from "./pages/Rajasthan";
-import MadhyaPardesh from "./pages/MadhyaPradesh";
+import MadhyaPradesh from "./pages/MadhyaPradesh";
 import Karnataka from "./pages/Karnataka";
 import HimachalPradesh from "./pages/HimachalPradesh";
 import Jharkhand from "./pages/Jharkhand";
