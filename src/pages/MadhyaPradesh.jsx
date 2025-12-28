@@ -331,13 +331,16 @@ const MadhyaPradesh = () => {
   };
 
   // ✅ computed total (MV + User + CGST + SGST)
-  const computedTotal = useMemo(() => {
-    const mv = Number(payLoad.mvTax || 0);
-    const uc = Number(payLoad.userCharge || 0);
-    const cg = Number(payLoad.cgst || 0);
-    const sg = Number(payLoad.sgst || 0);
-    return mv + uc + cg + sg;
-  }, [payLoad.mvTax, payLoad.userCharge, payLoad.cgst, payLoad.sgst]);
+  // ✅ computed total (MV + User + Permit Fee + CGST + SGST)
+const computedTotal = useMemo(() => {
+  const mv = Number(payLoad.mvTax || 0);
+  const uc = Number(payLoad.userCharge || 0);
+  const pf = Number(payLoad.permitFee || 0);
+  const cg = Number(payLoad.cgst || 0);
+  const sg = Number(payLoad.sgst || 0);
+  return mv + uc + pf + cg + sg;
+}, [payLoad.mvTax, payLoad.userCharge, payLoad.permitFee, payLoad.cgst, payLoad.sgst]);
+
 
   useEffect(() => {
     setPayLoad((p) => ({ ...p, totalAmount: String(computedTotal || "") }));
