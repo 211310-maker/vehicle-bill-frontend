@@ -2846,29 +2846,114 @@ fields.mp.districtName = fields.mp.districtName || [
 
 // Border / barrier list (common MP border checkposts / RTOs)
 fields.mp.borderBarrier = fields.mp.borderBarrier || [
-  { name: "SENDHWA" },
-  { name: "BETUL" },
-  { name: "MORENA" },
-  { name: "REWA" },
-  { name: "BHOPAL" },
-  { name: "INDORE" },
-  { name: "GUNA" },
-  { name: "SATNA" },
-  { name: "RATLAM" },
-];
+      { name: 'AGAR MALWA' },
+      { name: 'ALIRAJPUR' },
+      { name: 'ANUPPUR' },
+      { name: 'ASHOK NAGAR' },
+      { name: 'BALAGHAT' },
+      { name: 'BARWANI' },
+      { name: 'BETUL' },
+      { name: 'BHIND' },
+      { name: 'BURHANPUR' },
+      { name: 'CHHATARPUR' },
+      { name: 'CHHINDWARA' },
+      { name: 'DATIA' },
+      { name: 'DINDORI' },
+      { name: 'GUNA' },
+      { name: 'GWALIOR' },
+      { name: 'JHABUA' },
+      { name: 'MANDLA' },
+      { name: 'MANDSAUR' },
+      { name: 'MORENA' },
+      { name: 'NEEMUCH' },
+      { name: 'RAJGARH' },
+      { name: 'RATLAM' },
+      { name: 'REWA' },
+      { name: 'SAGAR' },
+      { name: 'SATNA' },
+      { name: 'SEONI' },
+      { name: 'SHEOPUR' },
+      { name: 'SHIVPURI' },
+      { name: 'SINGRAULI' },
+    ];
 
 // checkPostName with district so UI can filter by selected district
 fields.mp.checkPostName = fields.mp.checkPostName || [
-  { name: "SENDHWA CHECKPOST", district: "SENDHWA" },
-  { name: "BETUL CHECKPOST", district: "BETUL" },
-  { name: "MORENA CHECKPOST", district: "MORENA" },
-  { name: "REWA CHECKPOST", district: "REWA" },
-  { name: "BHOPAL OUTER CHECKPOST", district: "BHOPAL" },
-  { name: "INDORE OUTER CHECKPOST", district: "INDORE" },
-  { name: "GWALIOR CHECKPOST", district: "GWALIOR" },
-  { name: "JABALPUR CHECKPOST", district: "JABALPUR" },
-  { name: "UJJAIN CHECKPOST", district: "UJJAIN" },
-  { name: "RATLAM CHECKPOST", district: "RATLAM" },
+  { name: 'SOYAT', borderBarrier: 'AGAR MALWA' },
+
+  { name: 'CHANDPUR', borderBarrier: 'ALIRAJPUR' },
+
+  { name: 'RAMNAGAR TIRAHA', borderBarrier: 'ANUPPUR' },
+  { name: 'VENKATNAGAR', borderBarrier: 'ANUPPUR' },
+
+  { name: 'PRANPUR', borderBarrier: 'ASHOK NAGAR' },
+
+  { name: 'BONKATTA', borderBarrier: 'BALAGHAT' },
+  { name: 'RAKEGAON O', borderBarrier: 'BALAGHAT' },
+  { name: 'SALETEKRI', borderBarrier: 'BALAGHAT' },
+
+  { name: 'BALSAMUD', borderBarrier: 'BARWANI' },
+  { name: 'NIWALI', borderBarrier: 'BARWANI' },
+
+  { name: 'ANDANAKA', borderBarrier: 'BETUL' },
+  { name: 'MULTAI', borderBarrier: 'BETUL' },
+
+  { name: 'PHOOP', borderBarrier: 'BHIND' },
+
+  { name: 'LONI', borderBarrier: 'BURHANPUR' },
+  { name: 'SHAHPUR FATA', borderBarrier: 'BURHANPUR' },
+
+  { name: 'KAIMAHA', borderBarrier: 'CHHATARPUR' },
+  { name: 'LODI', borderBarrier: 'CHHATARPUR' },
+  { name: 'PAHADIBANDHA', borderBarrier: 'CHHATARPUR' },
+  { name: 'RANIGANJ TIGELA', borderBarrier: 'CHHATARPUR' },
+
+  { name: 'RAJANA', borderBarrier: 'CHHINDWARA' },
+  { name: 'SONSAR', borderBarrier: 'CHHINDWARA' },
+
+  { name: 'CHIRULA', borderBarrier: 'DATIA' },
+
+  { name: 'KABIR CHABUTARA', borderBarrier: 'DINDORI' },
+
+  { name: 'UMARTHANA', borderBarrier: 'GUNA' },
+
+  { name: 'BILUA', borderBarrier: 'GWALIOR' },
+
+  { name: 'PITOL', borderBarrier: 'JHABUA' },
+  { name: 'THANDLA', borderBarrier: 'JHABUA' },
+
+  { name: 'MOTINALA', borderBarrier: 'MANDLA' },
+
+  { name: 'JAMALPURA', borderBarrier: 'MANDSAUR' },
+  { name: 'LEDICHOURAHA', borderBarrier: 'MANDSAUR' },
+
+  { name: 'MORENA', borderBarrier: 'MORENA' },
+
+  { name: 'BAGHANA', borderBarrier: 'NEEMUCH' },
+  { name: 'NAYAGAON', borderBarrier: 'NEEMUCH' },
+
+  { name: 'KHILCHIPUR C', borderBarrier: 'RAJGARH' },
+
+  { name: 'PIPLODA', borderBarrier: 'RATLAM' },
+  { name: 'SAILANA', borderBarrier: 'RATLAM' },
+
+  { name: 'CHAKGHAT', borderBarrier: 'REWA' },
+  { name: 'HANUMANA', borderBarrier: 'REWA' },
+
+  { name: 'MALTHON', borderBarrier: 'SAGAR' },
+
+  { name: 'MAJHGAWAN', borderBarrier: 'SATNA' },
+
+  { name: 'KHAWASA', borderBarrier: 'SEONI' },
+
+  { name: 'KARAHAL', borderBarrier: 'SHEOPUR' },
+  { name: 'NAHAR', borderBarrier: 'SHEOPUR' },
+  { name: 'SAMRASA', borderBarrier: 'SHEOPUR' },
+
+  { name: 'KHARAI PADORA', borderBarrier: 'SHIVPURI' },
+  { name: 'SIKANDARA', borderBarrier: 'SHIVPURI' },
+
+  { name: 'MORWA', borderBarrier: 'SINGRAULI' },
 ];
 
 // Ensure UI compatibility: alias with full name if some pages reference fields.madhyaPradesh
