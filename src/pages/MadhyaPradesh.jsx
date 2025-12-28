@@ -57,7 +57,8 @@ const MadhyaPradesh = () => {
     permitValidity: "",
     aitpPermitValidity: "",
 
-    permitType: "",
+    // ✅ default permitType (as requested)
+    permitType: "NOT APPLICABLE",
     serviceType: "",
     taxMode: "",
     noOfPeriods: "",
@@ -94,109 +95,133 @@ const MadhyaPradesh = () => {
     taxValidity: "",
   });
 
-// ✅ normalize permit type (fixes old PASSANGER spelling)
-const normalizedPermitType = useMemo(() => {
-  const t = norm(payLoad.vehiclePermitType);
-  if (t === "CONTRACT CARRIAGE/PASSANGER VEHICLES")
-    return "CONTRACT CARRIAGE/PASSENGER VEHICLES";
-  return t;
-}, [payLoad.vehiclePermitType]);
+  // ✅ normalize permit type (fixes old PASSANGER spelling)
+  const normalizedPermitType = useMemo(() => {
+    const t = norm(payLoad.vehiclePermitType);
+    if (t === "CONTRACT CARRIAGE/PASSANGER VEHICLES")
+      return "CONTRACT CARRIAGE/PASSENGER VEHICLES";
+    return t;
+  }, [payLoad.vehiclePermitType]);
 
-const isContractPassenger =
-  normalizedPermitType === "CONTRACT CARRIAGE/PASSENGER VEHICLES";
-const isGoodsVehicle = normalizedPermitType === "GOODS VEHICLE";
-const isConstructionEq =
-  normalizedPermitType === "CONSTRUCTION EQUIPMENT VEHICLE";
-const isTempRegistered =
-  normalizedPermitType ===
-  "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER";
+  const isContractPassenger =
+    normalizedPermitType === "CONTRACT CARRIAGE/PASSENGER VEHICLES";
+  const isGoodsVehicle = normalizedPermitType === "GOODS VEHICLE";
+  const isConstructionEq =
+    normalizedPermitType === "CONSTRUCTION EQUIPMENT VEHICLE";
+  const isTempRegistered =
+    normalizedPermitType ===
+    "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER";
 
-// ✅ Vehicle Type options (as per MP portal dropdown)
-const vehiclePermitTypeOptions = useMemo(() => {
-  const fromConstants = (fields?.madhyaPradesh?.vehiclePermitType || [])
-    .map((x) => x?.name)
-    .filter(Boolean);
+  // ✅ Vehicle Type options (as per MP portal dropdown)
+  const vehiclePermitTypeOptions = useMemo(() => {
+    const fromConstants = (fields?.madhyaPradesh?.vehiclePermitType || [])
+      .map((x) => x?.name)
+      .filter(Boolean);
 
-  const fallback = [
-    "CONTRACT CARRIAGE/PASSENGER VEHICLES",
-    "GOODS VEHICLE",
-    "CONSTRUCTION EQUIPMENT VEHICLE",
-    "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER",
-  ];
-
-  const seen = new Set();
-  return [...fromConstants, ...fallback].filter((v) => {
-    const k = norm(v);
-    if (!k || seen.has(k)) return false;
-    seen.add(k);
-    return true;
-  });
-}, []);
-
-// ✅ Vehicle class options (as per MP portal lists)
-const vehicleClassOptions = useMemo(() => {
-  if (isContractPassenger) {
-    return [
-      "THREE WHEELER(PASSENGER)",
-      "MOTOR CAB",
-      "LUXURY CAB",
-      "MAXI CAB",
-      "OMNI BUS",
-      "BUS",
-    ];
-  }
-
-  if (isGoodsVehicle) {
-    return [
-      "THREE WHEELER(GOODS)",
-      "LIGHT GOODS VEHICLE",
-      "MEDIUM GOODS VEHICLE",
-      "HEAVY GOODS VEHICLE",
-      "TRAILER",
-      "MOBILE CANTEEN",
-      "LIBRARY VAN",
-      "MOBILE WORKSHOP",
-      "MOBILE CLINIC",
-      "X-RAY VAN",
-      "CASH VAN",
-      "TRACTOR",
-      "ARTICULATED VEHICLE",
-      "CAMPER VAN / TRAILER",
-      "MULTI-AXLED GOODS",
-      "GOODS CARRIERS",
-      "DUMPER",
-    ];
-  }
-
-  if (isConstructionEq) {
-    return [
-      "CHASSIS OF VEHICLES",
-      "VEHICLE FITTED WITH RIG",
-      "VEHICLE FITTED WITH COMPRESSOR",
-      "CRANE MOUNTED VEHICLE",
-      "TOWER WAGONS",
-      "TREE TRIMMING VEHICLE",
-      "FORK LIFT",
-      "VEHICLE FITTED WITH AIR GENERATOR",
-      "EXCAVATOR",
-      "EARTH MOVING EQUIPMENT",
-    ];
-  }
-
-  if (isTempRegistered) {
-    return [
-      "BUS",
+    const fallback = [
+      "CONTRACT CARRIAGE/PASSENGER VEHICLES",
+      "GOODS VEHICLE",
       "CONSTRUCTION EQUIPMENT VEHICLE",
-      "AGRICULTURAL TRACTOR",
-      "HARVESTER",
-      "AMBULANCE",
-      "GOODS CARRIERS",
-      "DUMPER",
+      "TEMPORARY REGISTERED VEHICLES/VEHICLE ON TRADE CERTIFICATE NUMBER",
     ];
-  }
 
-  return [];
-}, [isContractPassenger, isGoodsVehicle, isConstructionEq, isTempRegistered]);
+    const seen = new Set();
+    return [...fromConstants, ...fallback].filter((v) => {
+      const k = norm(v);
+      if (!k || seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }, []);
+
+  // ✅ Vehicle class options (as per MP portal lists)
+  const vehicleClassOptions = useMemo(() => {
+    if (isContractPassenger) {
+      return [
+        "THREE WHEELER(PASSENGER)",
+        "MOTOR CAB",
+        "LUXURY CAB",
+        "MAXI CAB",
+        "OMNI BUS",
+        "BUS",
+      ];
+    }
+
+    if (isGoodsVehicle) {
+      return [
+        "THREE WHEELER(GOODS)",
+        "LIGHT GOODS VEHICLE",
+        "MEDIUM GOODS VEHICLE",
+        "HEAVY GOODS VEHICLE",
+        "TRAILER",
+        "MOBILE CANTEEN",
+        "LIBRARY VAN",
+        "MOBILE WORKSHOP",
+        "MOBILE CLINIC",
+        "X-RAY VAN",
+        "CASH VAN",
+        "TRACTOR",
+        "ARTICULATED VEHICLE",
+        "CAMPER VAN / TRAILER",
+        "MULTI-AXLED GOODS",
+        "GOODS CARRIERS",
+        "DUMPER",
+      ];
+    }
+
+    if (isConstructionEq) {
+      return [
+        "CHASSIS OF VEHICLES",
+        "VEHICLE FITTED WITH RIG",
+        "VEHICLE FITTED WITH COMPRESSOR",
+        "CRANE MOUNTED VEHICLE",
+        "TOWER WAGONS",
+        "TREE TRIMMING VEHICLE",
+        "FORK LIFT",
+        "VEHICLE FITTED WITH AIR GENERATOR",
+        "EXCAVATOR",
+        "EARTH MOVING EQUIPMENT",
+      ];
+    }
+
+    if (isTempRegistered) {
+      return [
+        "BUS",
+        "CONSTRUCTION EQUIPMENT VEHICLE",
+        "AGRICULTURAL TRACTOR",
+        "HARVESTER",
+        "AMBULANCE",
+        "GOODS CARRIERS",
+        "DUMPER",
+      ];
+    }
+
+    return [];
+  }, [isContractPassenger, isGoodsVehicle, isConstructionEq, isTempRegistered]);
+
+  // ✅ Permit Type options (adds NOT APPLICABLE + keeps constants if present)
+  const permitTypeOptions = useMemo(() => {
+    const fromConstants = (fields?.madhyaPradesh?.permitType || [])
+      .map((x) => x?.name)
+      .filter(Boolean);
+
+    const fallback = [
+      "NOT APPLICABLE",
+      "TEMPORARY PERMIT",
+      "TOURIST PERMIT",
+      "NATIONAL PERMIT",
+      "HOME STATE PERMIT",
+      "CONTRACT CARRIAGE PERMIT",
+    ];
+
+    const seen = new Set();
+    return [...fallback, ...fromConstants].filter((v) => {
+      const k = norm(v);
+      if (!k || seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }, []);
 
   // ✅ required fields
   const required = useMemo(() => {
@@ -280,6 +305,9 @@ const vehicleClassOptions = useMemo(() => {
           vehiclePermitType: value,
           vehicleClass: "",
 
+          // ✅ keep permit type valid even after changing vehicle type
+          permitType: old.permitType || "NOT APPLICABLE",
+
           seatingCapacityExcludingDriver: nextIsContract
             ? old.seatingCapacityExcludingDriver
             : "",
@@ -344,6 +372,9 @@ const vehicleClassOptions = useMemo(() => {
         vehiclePermitType: d.vehiclePermitType || p.vehiclePermitType,
         vehicleClass: d.vehicleClass || p.vehicleClass,
 
+        // ✅ permit type fallback to NOT APPLICABLE
+        permitType: d.permitType || p.permitType || "NOT APPLICABLE",
+
         districtName: d.districtName || d.borderBarrier || p.districtName,
         checkpostName: d.checkpostName || d.checkPostName || p.checkpostName,
       }));
@@ -372,7 +403,8 @@ const vehicleClassOptions = useMemo(() => {
       permitValidity: "",
       aitpPermitValidity: "",
 
-      permitType: "",
+      // ✅ reset to NOT APPLICABLE
+      permitType: "NOT APPLICABLE",
       serviceType: "",
       taxMode: "",
       noOfPeriods: "",
@@ -415,6 +447,7 @@ const vehicleClassOptions = useMemo(() => {
       state: stateKey,
       totalAmount: String(computedTotal || 0),
       vehiclePermitType: normalizedPermitType,
+      // keep permitType as chosen (already includes NOT APPLICABLE)
     };
 
     history.push("/select-payment", { formData });
@@ -916,9 +949,9 @@ const vehicleClassOptions = useMemo(() => {
                       id="permitType"
                     >
                       <option value="">--Select Permit Type--</option>
-                      {(fields?.madhyaPradesh?.permitType || []).map((t) => (
-                        <option key={t.name} value={t.name}>
-                          {t.name}
+                      {permitTypeOptions.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
                         </option>
                       ))}
                     </select>
@@ -1266,7 +1299,9 @@ const vehicleClassOptions = useMemo(() => {
             </div>
 
             <div className="col-sm-6">
-              <label className="form__label d-block w-100 text-left">&nbsp;</label>
+              <label className="form__label d-block w-100 text-left">
+                &nbsp;
+              </label>
               <ActionButtons isDisabled={isLoading} onReset={onResetHandler} />
             </div>
           </div>
