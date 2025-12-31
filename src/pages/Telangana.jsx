@@ -40,14 +40,15 @@ const Telangana = () => {
     mobileNo: "",
     fromState: "",
 
-    // Telangana vehicle info (screenshots)
+    // Telangana vehicle info
     vehicleType: "", // TRANSPORT / NON-TRANSPORT
     vehicleClass: "",
-    vehicleCategory: "", // LIGHT/MEDIUM/HEAVY passenger/goods depending
-    permitType: "", // TEMPORARY PERMIT / NOT APPLICABLE / etc
+    vehicleCategory: "",
+    permitType: "",
     serviceType: "",
 
     grossVehicleWeight: "", // (in Kg)
+    unladenWeight: "", // ✅ ADDED
     seatingCapacityExcludingDriver: "",
     sleeperCapacityExcludingDriver: "",
     permitValidity: "",
@@ -62,7 +63,6 @@ const Telangana = () => {
     taxFromDate: "",
     taxUptoDate: "",
 
-    // table amounts (as per your table screenshot)
     mvTax: "",
     userCharge: "",
     taxTokenFee: "",
@@ -85,12 +85,13 @@ const Telangana = () => {
       seen.add(k);
       return true;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isTransport = norm(payLoad.vehicleType) === "TRANSPORT";
   const isNonTransport = norm(payLoad.vehicleType) === "NON-TRANSPORT";
 
-  // ✅ Vehicle Class options (from your screenshots)
+  // ✅ Vehicle Class options
   const vehicleClassOptions = useMemo(() => {
     if (isTransport) {
       return [
@@ -149,11 +150,10 @@ const Telangana = () => {
     return [];
   }, [isTransport, isNonTransport]);
 
-  // ✅ Vehicle Category options (screenshots show different category sets)
+  // ✅ Vehicle Category options
   const vehicleCategoryOptions = useMemo(() => {
     const vclass = norm(payLoad.vehicleClass);
 
-    // If goods-ish class -> goods categories
     const goodsHints = [
       "GOODS",
       "CARRIER",
@@ -170,7 +170,6 @@ const Telangana = () => {
       return ["LIGHT GOODS VEHICLE", "MEDIUM GOODS VEHICLE", "HEAVY GOODS VEHICLE"];
     }
 
-    // else passenger categories
     return [
       "LIGHT PASSENGER VEHICLE",
       "MEDIUM PASSENGER VEHICLE",
@@ -178,7 +177,49 @@ const Telangana = () => {
     ];
   }, [payLoad.vehicleClass]);
 
-  // ✅ Permit Type options (you asked to include NOT APPLICABLE)
+  // ✅ Show/hide + reset rules based on vehicle class
+  const vehicleFieldConfig = useMemo(() => {
+    const vclass = norm(payLoad.vehicleClass);
+
+    const goodsHints = [
+      "GOODS",
+      "CARRIER",
+      "DUMPER",
+      "TRAILER",
+      "TRACTOR",
+      "MULTI-AXLED",
+      "ARTICULATED",
+      "TROLLEY",
+      "SEMI-TRAILER",
+      "AUXILIARY TRAILER",
+      "MODULAR",
+      "POWER TILLER",
+      "CHASSIS",
+    ];
+
+    const passengerHints = [
+      "BUS",
+      "OMNI BUS",
+      "MOTOR CAB",
+      "MAXI CAB",
+      "PRIVATE SERVICE VEHICLE",
+      "EDUCATIONAL INSTITUTION BUS",
+    ];
+
+    const isGoodsish = goodsHints.some((h) => vclass.includes(h));
+    const isPassengerish = passengerHints.some((h) => vclass.includes(h));
+
+    return {
+      showGVW: Boolean(vclass) && (isGoodsish || isPassengerish),
+      showUnladen:
+        Boolean(vclass) &&
+        (isGoodsish || vclass.includes("POWER TILLER") || vclass.includes("TRACTOR")),
+      showSeat: Boolean(vclass) && isPassengerish,
+      showSleeper: Boolean(vclass) && isPassengerish && vclass.includes("BUS"),
+    };
+  }, [payLoad.vehicleClass]);
+
+  // ✅ Permit Type options
   const permitTypeOptions = useMemo(() => {
     const fromConstants = (fields?.telangana?.permitType || [])
       .map((x) => x?.name)
@@ -198,9 +239,10 @@ const Telangana = () => {
       seen.add(k);
       return true;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ✅ Required fields (keep minimal but matching portal feel)
+  // ✅ Required fields
   const required = useMemo(() => {
     return {
       vehicleNo: true,
@@ -214,7 +256,6 @@ const Telangana = () => {
       permitType: true,
       serviceType: true,
 
-      // shown in your screenshots
       grossVehicleWeight: true,
       permitValidity: false,
 
@@ -235,7 +276,7 @@ const Telangana = () => {
 
   const star = (k) => (required[k] ? <sup>*</sup> : null);
 
-  // ✅ computed total (MV + User + Token Fee)
+  // ✅ computed total
   const computedTotal = useMemo(() => {
     const mv = Number(payLoad.mvTax || 0);
     const uc = Number(payLoad.userCharge || 0);
@@ -247,7 +288,20 @@ const Telangana = () => {
     setPayLoad((p) => ({ ...p, totalAmount: String(computedTotal || "") }));
   }, [computedTotal]);
 
-  // ✅ Filtered checkposts (if you already have mapping like MP)
+  // ✅ clear irrelevant fields on class change (so it "changes according to vehicle class")
+  useEffect(() => {
+    setPayLoad((p) => {
+      const next = { ...p };
+      if (!vehicleFieldConfig.showGVW) next.grossVehicleWeight = "";
+      if (!vehicleFieldConfig.showUnladen) next.unladenWeight = "";
+      if (!vehicleFieldConfig.showSeat) next.seatingCapacityExcludingDriver = "";
+      if (!vehicleFieldConfig.showSleeper) next.sleeperCapacityExcludingDriver = "";
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payLoad.vehicleClass]);
+
+  // ✅ Filtered checkposts
   const filteredCheckposts = useMemo(() => {
     const barrier = norm(payLoad.districtName);
     const list =
@@ -266,22 +320,31 @@ const Telangana = () => {
     const { name, value } = e.target;
 
     setPayLoad((old) => {
-      // reset dependent fields when vehicleType changes
       if (name === "vehicleType") {
         return {
           ...old,
           vehicleType: value,
           vehicleClass: "",
           vehicleCategory: "",
+          grossVehicleWeight: "",
+          unladenWeight: "",
+          seatingCapacityExcludingDriver: "",
+          sleeperCapacityExcludingDriver: "",
         };
       }
 
-      // reset category when class changes
       if (name === "vehicleClass") {
-        return { ...old, vehicleClass: value, vehicleCategory: "" };
+        return {
+          ...old,
+          vehicleClass: value,
+          vehicleCategory: "",
+          grossVehicleWeight: "",
+          unladenWeight: "",
+          seatingCapacityExcludingDriver: "",
+          sleeperCapacityExcludingDriver: "",
+        };
       }
 
-      // reset checkpost when district changes
       if (name === "districtName") {
         return { ...old, districtName: value, checkpostName: "" };
       }
@@ -321,6 +384,12 @@ const Telangana = () => {
         serviceType: d.serviceType || p.serviceType,
 
         grossVehicleWeight: d.grossVehicleWeight || p.grossVehicleWeight,
+        unladenWeight: d.unladenWeight || d.unLadenWeight || p.unladenWeight,
+        seatingCapacityExcludingDriver:
+          d.seatingCapacityExcludingDriver || d.seatCapacity || p.seatingCapacityExcludingDriver,
+        sleeperCapacityExcludingDriver:
+          d.sleeperCapacityExcludingDriver || d.sleeperCapacity || p.sleeperCapacityExcludingDriver,
+
         permitValidity: d.permitValidity || p.permitValidity,
 
         districtName: d.districtName || d.borderBarrier || p.districtName,
@@ -344,6 +413,7 @@ const Telangana = () => {
       serviceType: "",
 
       grossVehicleWeight: "",
+      unladenWeight: "",
       seatingCapacityExcludingDriver: "",
       sleeperCapacityExcludingDriver: "",
       permitValidity: "",
@@ -506,23 +576,72 @@ const Telangana = () => {
                 </select>
               </div>
 
-              {/* Gross Combination Weight (your screenshot shows this) */}
-              <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="grossVehicleWeight">
-                  Gross Vehicle Weight (in Kg){star("grossVehicleWeight")}
-                </label>
-                <input
-                  required={required.grossVehicleWeight}
-                  min="0"
-                  disabled={isLoading}
-                  onChange={onChangeHandler}
-                  className="form__input w-100"
-                  type="number"
-                  value={payLoad.grossVehicleWeight}
-                  id="grossVehicleWeight"
-                  name="grossVehicleWeight"
-                />
-              </div>
+              {/* GVW */}
+              {vehicleFieldConfig.showGVW && (
+                <div className="form__control">
+                  <label
+                    className="form__label d-block w-100 text-left"
+                    htmlFor="grossVehicleWeight"
+                  >
+                    Gross Vehicle Weight (in Kg){star("grossVehicleWeight")}
+                  </label>
+                  <input
+                    required={required.grossVehicleWeight}
+                    min="0"
+                    disabled={isLoading}
+                    onChange={onChangeHandler}
+                    className="form__input w-100"
+                    type="number"
+                    value={payLoad.grossVehicleWeight}
+                    id="grossVehicleWeight"
+                    name="grossVehicleWeight"
+                  />
+                </div>
+              )}
+
+              {/* Seat capacity */}
+              {vehicleFieldConfig.showSeat && (
+                <div className="form__control">
+                  <label
+                    className="form__label d-block w-100 text-left"
+                    htmlFor="seatingCapacityExcludingDriver"
+                  >
+                    Seating Capacity (Excluding Driver)
+                  </label>
+                  <input
+                    min="0"
+                    disabled={isLoading}
+                    onChange={onChangeHandler}
+                    className="form__input w-100"
+                    type="number"
+                    value={payLoad.seatingCapacityExcludingDriver}
+                    id="seatingCapacityExcludingDriver"
+                    name="seatingCapacityExcludingDriver"
+                  />
+                </div>
+              )}
+
+              {/* Sleeper capacity */}
+              {vehicleFieldConfig.showSleeper && (
+                <div className="form__control">
+                  <label
+                    className="form__label d-block w-100 text-left"
+                    htmlFor="sleeperCapacityExcludingDriver"
+                  >
+                    Sleeper Capacity (Excluding Driver)
+                  </label>
+                  <input
+                    min="0"
+                    disabled={isLoading}
+                    onChange={onChangeHandler}
+                    className="form__input w-100"
+                    type="number"
+                    value={payLoad.sleeperCapacityExcludingDriver}
+                    id="sleeperCapacityExcludingDriver"
+                    name="sleeperCapacityExcludingDriver"
+                  />
+                </div>
+              )}
             </div>
 
             {/* RIGHT */}
@@ -604,7 +723,10 @@ const Telangana = () => {
 
               {/* Vehicle Category */}
               <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="vehicleCategory">
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="vehicleCategory"
+                >
                   Vehicle Category{star("vehicleCategory")}
                 </label>
                 <select
@@ -623,6 +745,25 @@ const Telangana = () => {
                   ))}
                 </select>
               </div>
+
+              {/* ✅ Unladen Weight */}
+              {vehicleFieldConfig.showUnladen && (
+                <div className="form__control">
+                  <label className="form__label d-block w-100 text-left" htmlFor="unladenWeight">
+                    Unladen Weight (in Kg)
+                  </label>
+                  <input
+                    min="0"
+                    disabled={isLoading}
+                    onChange={onChangeHandler}
+                    className="form__input w-100"
+                    type="number"
+                    value={payLoad.unladenWeight}
+                    id="unladenWeight"
+                    name="unladenWeight"
+                  />
+                </div>
+              )}
 
               {/* Service Type */}
               <div className="form__control">
@@ -646,7 +787,7 @@ const Telangana = () => {
                 </select>
               </div>
 
-              {/* Permit Validity (seen in one screenshot flow) */}
+              {/* Permit Validity */}
               <div className="form__control">
                 <label className="form__label d-block w-100 text-left" htmlFor="permitValidity">
                   Permit Validity{star("permitValidity")}
@@ -681,11 +822,13 @@ const Telangana = () => {
                   id="districtName"
                 >
                   <option value="">--Select District--</option>
-                  {(fields?.telangana?.borderBarrier || fields?.telangana?.districts || []).map((d) => (
-                    <option key={d.name} value={d.name}>
-                      {d.name}
-                    </option>
-                  ))}
+                  {(fields?.telangana?.borderBarrier || fields?.telangana?.districts || []).map(
+                    (d) => (
+                      <option key={d.name} value={d.name}>
+                        {d.name}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
             </div>
@@ -775,7 +918,7 @@ const Telangana = () => {
             </div>
           </div>
 
-          {/* TABLE (as per your second screenshot: MV Tax + User Charge + Tax Token Fee) */}
+          {/* TABLE */}
           <div className="row mt-3">
             <div className="col-12">
               <table className="hr-table">
