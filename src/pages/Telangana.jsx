@@ -31,28 +31,65 @@ const Telangana = () => {
       .replace(/\s+/g, " ")
       .trim();
 
+  // ✅ stronger normalize for mapping keys (space/hyphen/underscore safe)
+  const normKey = (s) =>
+    String(s || "")
+      .toUpperCase()
+      .replace(/[-_]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ District -> Checkpost mapping (add/extend here)
+  // ✅ ALL districts list in code (from your pasted telangana.borderBarrier)
+  const TELANGANA_DISTRICTS = useMemo(
+    () => [
+     "ADILABAD",
+     "KHAMMAM",
+     "NALGONDA",
+     "BHADRADRI KOTHAGUDEM",
+     "JOGULAMBA GADWAL",
+     "NARAYANPET",
+     "KAMAREDDY",
+     "KOMARAM BHEEM ASIFABAD",
+     "SURYAPET",
+     "SANGAREDDY",
+     "NIZAMABAD",
+     "NIRMAL",
+    ],
+    []
+  );
+
+  // ✅ District -> Checkpost mapping (the ones you provided)
+  // Add the remaining pairs here as you have them.
   const DISTRICT_CHECKPOST_MAP = useMemo(
     () => ({
       ADILABAD: ["ICP Bhoraj ADILABAD"],
       KHAMMAM: ["KALLUR"],
       NALGONDA: ["VISHNUPURAM(WADAPALLY)", "NAGARJUNASAGAR"],
-      "BHADRADRI-KOTHAGUDEM": ["PALVANCHA", "ASHWARAOPETA"],
-      "JOGULAMBA-GADWAL": ["ALAMPUR"],
-      NARAYANAPETA: ["KRISHNA"],
+      "BHADRADRI KOTHAGUDEM": ["PALVANCHA", "ASHWARAOPETA"],
+      "JOGULAMBA GADWAL": ["ALAMPUR"],
+      NARAYANPET: ["KRISHNA"],
       KAMAREDDY: ["KAMAREDDY", "MADNOOR"],
-      "KOMURAMBHIM-ASIFABAD": ["WANKIDI"],
+      "KOMARAM BHEEM ASIFABAD": ["WANKIDI"],
 
       // from your text list
-      SURYAPETA: ["KODAD"],
+      SURYAPET: ["KODAD"],
       SANGAREDDY: ["ZAHEERABAD"],
       NIZAMABAD: ["SALOORA"],
       NIRMAL: ["BHAINSA"],
     }),
     []
   );
+
+  // ✅ Build normalized lookup once (so hyphen/space mismatch never breaks)
+  const DISTRICT_CHECKPOST_NORM_MAP = useMemo(() => {
+    const out = {};
+    Object.entries(DISTRICT_CHECKPOST_MAP).forEach(([district, cps]) => {
+      out[normKey(district)] = cps;
+    });
+    return out;
+  }, [DISTRICT_CHECKPOST_MAP]);
 
   const [payLoad, setPayLoad] = useState({
     vehicleNo: "",
@@ -73,7 +110,7 @@ const Telangana = () => {
     sleeperCapacityExcludingDriver: "",
     permitValidity: "",
 
-    route: "", // ✅ NEW FIELD
+    route: "",
 
     districtName: "",
     checkpostName: "",
@@ -206,14 +243,10 @@ const Telangana = () => {
     if (isGoodsishClass) {
       return ["LIGHT GOODS VEHICLE", "MEDIUM GOODS VEHICLE", "HEAVY GOODS VEHICLE"];
     }
-    return [
-      "LIGHT PASSENGER VEHICLE",
-      "MEDIUM PASSENGER VEHICLE",
-      "HEAVY PASSENGER VEHICLE",
-    ];
+    return ["LIGHT PASSENGER VEHICLE", "MEDIUM PASSENGER VEHICLE", "HEAVY PASSENGER VEHICLE"];
   }, [payLoad.vehicleClass, isGoodsishClass]);
 
-  // ✅ Permit Types (as per your list)
+  // ✅ Permit Types
   const permitTypeOptions = useMemo(() => {
     const fromConstants = (fields?.telangana?.permitType || [])
       .map((x) => x?.name)
@@ -247,23 +280,16 @@ const Telangana = () => {
     });
   }, []);
 
-  // ✅ District options (combine constants + map keys)
-  const districtOptions = useMemo(() => {
-    const fromConstants =
-      (fields?.telangana?.borderBarrier || fields?.telangana?.districts || [])
-        .map((d) => d?.name)
-        .filter(Boolean);
+  // ✅ District options ONLY from hardcoded list
+  const districtOptions = useMemo(() => TELANGANA_DISTRICTS, [TELANGANA_DISTRICTS]);
 
-    const fallback = Object.keys(DISTRICT_CHECKPOST_MAP);
-
-    const seen = new Set();
-    return [...fromConstants, ...fallback].filter((v) => {
-      const k = norm(v);
-      if (!k || seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
-  }, [DISTRICT_CHECKPOST_MAP]);
+  // ✅ Checkposts ONLY from map (normalized), else NOT APPLICABLE
+  const filteredCheckposts = useMemo(() => {
+    const selected = normKey(payLoad.districtName);
+    if (!selected) return [];
+    const list = DISTRICT_CHECKPOST_NORM_MAP[selected];
+    return list && list.length ? list : ["NOT APPLICABLE"];
+  }, [payLoad.districtName, DISTRICT_CHECKPOST_NORM_MAP]);
 
   const required = useMemo(() => {
     return {
@@ -314,14 +340,6 @@ const Telangana = () => {
     setPayLoad((p) => ({ ...p, totalAmount: String(computedTotal || "") }));
   }, [computedTotal]);
 
-  // ✅ Checkposts from map
-  const filteredCheckposts = useMemo(() => {
-    const d = norm(payLoad.districtName);
-    if (!d) return [];
-    const list = DISTRICT_CHECKPOST_MAP[d] || [];
-    return list.length ? list : ["NOT APPLICABLE"];
-  }, [payLoad.districtName, DISTRICT_CHECKPOST_MAP]);
-
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
 
@@ -352,6 +370,7 @@ const Telangana = () => {
       }
 
       if (name === "districtName") {
+        // ✅ reset checkpost on district change
         return { ...old, districtName: value, checkpostName: "" };
       }
 
@@ -680,7 +699,7 @@ const Telangana = () => {
             </div>
           </div>
 
-          {/* ✅ Always visible row (prevents empty gaps) */}
+          {/* ✅ Fixed layout row: always present (no empty gaps) */}
           <div className="row mt-2">
             <div className="col-4">
               <div className="form__control">
@@ -747,7 +766,10 @@ const Telangana = () => {
           <div className="row mt-2">
             <div className="col-4">
               <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="seatingCapacityExcludingDriver">
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="seatingCapacityExcludingDriver"
+                >
                   Seating Capacity (Excl. Driver){star("seatingCapacityExcludingDriver")}
                 </label>
                 <input
@@ -766,7 +788,10 @@ const Telangana = () => {
 
             <div className="col-4">
               <div className="form__control">
-                <label className="form__label d-block w-100 text-left" htmlFor="sleeperCapacityExcludingDriver">
+                <label
+                  className="form__label d-block w-100 text-left"
+                  htmlFor="sleeperCapacityExcludingDriver"
+                >
                   Sleeper Capacity (Excl. Driver){star("sleeperCapacityExcludingDriver")}
                 </label>
                 <input
@@ -824,7 +849,7 @@ const Telangana = () => {
             </div>
           </div>
 
-          {/* Entry */}
+          {/* ✅ Entry */}
           <div className="row mt-2">
             <div className="col-6">
               <div className="form__control">
