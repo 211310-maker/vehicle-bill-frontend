@@ -40,20 +40,18 @@ const Telangana = () => {
     mobileNo: "",
     fromState: "",
 
-    // Telangana vehicle info
-    vehicleType: "", // TRANSPORT / NON-TRANSPORT
+    vehicleType: "",
     vehicleClass: "",
     vehicleCategory: "",
     permitType: "",
     serviceType: "",
 
-    grossVehicleWeight: "", // (in Kg)
-    unladenWeight: "", // ✅ ADDED
+    grossVehicleWeight: "",
+    unladenWeight: "",
     seatingCapacityExcludingDriver: "",
     sleeperCapacityExcludingDriver: "",
     permitValidity: "",
 
-    // entry info
     districtName: "",
     checkpostName: "",
 
@@ -177,48 +175,6 @@ const Telangana = () => {
     ];
   }, [payLoad.vehicleClass]);
 
-  // ✅ Show/hide + reset rules based on vehicle class
-  const vehicleFieldConfig = useMemo(() => {
-    const vclass = norm(payLoad.vehicleClass);
-
-    const goodsHints = [
-      "GOODS",
-      "CARRIER",
-      "DUMPER",
-      "TRAILER",
-      "TRACTOR",
-      "MULTI-AXLED",
-      "ARTICULATED",
-      "TROLLEY",
-      "SEMI-TRAILER",
-      "AUXILIARY TRAILER",
-      "MODULAR",
-      "POWER TILLER",
-      "CHASSIS",
-    ];
-
-    const passengerHints = [
-      "BUS",
-      "OMNI BUS",
-      "MOTOR CAB",
-      "MAXI CAB",
-      "PRIVATE SERVICE VEHICLE",
-      "EDUCATIONAL INSTITUTION BUS",
-    ];
-
-    const isGoodsish = goodsHints.some((h) => vclass.includes(h));
-    const isPassengerish = passengerHints.some((h) => vclass.includes(h));
-
-    return {
-      showGVW: Boolean(vclass) && (isGoodsish || isPassengerish),
-      showUnladen:
-        Boolean(vclass) &&
-        (isGoodsish || vclass.includes("POWER TILLER") || vclass.includes("TRACTOR")),
-      showSeat: Boolean(vclass) && isPassengerish,
-      showSleeper: Boolean(vclass) && isPassengerish && vclass.includes("BUS"),
-    };
-  }, [payLoad.vehicleClass]);
-
   // ✅ Permit Type options
   const permitTypeOptions = useMemo(() => {
     const fromConstants = (fields?.telangana?.permitType || [])
@@ -242,7 +198,66 @@ const Telangana = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ✅ Required fields
+  // ✅ Which vehicle classes should show seat/sleeper (fixes your issue)
+  const vehicleFieldConfig = useMemo(() => {
+    const vclass = norm(payLoad.vehicleClass);
+
+    const passengerClasses = new Set(
+      [
+        "MOTOR CAB",
+        "MAXI CAB",
+        "BUS",
+        "EDUCATIONAL INSTITUTION BUS",
+        "PRIVATE SERVICE VEHICLE",
+        "OMNI BUS",
+      ].map(norm)
+    );
+
+    const sleeperClasses = new Set(
+      ["BUS", "EDUCATIONAL INSTITUTION BUS", "OMNI BUS"].map(norm)
+    );
+
+    const goodsHints = [
+      "GOODS",
+      "CARRIER",
+      "DUMPER",
+      "TRAILER",
+      "TRACTOR",
+      "MULTI-AXLED",
+      "ARTICULATED",
+      "TROLLEY",
+      "SEMI-TRAILER",
+      "AUXILIARY TRAILER",
+      "MODULAR",
+      "CHASSIS",
+    ];
+
+    const isPassengerish = passengerClasses.has(vclass);
+    const isGoodsish = goodsHints.some((h) => vclass.includes(h));
+
+    const showSeat = Boolean(vclass) && isPassengerish;
+    const showSleeper = Boolean(vclass) && sleeperClasses.has(vclass);
+
+    // GVW is typically needed for transport goods/passenger; keep it on for both.
+    const showGVW = Boolean(vclass) && (isGoodsish || isPassengerish);
+
+    // Unladen: show for goods-ish and some special classes (incl power tiller / tractor / harvester)
+    const showUnladen =
+      Boolean(vclass) &&
+      (isGoodsish ||
+        vclass.includes("POWER TILLER") ||
+        vclass.includes("TRACTOR") ||
+        vclass.includes("HARVESTER"));
+
+    return {
+      showGVW,
+      showUnladen,
+      showSeat,
+      showSleeper,
+    };
+  }, [payLoad.vehicleClass]);
+
+  // ✅ Required fields (make GVW required ONLY when it is applicable/shown)
   const required = useMemo(() => {
     return {
       vehicleNo: true,
@@ -256,7 +271,7 @@ const Telangana = () => {
       permitType: true,
       serviceType: true,
 
-      grossVehicleWeight: true,
+      grossVehicleWeight: vehicleFieldConfig.showGVW,
       permitValidity: false,
 
       vehicleCategory: true,
@@ -272,7 +287,7 @@ const Telangana = () => {
       userCharge: true,
       taxTokenFee: true,
     };
-  }, []);
+  }, [vehicleFieldConfig.showGVW]);
 
   const star = (k) => (required[k] ? <sup>*</sup> : null);
 
@@ -288,7 +303,7 @@ const Telangana = () => {
     setPayLoad((p) => ({ ...p, totalAmount: String(computedTotal || "") }));
   }, [computedTotal]);
 
-  // ✅ clear irrelevant fields on class change (so it "changes according to vehicle class")
+  // ✅ Clear fields that are not relevant for selected vehicle class
   useEffect(() => {
     setPayLoad((p) => {
       const next = { ...p };
@@ -298,8 +313,12 @@ const Telangana = () => {
       if (!vehicleFieldConfig.showSleeper) next.sleeperCapacityExcludingDriver = "";
       return next;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payLoad.vehicleClass]);
+  }, [
+    vehicleFieldConfig.showGVW,
+    vehicleFieldConfig.showUnladen,
+    vehicleFieldConfig.showSeat,
+    vehicleFieldConfig.showSleeper,
+  ]);
 
   // ✅ Filtered checkposts
   const filteredCheckposts = useMemo(() => {
@@ -386,9 +405,13 @@ const Telangana = () => {
         grossVehicleWeight: d.grossVehicleWeight || p.grossVehicleWeight,
         unladenWeight: d.unladenWeight || d.unLadenWeight || p.unladenWeight,
         seatingCapacityExcludingDriver:
-          d.seatingCapacityExcludingDriver || d.seatCapacity || p.seatingCapacityExcludingDriver,
+          d.seatingCapacityExcludingDriver ||
+          d.seatCapacity ||
+          p.seatingCapacityExcludingDriver,
         sleeperCapacityExcludingDriver:
-          d.sleeperCapacityExcludingDriver || d.sleeperCapacity || p.sleeperCapacityExcludingDriver,
+          d.sleeperCapacityExcludingDriver ||
+          d.sleeperCapacity ||
+          p.sleeperCapacityExcludingDriver,
 
         permitValidity: d.permitValidity || p.permitValidity,
 
@@ -445,6 +468,37 @@ const Telangana = () => {
     };
 
     history.push("/select-payment", { formData });
+  };
+
+  // ✅ Helper to keep layout stable: always render the field, but disable when not applicable.
+  // This removes the "empty space shifting" problem.
+  const StableNumberField = ({
+    show,
+    label,
+    name,
+    value,
+    requiredField = false,
+  }) => {
+    const disabled = isLoading || !show;
+    return (
+      <div className="form__control">
+        <label className="form__label d-block w-100 text-left" htmlFor={name}>
+          {label}
+          {requiredField ? <sup>*</sup> : null}
+        </label>
+        <input
+          id={name}
+          name={name}
+          type="number"
+          min="0"
+          className="form__input w-100"
+          disabled={disabled}
+          value={show ? value : ""} // keep clean
+          placeholder={show ? "" : "N/A"}
+          onChange={onChangeHandler}
+        />
+      </div>
+    );
   };
 
   if (!hasAccess) {
@@ -532,7 +586,6 @@ const Telangana = () => {
                 />
               </div>
 
-              {/* Vehicle Type */}
               <div className="form__control">
                 <label className="form__label d-block w-100 text-left" htmlFor="vehicleType">
                   Vehicle Type{star("vehicleType")}
@@ -554,7 +607,6 @@ const Telangana = () => {
                 </select>
               </div>
 
-              {/* Permit Type */}
               <div className="form__control">
                 <label className="form__label d-block w-100 text-left" htmlFor="permitType">
                   Permit Type{star("permitType")}
@@ -576,72 +628,28 @@ const Telangana = () => {
                 </select>
               </div>
 
-              {/* GVW */}
-              {vehicleFieldConfig.showGVW && (
-                <div className="form__control">
-                  <label
-                    className="form__label d-block w-100 text-left"
-                    htmlFor="grossVehicleWeight"
-                  >
-                    Gross Vehicle Weight (in Kg){star("grossVehicleWeight")}
-                  </label>
-                  <input
-                    required={required.grossVehicleWeight}
-                    min="0"
-                    disabled={isLoading}
-                    onChange={onChangeHandler}
-                    className="form__input w-100"
-                    type="number"
-                    value={payLoad.grossVehicleWeight}
-                    id="grossVehicleWeight"
-                    name="grossVehicleWeight"
-                  />
-                </div>
-              )}
+              {/* ✅ Always present → no empty space shifting */}
+              <StableNumberField
+                show={vehicleFieldConfig.showGVW}
+                label="Gross Vehicle Weight (in Kg)"
+                name="grossVehicleWeight"
+                value={payLoad.grossVehicleWeight}
+                requiredField={required.grossVehicleWeight}
+              />
 
-              {/* Seat capacity */}
-              {vehicleFieldConfig.showSeat && (
-                <div className="form__control">
-                  <label
-                    className="form__label d-block w-100 text-left"
-                    htmlFor="seatingCapacityExcludingDriver"
-                  >
-                    Seating Capacity (Excluding Driver)
-                  </label>
-                  <input
-                    min="0"
-                    disabled={isLoading}
-                    onChange={onChangeHandler}
-                    className="form__input w-100"
-                    type="number"
-                    value={payLoad.seatingCapacityExcludingDriver}
-                    id="seatingCapacityExcludingDriver"
-                    name="seatingCapacityExcludingDriver"
-                  />
-                </div>
-              )}
+              <StableNumberField
+                show={vehicleFieldConfig.showSeat}
+                label="Seating Capacity (Excluding Driver)"
+                name="seatingCapacityExcludingDriver"
+                value={payLoad.seatingCapacityExcludingDriver}
+              />
 
-              {/* Sleeper capacity */}
-              {vehicleFieldConfig.showSleeper && (
-                <div className="form__control">
-                  <label
-                    className="form__label d-block w-100 text-left"
-                    htmlFor="sleeperCapacityExcludingDriver"
-                  >
-                    Sleeper Capacity (Excluding Driver)
-                  </label>
-                  <input
-                    min="0"
-                    disabled={isLoading}
-                    onChange={onChangeHandler}
-                    className="form__input w-100"
-                    type="number"
-                    value={payLoad.sleeperCapacityExcludingDriver}
-                    id="sleeperCapacityExcludingDriver"
-                    name="sleeperCapacityExcludingDriver"
-                  />
-                </div>
-              )}
+              <StableNumberField
+                show={vehicleFieldConfig.showSleeper}
+                label="Sleeper Capacity (Excluding Driver)"
+                name="sleeperCapacityExcludingDriver"
+                value={payLoad.sleeperCapacityExcludingDriver}
+              />
             </div>
 
             {/* RIGHT */}
@@ -699,7 +707,6 @@ const Telangana = () => {
                 </select>
               </div>
 
-              {/* Vehicle Class */}
               <div className="form__control">
                 <label className="form__label d-block w-100 text-left" htmlFor="vehicleClass">
                   Vehicle Class{star("vehicleClass")}
@@ -721,7 +728,6 @@ const Telangana = () => {
                 </select>
               </div>
 
-              {/* Vehicle Category */}
               <div className="form__control">
                 <label
                   className="form__label d-block w-100 text-left"
@@ -746,26 +752,14 @@ const Telangana = () => {
                 </select>
               </div>
 
-              {/* ✅ Unladen Weight */}
-              {vehicleFieldConfig.showUnladen && (
-                <div className="form__control">
-                  <label className="form__label d-block w-100 text-left" htmlFor="unladenWeight">
-                    Unladen Weight (in Kg)
-                  </label>
-                  <input
-                    min="0"
-                    disabled={isLoading}
-                    onChange={onChangeHandler}
-                    className="form__input w-100"
-                    type="number"
-                    value={payLoad.unladenWeight}
-                    id="unladenWeight"
-                    name="unladenWeight"
-                  />
-                </div>
-              )}
+              {/* ✅ Always present → no empty space shifting */}
+              <StableNumberField
+                show={vehicleFieldConfig.showUnladen}
+                label="Unladen Weight (in Kg)"
+                name="unladenWeight"
+                value={payLoad.unladenWeight}
+              />
 
-              {/* Service Type */}
               <div className="form__control">
                 <label className="form__label d-block w-100 text-left" htmlFor="serviceType">
                   Service Type{star("serviceType")}
@@ -787,7 +781,6 @@ const Telangana = () => {
                 </select>
               </div>
 
-              {/* Permit Validity */}
               <div className="form__control">
                 <label className="form__label d-block w-100 text-left" htmlFor="permitValidity">
                   Permit Validity{star("permitValidity")}
