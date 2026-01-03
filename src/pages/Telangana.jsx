@@ -31,7 +31,9 @@ const Telangana = () => {
       .replace(/\s+/g, " ")
       .trim();
 
-  // ✅ Telangana District -> Checkpost mapping (from your screenshots + your text)
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ✅ District -> Checkpost mapping (add/extend here)
   const DISTRICT_CHECKPOST_MAP = useMemo(
     () => ({
       ADILABAD: ["ICP Bhoraj ADILABAD"],
@@ -43,7 +45,7 @@ const Telangana = () => {
       KAMAREDDY: ["KAMAREDDY", "MADNOOR"],
       "KOMURAMBHIM-ASIFABAD": ["WANKIDI"],
 
-      // from your message
+      // from your text list
       SURYAPETA: ["KODAD"],
       SANGAREDDY: ["ZAHEERABAD"],
       NIZAMABAD: ["SALOORA"],
@@ -51,8 +53,6 @@ const Telangana = () => {
     }),
     []
   );
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const [payLoad, setPayLoad] = useState({
     vehicleNo: "",
@@ -91,19 +91,8 @@ const Telangana = () => {
     totalAmount: "",
   });
 
+  // ✅ Vehicle Type options
   const vehicleTypeOptions = useMemo(() => {
-    const fromConstants = (fields?.telangana?.vehicleType || [])
-      .map((x) => x?.name)
-      .filter(Boolean);
-
-    const fallback = ["TRANSPORT", "NON-TRANSPORT"];
-
-    const seen = new Set();
-    return [...fromConstants, ...serviceTypeOptions].filter(Boolean); // safe no-op
-  }, []); // (kept as-is below in corrected version)
-
-  // ✅ Vehicle Type options (correct)
-  const vehicleTypeOptions2 = useMemo(() => {
     const fromConstants = (fields?.telangana?.vehicleType || [])
       .map((x) => x?.name)
       .filter(Boolean);
@@ -122,6 +111,7 @@ const Telangana = () => {
   const isTransport = norm(payLoad.vehicleType) === "TRANSPORT";
   const isNonTransport = norm(payLoad.vehicleType) === "NON-TRANSPORT";
 
+  // ✅ Vehicle Class options
   const vehicleClassOptions = useMemo(() => {
     if (isTransport) {
       return [
@@ -180,6 +170,7 @@ const Telangana = () => {
     return [];
   }, [isTransport, isNonTransport]);
 
+  // ✅ Passenger-capacity classes (seat/sleeper applicable)
   const isPassengerCapacityClass = useMemo(() => {
     const v = norm(payLoad.vehicleClass);
     return [
@@ -192,6 +183,7 @@ const Telangana = () => {
     ].some((x) => v === norm(x));
   }, [payLoad.vehicleClass]);
 
+  // ✅ Goods-ish classes (unladen weight more applicable)
   const isGoodsishClass = useMemo(() => {
     const vclass = norm(payLoad.vehicleClass);
     const goodsHints = [
@@ -208,13 +200,12 @@ const Telangana = () => {
     return goodsHints.some((h) => vclass.includes(h));
   }, [payLoad.vehicleClass]);
 
+  // ✅ Vehicle Category options
   const vehicleCategoryOptions = useMemo(() => {
     if (!payLoad.vehicleClass) return [];
-
     if (isGoodsishClass) {
       return ["LIGHT GOODS VEHICLE", "MEDIUM GOODS VEHICLE", "HEAVY GOODS VEHICLE"];
     }
-
     return [
       "LIGHT PASSENGER VEHICLE",
       "MEDIUM PASSENGER VEHICLE",
@@ -222,6 +213,7 @@ const Telangana = () => {
     ];
   }, [payLoad.vehicleClass, isGoodsishClass]);
 
+  // ✅ Permit Types (as per your list)
   const permitTypeOptions = useMemo(() => {
     const fromConstants = (fields?.telangana?.permitType || [])
       .map((x) => x?.name)
@@ -238,6 +230,7 @@ const Telangana = () => {
     });
   }, []);
 
+  // ✅ Service Type includes ORDINARY SERVICE
   const serviceTypeOptions = useMemo(() => {
     const fromConstants = (fields?.telangana?.serviceType || fields?.serviceType || [])
       .map((x) => x?.name)
@@ -254,6 +247,7 @@ const Telangana = () => {
     });
   }, []);
 
+  // ✅ District options (combine constants + map keys)
   const districtOptions = useMemo(() => {
     const fromConstants =
       (fields?.telangana?.borderBarrier || fields?.telangana?.districts || [])
@@ -281,18 +275,18 @@ const Telangana = () => {
 
       vehicleType: true,
       vehicleClass: true,
+      vehicleCategory: true,
       permitType: true,
       serviceType: true,
 
       grossVehicleWeight: true,
       unladenWeight: false,
+
       seatingCapacityExcludingDriver: false,
       sleeperCapacityExcludingDriver: false,
 
       permitValidity: false,
-      vehicleCategory: true,
-
-      route: false, // ✅ set true if you want mandatory
+      route: false,
 
       districtName: true,
       checkpostName: true,
@@ -320,13 +314,12 @@ const Telangana = () => {
     setPayLoad((p) => ({ ...p, totalAmount: String(computedTotal || "") }));
   }, [computedTotal]);
 
+  // ✅ Checkposts from map
   const filteredCheckposts = useMemo(() => {
     const d = norm(payLoad.districtName);
     if (!d) return [];
-    const list =
-      DISTRICT_CHECKPOST_MAP[d] || DISTRICT_CHECKPOST_MAP[payLoad.districtName] || [];
-    if (!list.length) return ["NOT APPLICABLE"];
-    return list;
+    const list = DISTRICT_CHECKPOST_MAP[d] || [];
+    return list.length ? list : ["NOT APPLICABLE"];
   }, [payLoad.districtName, DISTRICT_CHECKPOST_MAP]);
 
   const onChangeHandler = (e) => {
@@ -339,11 +332,10 @@ const Telangana = () => {
           vehicleType: value,
           vehicleClass: "",
           vehicleCategory: "",
-
-          seatingCapacityExcludingDriver: "",
-          sleeperCapacityExcludingDriver: "",
           grossVehicleWeight: "",
           unladenWeight: "",
+          seatingCapacityExcludingDriver: "",
+          sleeperCapacityExcludingDriver: "",
         };
       }
 
@@ -352,11 +344,10 @@ const Telangana = () => {
           ...old,
           vehicleClass: value,
           vehicleCategory: "",
-
-          seatingCapacityExcludingDriver: "",
-          sleeperCapacityExcludingDriver: "",
           grossVehicleWeight: "",
           unladenWeight: "",
+          seatingCapacityExcludingDriver: "",
+          sleeperCapacityExcludingDriver: "",
         };
       }
 
@@ -401,17 +392,12 @@ const Telangana = () => {
         grossVehicleWeight: d.grossVehicleWeight || p.grossVehicleWeight,
         unladenWeight: d.unladenWeight || d.unLadenWeight || p.unladenWeight,
         seatingCapacityExcludingDriver:
-          d.seatingCapacityExcludingDriver ||
-          d.seatCapacity ||
-          p.seatingCapacityExcludingDriver,
+          d.seatingCapacityExcludingDriver || d.seatCapacity || p.seatingCapacityExcludingDriver,
         sleeperCapacityExcludingDriver:
-          d.sleeperCapacityExcludingDriver ||
-          d.sleeperCapacity ||
-          p.sleeperCapacityExcludingDriver,
+          d.sleeperCapacityExcludingDriver || d.sleeperCapacity || p.sleeperCapacityExcludingDriver,
 
         permitValidity: d.permitValidity || p.permitValidity,
-
-        route: d.route || p.route, // ✅ NEW FIELD (if API sends)
+        route: d.route || p.route,
 
         districtName: d.districtName || d.borderBarrier || p.districtName,
         checkpostName: d.checkpostName || d.checkPostName || p.checkpostName,
@@ -481,9 +467,8 @@ const Telangana = () => {
     );
   }
 
-  const disableCapFields = isLoading || !isPassengerCapacityClass;
+  const disableSeatSleeper = isLoading || !isPassengerCapacityClass;
   const disableUnladen = isLoading || !isGoodsishClass;
-  const disableGvw = isLoading;
 
   return (
     <>
@@ -498,13 +483,8 @@ const Telangana = () => {
       <div className="box box--main">
         <div className="box__heading--blue">Tax Payment Details</div>
 
-        <form
-          ref={formRef}
-          onSubmit={onSubmitHandler}
-          className="service-type tax-details mt-4"
-        >
+        <form ref={formRef} onSubmit={onSubmitHandler} className="service-type tax-details mt-4">
           <div className="row">
-            {/* LEFT */}
             <div className="col-6">
               <div className="form__control">
                 <label className="form__label d-block w-100 text-left" htmlFor="vehicleNo">
@@ -572,7 +552,7 @@ const Telangana = () => {
                   disabled={isLoading}
                 >
                   <option value="">--Select Vehicle Type--</option>
-                  {vehicleTypeOptions2.map((t) => (
+                  {vehicleTypeOptions.map((t) => (
                     <option key={t} value={t}>
                       {t}
                     </option>
@@ -602,7 +582,6 @@ const Telangana = () => {
               </div>
             </div>
 
-            {/* RIGHT */}
             <div className="col-6">
               <div className="form__control text-left">
                 <label className="form__label d-block w-100 text-left">&nbsp;</label>
@@ -701,7 +680,7 @@ const Telangana = () => {
             </div>
           </div>
 
-          {/* Dependent fields */}
+          {/* ✅ Always visible row (prevents empty gaps) */}
           <div className="row mt-2">
             <div className="col-4">
               <div className="form__control">
@@ -711,7 +690,7 @@ const Telangana = () => {
                 <input
                   required={required.grossVehicleWeight}
                   min="0"
-                  disabled={disableGvw}
+                  disabled={isLoading}
                   onChange={onChangeHandler}
                   className="form__input w-100"
                   type="number"
@@ -768,44 +747,38 @@ const Telangana = () => {
           <div className="row mt-2">
             <div className="col-4">
               <div className="form__control">
-                <label
-                  className="form__label d-block w-100 text-left"
-                  htmlFor="seatingCapacityExcludingDriver"
-                >
+                <label className="form__label d-block w-100 text-left" htmlFor="seatingCapacityExcludingDriver">
                   Seating Capacity (Excl. Driver){star("seatingCapacityExcludingDriver")}
                 </label>
                 <input
                   min="0"
-                  disabled={disableCapFields}
+                  disabled={disableSeatSleeper}
                   onChange={onChangeHandler}
                   className="form__input w-100"
                   type="number"
                   value={payLoad.seatingCapacityExcludingDriver}
                   id="seatingCapacityExcludingDriver"
                   name="seatingCapacityExcludingDriver"
-                  placeholder={disableCapFields ? "Not Applicable" : ""}
+                  placeholder={disableSeatSleeper ? "Not Applicable" : ""}
                 />
               </div>
             </div>
 
             <div className="col-4">
               <div className="form__control">
-                <label
-                  className="form__label d-block w-100 text-left"
-                  htmlFor="sleeperCapacityExcludingDriver"
-                >
+                <label className="form__label d-block w-100 text-left" htmlFor="sleeperCapacityExcludingDriver">
                   Sleeper Capacity (Excl. Driver){star("sleeperCapacityExcludingDriver")}
                 </label>
                 <input
                   min="0"
-                  disabled={disableCapFields}
+                  disabled={disableSeatSleeper}
                   onChange={onChangeHandler}
                   className="form__input w-100"
                   type="number"
                   value={payLoad.sleeperCapacityExcludingDriver}
                   id="sleeperCapacityExcludingDriver"
                   name="sleeperCapacityExcludingDriver"
-                  placeholder={disableCapFields ? "Not Applicable" : ""}
+                  placeholder={disableSeatSleeper ? "Not Applicable" : ""}
                 />
               </div>
             </div>
@@ -829,7 +802,7 @@ const Telangana = () => {
             </div>
           </div>
 
-          {/* ✅ ROUTE FIELD (NEW) */}
+          {/* ✅ ROUTE */}
           <div className="row mt-2">
             <div className="col-12">
               <div className="form__control">
@@ -851,7 +824,7 @@ const Telangana = () => {
             </div>
           </div>
 
-          {/* Entry + Tax */}
+          {/* Entry */}
           <div className="row mt-2">
             <div className="col-6">
               <div className="form__control">
@@ -866,7 +839,7 @@ const Telangana = () => {
                   name="districtName"
                   id="districtName"
                 >
-                  <option value="">--Select District--</option>
+                  <option value="">Select District Name...</option>
                   {districtOptions.map((d) => (
                     <option key={d} value={d}>
                       {d}
@@ -900,6 +873,7 @@ const Telangana = () => {
             </div>
           </div>
 
+          {/* Tax */}
           <div className="row mt-2">
             <div className="col-4">
               <div className="form__control">
@@ -961,7 +935,7 @@ const Telangana = () => {
             </div>
           </div>
 
-          {/* TABLE */}
+          {/* Amount Table */}
           <div className="row mt-3">
             <div className="col-12">
               <table className="hr-table">
@@ -974,7 +948,6 @@ const Telangana = () => {
                     <th>₹ Amount</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   <tr>
                     <td>1</td>
