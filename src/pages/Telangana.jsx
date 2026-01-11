@@ -382,7 +382,7 @@ const vehicleCategoryOptions = useMemo(() => {
       permitType: true,
       serviceType: true,
 
-      grossVehicleWeight: true,
+      grossVehicleWeight: false,
       unladenWeight: false,
 
       seatingCapacityExcludingDriver: false,
