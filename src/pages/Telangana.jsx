@@ -148,103 +148,89 @@ const Telangana = () => {
   const isTransport = norm(payLoad.vehicleType) === "TRANSPORT";
   const isNonTransport = norm(payLoad.vehicleType) === "NON-TRANSPORT";
 
-  // ✅ Vehicle Class options
-  const vehicleClassOptions = useMemo(() => {
-    if (isTransport) {
-      return [
-        "MULTI-AXLED GOODS",
-        "MOTOR CAB",
-        "MAXI CAB",
-        "EDUCATIONAL INSTITUTION BUS",
-        "BUS",
-        "PRIVATE SERVICE VEHICLE",
-        "POWER TILLER (COMMERCIAL)",
-        "ARTICULATED VEHICLE",
-        "AUXILIARY TRAILER",
-        "TRACTOR-TROLLEY(COMMERCIAL)",
-        "TRAILER (COMMERCIAL)",
-        "GOODS CARRIER",
-        "MODULAR HYDRAULIC TRAILER",
-        "DUMPER",
-        "CASH VAN",
-        "CHASSIS OF VEHICLES",
-        "AMBULANCE",
-        "ANIMAL AMBULANCE",
-        "X-RAY VAN",
-        "SNORKED LADDERS",
-        "FIRE TENDERS",
-        "LIBRARY VAN",
-        "MOBILE WORKSHOP",
-        "TRACTOR (COMMERCIAL)",
-        "MOBILE CANTEEN",
-        "HEARSES",
-        "MOBILE CLINIC",
-        "SEMI-TRAILER (COMMERCIAL)",
-        "OMNI BUS",
-      ];
-    }
+  // ✅ GOODS vehicle classes → GVW + Unladen → LGV / MGV / HGV
+const isGoodsVehicleClass = useMemo(() => {
+  const v = norm(payLoad.vehicleClass);
+  return [
+    "GOODS",
+    "CARRIER",
+    "DUMPER",
+    "TRAILER",
+    "SEMI-TRAILER",
+    "ARTICULATED",
+    "TRACTOR",
+    "TROLLEY",
+    "MULTI-AXLED",
+    "HYDRAULIC",
+    "AUXILIARY",
+    "CASH VAN",
+    "POWER TILLER",
+    "CRANE",
+    "FIRE",
+    "SNORKED",
+    "LIBRARY",
+    "WORKSHOP",
+    "CANTEEN",
+    "BREAKDOWN",
+    "RECOVERY",
+    "TOW",
+    "TREE",
+    "TOWER",
+    "RIG",
+    "GENERATOR",
+    "COMPRESSOR",
+  ].some((k) => v.includes(k));
+}, [payLoad.vehicleClass]);
 
-    if (isNonTransport) {
-      return [
-        "VEHICLE FITTED WITH RIG",
-        "VEHICLE FITTED WITH GENERATOR",
-        "ARMOURED/SPECIALISED VEHICLE",
-        "QUADRICYCLE(PRIVATE)",
-        "HARVESTER",
-        "RECOVERY VEHICLE",
-        "THREE WHEELER (PERSONAL)",
-        "POWER TILLER",
-        "TRAILER FOR PERSONAL USE",
-        "TREE TRIMMING VEHICLE",
-        "TOWER WAGON",
-        "BREAKDOWN VAN",
-        "TOW TRUCK",
-        "CAMPER VAN / TRAILER (PRIVATE USE)",
-        "VEHICLE FITTED WITH COMPRESSOR",
-      ];
-    }
+// ✅ PASSENGER vehicle classes → Seating / Sleeper → LPV / MPV / HPV
+const isPassengerVehicleClass = useMemo(() => {
+  const v = norm(payLoad.vehicleClass);
+  return [
+    "MOTOR CAB",
+    "MAXI CAB",
+    "BUS",
+    "EDUCATIONAL INSTITUTION BUS",
+    "PRIVATE SERVICE VEHICLE",
+    "OMNI BUS",
+    "AMBULANCE",
+    "ANIMAL AMBULANCE",
+  ].includes(v);
+}, [payLoad.vehicleClass]);
 
-    return [];
-  }, [isTransport, isNonTransport]);
+// ✅ Vehicle Category options (FINAL LOGIC)
+const vehicleCategoryOptions = useMemo(() => {
+  if (!payLoad.vehicleClass) return [];
 
-  // ✅ Passenger-capacity classes (seat/sleeper applicable)
-  const isPassengerCapacityClass = useMemo(() => {
-    const v = norm(payLoad.vehicleClass);
+  // 1️⃣ GOODS vehicles
+  if (isGoodsVehicleClass) {
     return [
-      "MOTOR CAB",
-      "MAXI CAB",
-      "BUS",
-      "EDUCATIONAL INSTITUTION BUS",
-      "PRIVATE SERVICE VEHICLE",
-      "OMNI BUS",
-    ].some((x) => v === norm(x));
-  }, [payLoad.vehicleClass]);
-
-  // ✅ Goods-ish classes (unladen weight more applicable)
-  const isGoodsishClass = useMemo(() => {
-    const vclass = norm(payLoad.vehicleClass);
-    const goodsHints = [
-      "GOODS",
-      "CARRIER",
-      "DUMPER",
-      "TRAILER",
-      "TRACTOR",
-      "CASH VAN",
-      "MULTI-AXLED",
-      "ARTICULATED",
-      "POWER TILLER",
+      "LIGHT GOODS VEHICLE",
+      "MEDIUM GOODS VEHICLE",
+      "HEAVY GOODS VEHICLE",
     ];
-    return goodsHints.some((h) => vclass.includes(h));
-  }, [payLoad.vehicleClass]);
+  }
 
-  // ✅ Vehicle Category options
-  const vehicleCategoryOptions = useMemo(() => {
-    if (!payLoad.vehicleClass) return [];
-    if (isGoodsishClass) {
-      return ["LIGHT GOODS VEHICLE", "MEDIUM GOODS VEHICLE", "HEAVY GOODS VEHICLE"];
-    }
-    return ["LIGHT PASSENGER VEHICLE", "MEDIUM PASSENGER VEHICLE", "HEAVY PASSENGER VEHICLE"];
-  }, [payLoad.vehicleClass, isGoodsishClass]);
+  // 2️⃣ PASSENGER vehicles
+  if (isPassengerVehicleClass) {
+    return [
+      "LIGHT PASSENGER VEHICLE",
+      "MEDIUM PASSENGER VEHICLE",
+      "HEAVY PASSENGER VEHICLE",
+    ];
+  }
+
+  // 3️⃣ NON-TRANSPORT vehicles
+  return [
+    "LIGHT MOTOR VEHICLE",
+    "MEDIUM MOTOR VEHICLE",
+    "HEAVY MOTOR VEHICLE",
+  ];
+}, [
+  payLoad.vehicleClass,
+  isGoodsVehicleClass,
+  isPassengerVehicleClass,
+]);
+
 
   // ✅ Permit Types
   const permitTypeOptions = useMemo(() => {
