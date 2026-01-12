@@ -1,4 +1,3 @@
-
 // src/pages/Telangana.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useHistory } from "react-router";
@@ -220,6 +219,12 @@ const Telangana = () => {
       "ANIMAL AMBULANCE",
     ].some((x) => v === norm(x));
   }, [payLoad.vehicleClass]);
+
+
+  // ✅ Transport Passenger vehicle (Motor Cab, Bus, etc.)
+const isPassengerVehicle = useMemo(() => {
+  return isTransport && isPassengerCapacityClass;
+}, [isTransport, isPassengerCapacityClass]);
 
   // ✅ Goods-ish classes (unladen weight more applicable)
   const isGoodsishClass = useMemo(() => {
@@ -563,11 +568,17 @@ const vehicleCategoryOptions = useMemo(() => {
     );
   }
 
-  const disableSeatSleeper = isLoading || !isPassengerCapacityClass;
-  const disableUnladen =
-  isLoading || (!isGoodsishClass && !isNonTransport);
-  const disableGrossWeight =
-  isLoading || (!isGoodsishClass && !isNonTransport);
+  // Seating & sleeper → ONLY passenger vehicles
+const disableSeatSleeper = isLoading || !isPassengerVehicle;
+
+// Unladen → GOODS + NON-TRANSPORT
+const disableUnladen =
+  isLoading || !(isGoodsishClass || isNonTransport);
+
+// Gross weight → DISABLED for passenger vehicles
+const disableGrossWeight =
+  isLoading || isPassengerVehicle;
+
 
   return (
     <>
@@ -796,7 +807,8 @@ const vehicleCategoryOptions = useMemo(() => {
                   value={payLoad.grossVehicleWeight}
                   id="grossVehicleWeight"
                   name="grossVehicleWeight"
-                  placeholder={disableGVW ? "Not Applicable" : ""}
+                 placeholder={disableGrossWeight ? "Not Applicable" : ""}
+
                 />
               </div>
             </div>
