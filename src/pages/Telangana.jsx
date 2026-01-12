@@ -169,8 +169,6 @@ const Telangana = () => {
         "DUMPER",
         "CASH VAN",
         "CHASSIS OF VEHICLES",
-        "AMBULANCE",
-        "ANIMAL AMBULANCE",
         "X-RAY VAN",
         "SNORKED LADDERS",
         "FIRE TENDERS",
@@ -218,6 +216,8 @@ const Telangana = () => {
       "EDUCATIONAL INSTITUTION BUS",
       "PRIVATE SERVICE VEHICLE",
       "OMNI BUS",
+      "AMBULANCE",
+      "ANIMAL AMBULANCE",
     ].some((x) => v === norm(x));
   }, [payLoad.vehicleClass]);
 
@@ -382,7 +382,7 @@ const vehicleCategoryOptions = useMemo(() => {
       permitType: true,
       serviceType: true,
 
-      grossVehicleWeight: false,
+      grossVehicleWeight: true,
       unladenWeight: false,
 
       seatingCapacityExcludingDriver: false,
@@ -564,7 +564,10 @@ const vehicleCategoryOptions = useMemo(() => {
   }
 
   const disableSeatSleeper = isLoading || !isPassengerCapacityClass;
-  const disableUnladen = isLoading || !isGoodsishClass;
+  const disableUnladen =
+  isLoading || (!isGoodsishClass && !isNonTransport);
+  const disableGrossWeight =
+  isLoading || (!isGoodsishClass && !isNonTransport);
 
   return (
     <>
@@ -786,13 +789,14 @@ const vehicleCategoryOptions = useMemo(() => {
                 <input
                   required={required.grossVehicleWeight}
                   min="0"
-                  disabled={isLoading}
+                  disabled={disableGrossWeight}
                   onChange={onChangeHandler}
                   className="form__input w-100"
                   type="number"
                   value={payLoad.grossVehicleWeight}
                   id="grossVehicleWeight"
                   name="grossVehicleWeight"
+                  placeholder={disableGVW ? "Not Applicable" : ""}
                 />
               </div>
             </div>
